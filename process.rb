@@ -146,11 +146,11 @@ pages[398..465].each do |page|
   end
 end
 
-File.open("data.json","w") do |f|
+File.open("output/data.json","w") do |f|
   f.puts JSON.pretty_generate(entries)
 end
 
-File.open("data.html","w") do |f|
+File.open("output/data.html","w") do |f|
   entries.keys.each do |key|
     entry = entries[key]
     next unless entry[:month]
@@ -178,7 +178,7 @@ File.open("data.html","w") do |f|
 end
 
 missing = 0
-File.open("missing.txt","w") do |f|
+File.open("output/missing.txt","w") do |f|
   (1..highest).each do |key|
     if !entries.keys.include?(key) or !entries[key][:month]
       f.puts key.to_s
