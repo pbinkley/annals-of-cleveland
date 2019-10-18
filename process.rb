@@ -1,8 +1,11 @@
 #!/usr/bin/env ruby
 
 require 'nokogiri'
+require 'slugify'
 require 'json'
 require 'date'
+require 'fileutils'
+
 require 'byebug'
 
 months = {
@@ -106,6 +109,7 @@ pages[24..384].each do |page|
       newspaper: metadata[2].to_sym,
       month: months[metadata[3]],
       day: metadata[4].to_i,
+      displaydate: Date.new(year, months[metadata[3]], metadata[4].to_i).strftime('%e %B %Y'),
       page: metadata[6].to_i,
       column: metadata[7].to_i,
       type: metadata[5],
@@ -184,3 +188,35 @@ File.open("missing.txt","w") do |f|
 end
 
 puts 'Missing: ' + missing.to_s
+
+# generate Hugo data
+hugodata = {}
+headings = []
+entries.keys.sort.each do |key|
+  entry = entries[key]
+  hugodata[entry[:heading]] = [] unless hugodata[entry[:heading]]
+  hugodata[entry[:heading]] << entry
+  headings << entry[:heading] unless headings.include?(entry[:heading])
+end
+
+File.open('hugo/data/headings.json','w') do |f|
+    f.puts JSON.pretty_generate(headings)
+  end
+FileUtils.rm_rf('hugo/data/headings')
+FileUtils.mkdir_p 'hugo/data/headings'
+FileUtils.rm_rf('hugo/content/headings')
+FileUtils.mkdir_p 'hugo/content/headings'
+
+headings.each do |heading|
+  slug = heading.to_s.gsub('&', 'and').slugify.gsub('-', '')
+  
+  File.open('hugo/data/headings/' + slug + '.json','w') do |f|
+    f.puts JSON.pretty_generate(
+      { title: heading, slug: slug, entries: hugodata[heading] }
+    )
+  end
+  File.open('hugo/content/headings/' + slug + '.md','w') do |f|
+    f.puts "---\ntitle: '#{heading}'\nslug: '#{slug}'\n---\n\n{{< heading >}}\n"
+  end
+end
+
