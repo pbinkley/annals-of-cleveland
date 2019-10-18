@@ -1,0 +1,26 @@
+{{ $cur := .Page.Params.slug }}
+{{ range (index .Site.Data.headings $cur).entries }}
+
+<div class="entry">
+  <h3>47-1.{{ .id }}</h3>
+
+  <p><strong>{{ .displaydate }}</strong> {{ .page }}/{{ .column }} ({{ .inches }} inches)</p>
+  
+  <p>
+    {{ range .lines }}
+      {{ . }} <br/>
+    {{ end }}
+  </p>
+
+  <h4>Index terms:</h4>
+  <ul>
+    <li>{{ .heading }} - {{ .subheading }}</li>
+    {{ range .terms }}
+      <li>{{ . }}</li>
+    {{ end }}
+  </ul>
+
+</div>
+
+{{ end }}
+
