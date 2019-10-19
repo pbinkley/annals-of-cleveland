@@ -200,13 +200,14 @@ entries.keys.sort.each do |key|
   headings << entry[:heading] unless headings.include?(entry[:heading])
 end
 
-File.open('hugo/data/headings.json','w') do |f|
-    f.puts JSON.pretty_generate(headings)
-  end
 FileUtils.rm_rf('hugo/data/headings')
 FileUtils.mkdir_p 'hugo/data/headings'
 FileUtils.rm_rf('hugo/content/headings')
 FileUtils.mkdir_p 'hugo/content/headings'
+
+File.open('hugo/data/headings.json','w') do |f|
+  f.puts JSON.pretty_generate(headings)
+end
 
 headings.each do |heading|
   slug = heading.to_s.gsub('&', 'and').slugify.gsub('-', '')
