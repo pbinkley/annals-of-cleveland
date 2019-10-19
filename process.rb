@@ -229,8 +229,9 @@ headings.each do |heading|
       { title: heading, slug: slug, entries: hugodata[heading] }
     )
   end
+  yaml = {"title" => heading, "slug" => slug, "count" => hugodata[heading].count}.to_yaml
   File.open('hugo/content/headings/' + slug + '.md','w') do |f|
-    f.puts "---\ntitle: '#{heading}'\nslug: '#{slug}'\n---\n\n{{< heading >}}\n"
+    f.puts yaml + "\n---\n\n{{< heading >}}\n"
   end
 end
 
@@ -250,7 +251,7 @@ terms.keys.each do |term|
       { title: term, slug: slug, entries: termentries }
     )
   end
-  yaml = {"title" => term, "slug" => slug}.to_yaml
+  yaml = {"title" => term, "slug" => slug, "count" => termentries.count}.to_yaml
   File.open('hugo/content/terms/' + slug + '.md','w') do |f|
     f.puts yaml + "\n---\n\n{{< term >}}\n"
   end

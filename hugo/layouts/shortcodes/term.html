@@ -1,6 +1,6 @@
 {{ $cur := .Page.Params.slug }}
-{{ $chronam := "https://chroniclingamerica.loc.gov/lccn/sn83035143/" }}
-{{ $newspaper := "Cleveland Morning Leader" }}
+
+<p>Entries: {{ .Page.Params.count }}</p>
 
 {{ range (index .Site.Data.terms $cur).entries }}
 

@@ -1,5 +1,7 @@
 {{ $cur := .Page.Params.slug }}
 
+<p>Entries: {{ .Page.Params.count }}</p>
+
 {{ range (index .Site.Data.headings $cur).entries }}
 
   {{ partial "entry.html" . }}
