@@ -1,4 +1,4 @@
-baseURL = "http://example.org/"
+baseURL = "https://www.wallandbinkley.com/projects/2019/annals-of-cleveland/"
 languageCode = "en-us"
 title = "Annals of Cleveland"
 theme = "hugo-theme-techdoc"

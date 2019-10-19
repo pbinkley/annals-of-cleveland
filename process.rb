@@ -102,6 +102,7 @@ pages[24..384].each do |page|
       end
       linebuffer = [line]
     end
+    date = Date.new(year, months[metadata[3]], metadata[4].to_i)
     record = {
       id: metadata[1].to_i,
       seq: seq,
@@ -109,7 +110,8 @@ pages[24..384].each do |page|
       newspaper: metadata[2].to_sym,
       month: months[metadata[3]],
       day: metadata[4].to_i,
-      displaydate: Date.new(year, months[metadata[3]], metadata[4].to_i).strftime('%e %B %Y'),
+      displaydate: date.strftime('%e %B %Y'),
+      formatdate: date.to_s,
       page: metadata[6].to_i,
       column: metadata[7].to_i,
       type: metadata[5],
@@ -154,14 +156,13 @@ File.open("output/data.html","w") do |f|
   entries.keys.each do |key|
     entry = entries[key]
     next unless entry[:month]
-    date = Date.new(year, entry[:month], entry[:day])
     newspaper = newspapers[entry[:newspaper]]
     f.puts "<div class='entry'>"
     f.puts "<h3>#{volume}.#{entry[:id]}</h3>"
     if newspaper
-      f.puts "<p><a href='#{newspaper[:chronam]}#{date.to_s}/ed-1/seq-#{entry[:page]}'>#{newspaper[:title]}, #{date.strftime('%e %B %Y')}, p.#{entry[:page]}</a>, col.#{entry[:column]} #{entry[:type]} (#{entry[:inches].to_s} inches)</p>"
+      f.puts "<p><a href='#{newspaper[:chronam]}#{entry[:formatdate]}/ed-1/seq-#{entry[:page]}'>#{newspaper[:title]}, #{entry[:displaydate]}, p.#{entry[:page]}</a>, col.#{entry[:column]} #{entry[:type]} (#{entry[:inches].to_s} inches)</p>"
     else
-      f.puts "<p>#{entry[:newspaper]}, #{date.strftime('%e %B %Y')}, p.#{entry[:page]}, col.#{entry[:column]} #{entry[:type]}</p>"
+      f.puts "<p>#{entry[:newspaper]}, #{entry[:displaydate]}, p.#{entry[:page]}, col.#{entry[:column]} #{entry[:type]}</p>"
     end
     if entry[:lines]
       f.puts "<p>"
