@@ -4,28 +4,7 @@
 
 {{ range (index .Site.Data.terms $cur).entries }}
 
-<div class="entry">
-  <h3 id="{{ .id }}">{{ .id }}</h3>
-
-  <p><em>{{ $newspaper }}</em>, {{ .displaydate }}, p.{{ .page }}, col.{{ .column }}
-  ({{ with .type }}{{ . }}; {{ end }}{{ .inches }} inches)
-  ~ <a href='{{ $chronam }}{{ .formatdate }}/ed-1/seq-{{ .page }}'>View at ChronAm</a></p>
-  
-  <p>
-    {{ range .lines }}
-      {{ . }} <br/>
-    {{ end }}
-  </p>
-
-  <h4>Index terms:</h4>
-  <ul>
-    <li>{{ .heading }} - {{ .subheading }}</li>
-    {{ range .terms }}
-      <li><a href="../../terms/{{ .slug }}/">{{ .term }}</a></li>
-    {{ end }}
-  </ul>
-
-</div>
+  {{ partial "entry.html" . }}
 
 {{ end }}
 
