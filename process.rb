@@ -3,6 +3,7 @@
 require 'nokogiri'
 require 'slugify'
 require 'json'
+require 'yaml'
 require 'date'
 require 'fileutils'
 
@@ -132,7 +133,10 @@ end
 puts 'Breaks: ' + breaks.to_s
 puts 'Entries: ' + entries.keys.count.to_s
 puts 'Highest: ' + highest.to_s
-# index pages
+
+terms = {}
+
+# index pages - discover index terms matched to entry numbers
 pages[398..465].each do |page|
   seq = page.xpath('./@id').first.text
   lines = page.xpath('./p[@class="Text"]').first.text.split(/\n+/)
@@ -140,18 +144,26 @@ pages[398..465].each do |page|
     elements = line.match(/^(.*)\, ([0-9\ ]*)$/)
     next unless elements
     term = elements[1]
+    slug = term.slugify.gsub(/\-+/, '')
     ids = elements[2].split
+    terms[term] = {slug: slug, ids: ids}
     ids.each do |id|
       entries[id.to_i] = {id: id.to_i, terms: []} unless entries[id.to_i]
-      entries[id.to_i][:terms] << term
+      entries[id.to_i][:terms] << {term: term, slug: slug}
     end
   end
 end
 
+# output full data dump
 File.open("output/data.json","w") do |f|
-  f.puts JSON.pretty_generate(entries)
+  f.puts JSON.pretty_generate(
+    {
+      "entries": entries,
+      "terms": terms
+    })
 end
 
+# output full html dump
 File.open("output/data.html","w") do |f|
   entries.keys.each do |key|
     entry = entries[key]
@@ -178,6 +190,7 @@ File.open("output/data.html","w") do |f|
   end
 end
 
+# output list of missing ids
 missing = 0
 File.open("output/missing.txt","w") do |f|
   (1..highest).each do |key|
@@ -187,7 +200,6 @@ File.open("output/missing.txt","w") do |f|
     end
   end
 end
-
 puts 'Missing: ' + missing.to_s
 
 # generate Hugo data
@@ -222,3 +234,24 @@ headings.each do |heading|
   end
 end
 
+FileUtils.rm_rf('hugo/data/terms')
+FileUtils.mkdir_p 'hugo/data/terms'
+FileUtils.rm_rf('hugo/content/terms')
+FileUtils.mkdir_p 'hugo/content/terms'
+
+terms.keys.each do |term|
+  slug = term.to_s.gsub('&', 'and').slugify.gsub(/-+/, '')
+  termentries = []
+  terms[term][:ids].each do |id|
+    termentries << entries[id.to_i]
+  end
+  File.open('hugo/data/terms/' + slug + '.json','w') do |f|
+    f.puts JSON.pretty_generate(
+      { title: term, slug: slug, entries: termentries }
+    )
+  end
+  yaml = {"title" => term, "slug" => slug}.to_yaml
+  File.open('hugo/content/terms/' + slug + '.md','w') do |f|
+    f.puts yaml + "\n---\n\n{{< term >}}\n"
+  end
+end

@@ -1,5 +1,6 @@
 source
 hugo/content/headings
+hugo/content/terms
 hugo/data
 hugo/public
 .byebug_history

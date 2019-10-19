@@ -2,7 +2,7 @@
 {{ $chronam := "https://chroniclingamerica.loc.gov/lccn/sn83035143/" }}
 {{ $newspaper := "Cleveland Morning Leader" }}
 
-{{ range (index .Site.Data.headings $cur).entries }}
+{{ range (index .Site.Data.terms $cur).entries }}
 
 <div class="entry">
   <h3 id="{{ .id }}">{{ .id }}</h3>
