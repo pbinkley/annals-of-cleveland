@@ -1,5 +1,7 @@
 source
+output
 hugo/content/headings
+hugo/content/issues
 hugo/content/terms
 hugo/data
 hugo/public

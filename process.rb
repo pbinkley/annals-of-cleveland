@@ -7,23 +7,11 @@ require 'yaml'
 require 'date'
 require 'fileutils'
 
+require './lib/entry.rb'
+
 require 'byebug'
 
-months = {
-  'Jan.' => 1,
-  'Feb.' => 2,
-  'Mar.' => 3,
-  'Apr.' => 4,
-  'May' => 5,
-  'June' => 6,
-  'July' => 7,
-  'Aug.' => 8,
-  'Sept.' => 9,
-  'Oct.' => 10,
-  'Nov.' => 11,
-  'Dec.' => 12
-}
-year = 1864
+$year = 1864
 volume = '47-1'
 newspapers = {
   'L': {title: 'Cleveland Morning Leader', chronam: 'https://chroniclingamerica.loc.gov/lccn/sn83035143/'}
@@ -33,16 +21,22 @@ newspapers = {
 
 doc = File.open("source/view-source_https___babel.hathitrust.org_cgi_ssd_id=iau.31858046133199#seq109.html") { |f| Nokogiri::HTML(f) }
 
+FileUtils.mkdir_p './output'
+
 pages = doc.xpath('//div[@class="Page"]')
 entries = {}
 prev = 0
-preventry = nil
-linebuffer = []
+$preventry = nil
+$linebuffer = []
 in_header = false
-heading = ''
-subheading = ''
-breaks = 0
-highest = 0
+$heading = ''
+$subheading = ''
+$breaks = 0
+$highest = 0
+$issues = {}
+$maxinches = 0
+$maxpage = 0
+$maxcolumn = 0
 
 # abstracts pages
 pages[24..384].each do |page|
@@ -69,8 +63,8 @@ pages[24..384].each do |page|
     is_heading = false
     # ignore dashes at end of line
     if stripped_line.match(/^[A-Z\&\ ]*$/)
-      heading = stripped_line
-      subheading = ''
+      $heading = stripped_line
+      $subheading = ''
       is_heading = true
     end
     if stripped_line.match(/^[A-Z\&\ ]*\. See .*$/)
@@ -81,58 +75,30 @@ pages[24..384].each do |page|
       # TODO handle see also reference
       is_heading = true
     end
-    if linebuffer.count > 0
-      if linebuffer.last.match(/.*\((\d+)\)$/) and stripped_line.match(/^[A-Z].*/) and !(is_heading)
-        subheading = stripped_line
+    if $linebuffer.count > 0
+      if $linebuffer.last.match(/.*\((\d+)\)$/) and stripped_line.match(/^[A-Z].*/) and !(is_heading)
+        $subheading = stripped_line
         is_heading = true
       end
     end
     next if is_heading
     
-    # parse line to find start-of-item metadata
-    metadata = line.match(/^(\d+) [-–] ([a-zA-Z]+)[\.,]? ((?:Jan.|Feb.|Mar.|Apr.|May|June|July|Aug.|Sept.|Oct.|Nov.|Dec.)) (\d+)[;:,]+\ ?([a-zA-Z]*)[;:,]?\ ?(\d+)\/(\d+)(.*)$/)
-    linebuffer << line unless metadata
-    next unless metadata
-    if preventry
-      preventry[:lines] = linebuffer
-      inches = preventry[:lines].last.match(/.*\((\d+)\)$/)
-      if inches
-        preventry[:inches] = inches[1].to_i
-      else
-        preventry[:inches] = 0
-      end
-      linebuffer = [line]
+    # returns a populated record if the line can be parsed, or an empty one if it can't
+    record = Entry.new(line, seq, index)
+
+    if record.id
+      entries[record.id] = record
+      $preventry = record
     end
-    date = Date.new(year, months[metadata[3]], metadata[4].to_i)
-    record = {
-      id: metadata[1].to_i,
-      seq: seq,
-      line: index,
-      newspaper: metadata[2].to_sym,
-      month: months[metadata[3]],
-      day: metadata[4].to_i,
-      displaydate: date.strftime('%e %B %Y'),
-      formatdate: date.to_s,
-      page: metadata[6].to_i,
-      column: metadata[7].to_i,
-      type: metadata[5],
-      init: metadata[8],
-      heading: heading,
-      subheading: subheading,
-      terms: []
-    }
-    entries[record[:id]] = record
-    
-    highest = record[:id] if record[:id] > highest
-    breaks += 1 if record[:id] != prev + 1
-    prev = record[:id]
-    preventry = record
   end
 end
 
-puts 'Breaks: ' + breaks.to_s
+puts 'Breaks: ' + $breaks.to_s
 puts 'Entries: ' + entries.keys.count.to_s
-puts 'Highest: ' + highest.to_s
+puts 'Highest: ' + $highest.to_s
+puts 'Longest: ' + $maxinches.to_s
+puts 'Max page: ' + $maxpage.to_s
+puts 'Max column: ' + $maxcolumn.to_s
 
 terms = {}
 
@@ -148,8 +114,8 @@ pages[398..465].each do |page|
     ids = elements[2].split
     terms[term] = {slug: slug, ids: ids}
     ids.each do |id|
-      entries[id.to_i] = {id: id.to_i, terms: []} unless entries[id.to_i]
-      entries[id.to_i][:terms] << {term: term, slug: slug}
+      entries[id.to_i] = Entry.new(id.to_i) unless entries[id.to_i]
+      entries[id.to_i].addTerm({term: term, slug: slug})
     end
   end
 end
@@ -159,42 +125,16 @@ File.open("output/data.json","w") do |f|
   f.puts JSON.pretty_generate(
     {
       "entries": entries,
-      "terms": terms
+      "terms": terms,
+      "issues": $issues
     })
-end
-
-# output full html dump
-File.open("output/data.html","w") do |f|
-  entries.keys.each do |key|
-    entry = entries[key]
-    next unless entry[:month]
-    newspaper = newspapers[entry[:newspaper]]
-    f.puts "<div class='entry'>"
-    f.puts "<h3>#{volume}.#{entry[:id]}</h3>"
-    if newspaper
-      f.puts "<p><a href='#{newspaper[:chronam]}#{entry[:formatdate]}/ed-1/seq-#{entry[:page]}'>#{newspaper[:title]}, #{entry[:displaydate]}, p.#{entry[:page]}</a>, col.#{entry[:column]} #{entry[:type]} (#{entry[:inches].to_s} inches)</p>"
-    else
-      f.puts "<p>#{entry[:newspaper]}, #{entry[:displaydate]}, p.#{entry[:page]}, col.#{entry[:column]} #{entry[:type]}</p>"
-    end
-    if entry[:lines]
-      f.puts "<p>"
-      entry[:lines].each {|line| f.puts "#{line}<br/>"}
-      f.puts "</p>"
-    end
-    f.puts"<ul>"
-    f.puts "<li>#{entry[:heading]}#{entry[:subheading] != '' ? ' - ' + entry[:subheading] : ''}</li>"
-    entry[:terms].each do |term|
-      f.puts "<li>#{term}</li>"
-    end
-    f.puts"</ul>"
-  end
 end
 
 # output list of missing ids
 missing = 0
 File.open("output/missing.txt","w") do |f|
-  (1..highest).each do |key|
-    if !entries.keys.include?(key) or !entries[key][:month]
+  (1..$highest).each do |key|
+    if !entries.keys.include?(key) or !entries[key].init
       f.puts key.to_s
       missing += 1
     end
@@ -205,17 +145,33 @@ puts 'Missing: ' + missing.to_s
 # generate Hugo data
 hugodata = {}
 headings = []
+entries.keys.each do |key|
+  byebug if key == nil
+end
 entries.keys.sort.each do |key|
   entry = entries[key]
-  hugodata[entry[:heading]] = [] unless hugodata[entry[:heading]]
-  hugodata[entry[:heading]] << entry
-  headings << entry[:heading] unless headings.include?(entry[:heading])
+  hugodata[entry.heading] = [] unless hugodata[entry.heading]
+  hugodata[entry.heading] << entry.to_hash
+  headings << entry.heading unless headings.include?(entry.heading)
 end
 
 FileUtils.rm_rf('hugo/data/headings')
 FileUtils.mkdir_p 'hugo/data/headings'
+
 FileUtils.rm_rf('hugo/content/headings')
 FileUtils.mkdir_p 'hugo/content/headings'
+
+FileUtils.rm_rf 'hugo/data/terms'
+FileUtils.mkdir_p 'hugo/data/terms'
+
+FileUtils.rm_rf 'hugo/content/terms'
+FileUtils.mkdir_p 'hugo/content/terms'
+
+FileUtils.rm_rf 'hugo/data/issues'
+FileUtils.mkdir_p 'hugo/data/issues'
+
+FileUtils.rm_rf 'hugo/content/issues'
+FileUtils.mkdir_p 'hugo/content/issues'
 
 File.open('hugo/data/headings.json','w') do |f|
   f.puts JSON.pretty_generate(headings)
@@ -235,16 +191,11 @@ headings.each do |heading|
   end
 end
 
-FileUtils.rm_rf('hugo/data/terms')
-FileUtils.mkdir_p 'hugo/data/terms'
-FileUtils.rm_rf('hugo/content/terms')
-FileUtils.mkdir_p 'hugo/content/terms'
-
 terms.keys.each do |term|
   slug = term.to_s.gsub('&', 'and').slugify.gsub(/-+/, '')
   termentries = []
   terms[term][:ids].each do |id|
-    termentries << entries[id.to_i]
+    termentries << entries[id.to_i].to_hash
   end
   File.open('hugo/data/terms/' + slug + '.json','w') do |f|
     f.puts JSON.pretty_generate(
@@ -254,5 +205,55 @@ terms.keys.each do |term|
   yaml = {"title" => term, "slug" => slug, "count" => termentries.count}.to_yaml
   File.open('hugo/content/terms/' + slug + '.md','w') do |f|
     f.puts yaml + "\n---\n\n{{< term >}}\n"
+  end
+end
+
+$issues.keys.each do |key|
+  issue = $issues[key]
+#  File.open('hugo/data/$issues/' + key + '.json','w') do |f|
+#    f.puts JSON.pretty_generate(issue)
+#  end
+  
+  yaml = {"title" => key}.to_yaml
+  File.open('hugo/content/issues/' + key + '.md','w') do |f|
+    f.puts yaml + "---\n\n"
+    f.puts "<style>
+      th, td {width: 12.5%; vertical-align: top}
+      .entry {border: 1px solid black; margin: 2px; padding: 2px; text-align: center}
+      .inch1 {min-height: 20px}
+      .inch2 {min-height: 40px}
+      .inch3 {min-height: 60px}
+      .inch4 {min-height: 80px}
+      .inch5 {min-height: 100px}
+      .inch6 {min-height: 120px}
+      .inch7 {min-height: 140px}
+      .inch8 {min-height: 160px}
+      .inch9 {min-height: 180px}
+      .inch10 {min-height: 200px}
+      .inch11 {min-height: 220px}
+      .inch12 {min-height: 240px}
+      .inchmore {min-height: 260px}
+      </style>"
+    (1..4).each do |page|
+      pagedata = issue.dig page
+      f.puts "<div class=\"page\"><h4>Page #{page.to_s} ~ <a href='https://chroniclingamerica.loc.gov/lccn/sn83035143/#{key}/ed-1/seq-#{page.to_s}/'>View at ChronAm</a></h4>"
+      f.puts '<table><tr>'
+      (1..8).each do |col|
+        f.puts "<th>#{col.to_s}</th>"
+      end
+      f.puts '</tr><tr class="column">'
+      (1..8).each do |col|
+        coldata = pagedata ? pagedata.dig(col) : nil
+        f.puts "<td>"
+        if coldata
+          coldata.each do |entrykey|
+            entry = entries[entrykey]
+            f.puts entry.to_html
+          end
+        end
+        f.puts "</td>"
+      end
+      f.puts "</tr></table></div>\n\n"
+    end
   end
 end
