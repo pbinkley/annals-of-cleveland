@@ -19,7 +19,7 @@ newspapers = {
 
 # page-level url: https://chroniclingamerica.loc.gov/lccn/sn83035143/1864-01-01/ed-1/seq-2/
 
-doc = File.open("source/view-source_https___babel.hathitrust.org_cgi_ssd_id=iau.31858046133199#seq109.html") { |f| Nokogiri::HTML(f) }
+doc = File.open("source/1864.html") { |f| Nokogiri::HTML(f) }
 
 FileUtils.mkdir_p './output'
 
