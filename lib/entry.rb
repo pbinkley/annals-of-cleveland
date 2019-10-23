@@ -103,6 +103,7 @@ class Entry
       page: @page,
       column: @column,
       type: @type,
+      inches: @inches,
       init: @init,
       heading: @heading,
       subheading: @subheading,
