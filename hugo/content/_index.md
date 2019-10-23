@@ -1,10 +1,16 @@
-The [*Annals of Cleveland*](http://www.clevelandmemory.org/speccoll/annals/) was a large indexing and abstracting project
+---
+title: Annals of Cleveland
+---
+
+{{< image >}}
+
+ The [*Annals of Cleveland*](http://www.clevelandmemory.org/speccoll/annals/) was a large indexing and abstracting project
 carried out in Cleveland, Ohio, under the [WPA](https://en.wikipedia.org/wiki/Works_Progress_Administration) in the 1930s. Its biggest component was a
 newspaper digest project, which planned to publish 200 volumes containing digests of articles, editorials and advertisements from Cleveland newspapers. Any item that included local news or opinion was included; national or world news was excluded. 
 
-The project was the idea of [Robert C. Binkley](https://en.wikipedia.org/wiki/Robert_C._Binkley) (my grandfather). The  planning started in late 1935, and the work was launched in Feb. 1936. In late 1937, as the work approached completion of the range 1818-1885, the increase in pages/year and the restriction of resources from the WPA forced the project to plan for a switch from a digest format to a pure subject index. The former was useful on its own; the latter required access to the newspaper file to be useful. The project then planned to make use of newly-available microfilm technology to make copies of the newspapers available to libraries who were collecting the Digest and Index volumes. This volume, 1864, was the third volume completed early in the Digest phase of the project. 
+The project was the idea of [Robert C. Binkley](https://en.wikipedia.org/wiki/Robert_C._Binkley). The  planning started in late 1935, and the work was launched in Feb. 1936. In late 1937, as the work approached completion of the range 1818-1885, the increase in pages/year and the restriction of resources from the WPA forced the project to plan for a switch from a digest format to a pure subject index. The former was useful on its own; the latter required access to the newspaper file to be useful. The project then planned to make use of newly-available microfilm technology to make copies of the full newspaper file available to libraries who were collecting the Digest and Index volumes. 
 
-This prototype was inspired by Cate Peter's presentation "[Enabling Access to the Federal Writers’ Project Slave Narratives: A Case Study of Intersectionality in Digital Archive Design](https://www.youtube.com/watch?v=yi3t7MDO0IM)", in which she argued for more nuanced presentation of materials gathered in the published volumes of the *Slave Narratives*.  
+This volume, 1864, was the third volume completed early in the Digest phase of the project. This prototype was inspired by Cate Peter's presentation "[Enabling Access to the Federal Writers’ Project Slave Narratives: A Case Study of Intersectionality in Digital Archive Design](https://www.youtube.com/watch?v=yi3t7MDO0IM)", in which she argued for more nuanced presentation of materials gathered in the published volumes of the *Slave Narratives*. Her argument pushed the boundary between an uncritical digitization of the published outcomes of a project like the *Slave Narratives* or the *Annals of Cleveland*, and a critical edition that would expose the process by which the publised text was established. Here I've tried to reproduce the structure, content and navigation of the original *Annals of Cleveland* volume, while also enabling views of the original newspapers, both in their digitized form at *Chronicling America* and in schematic form showing the positons of stories derived from each issue (e.g [10 Mar. 1864](issues/1864-03-10/)).
 
 - [original introduction](source/introduction/)
 - [original credits](source/credits/)
@@ -12,8 +18,14 @@ This prototype was inspired by Cate Peter's presentation "[Enabling Access to th
 
 ### To do
 
-- Further refine the parsing
+- Further refine the parsing. Currently it is missing about 440 entries with scanning errors or variation in the original text which baffle the regex.
 - Work out the most efficient workflow for making manual corrections to
   address the remaining parsing errors
-- Enable linking of subject terms to find related articles
 - etc etc
+
+### Resources
+
+- [Code](https://github.com/pbinkley/annals-of-cleveland)
+- Rendered with [Hugo](https://gohugo.io/)
+- OCR by Google via [HathiTrust](https://babel.hathitrust.org/cgi/ssd?id=iau.31858046133199)
+- [The Annals of Cleveland: A Depression-Era Project of the WPA](http://www.clevelandmemory.org/speccoll/annals/) (Cleveland Memory, 1999) 
