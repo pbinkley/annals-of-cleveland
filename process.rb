@@ -11,6 +11,8 @@ require './lib/entry.rb'
 
 require 'byebug'
 
+NWORDREGEX = /([#{78.chr}#{110.chr}])#{105.chr}#{103.chr}#{103.chr}#{101.chr}#{114.chr}/
+
 $year = 1864
 volume = '47-1'
 newspapers = {
@@ -42,7 +44,8 @@ $maxcolumn = 0
 pages[24..384].each do |page|
   in_header = true
   seq = page.xpath('./@id').first.text
-  lines = page.xpath('./p[@class="Text"]').first.text.split(/\n+/)
+  pagetext = page.xpath('./p[@class="Text"]').first.text.gsub(NWORDREGEX, '\1****r')
+  lines = pagetext.split(/\n+/)
   lines.each_with_index do |line, index|
     stripped_line = line.gsub(/^[ -]*/, '').gsub(/[ -]*$/, '')
     next if stripped_line == ''
