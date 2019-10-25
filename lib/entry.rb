@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
+# One entry in the volume
 class Entry
   attr_reader :id, :init, :heading
 
-  @@months = {
+  MONTHS = {
     'Jan.' => 1,
     'Feb.' => 2,
     'Mar.' => 3,
@@ -14,44 +17,48 @@ class Entry
     'Oct.' => 10,
     'Nov.' => 11,
     'Dec.' => 12
-  }
-  @@prev = 0
+  }.freeze
 
-  def initialize(line = nil, seq = nil, index = nil)
+  def initialize(context, line = nil, seq = nil, index = nil)
+    @context = context
     if line.is_a? String
-      metadata = line.match(/^(\d+) [-–] ([a-zA-Z]+)[\.,]? ((?:Jan.|Feb.|Mar.|Apr.|May|June|July|Aug.|Sept.|Oct.|Nov.|Dec.)) (\d+)[;:,]+\ ?([a-zA-Z]*)[;:,]?\ ?(\d+)\/(\d+)(.*)$/)
-      $linebuffer << line unless metadata
-      return nil unless metadata
-      if $preventry
-        $preventry.setLines $linebuffer
-        
-        $linebuffer = [line]
+      metadata = line.match(
+        %r{^(\d+)\ [-–]\ ([a-zA-Z]+)[\.,]?\ 
+           ((?:Jan.|Feb.|Mar.|Apr.|May|June|July|Aug.|Sept.|Oct.|Nov.|Dec.))\ 
+           (\d+)[;:,]+\ ?([a-zA-Z]*)[;:,]?\ ?(\d+)/(\d+)(.*)$}x
+      )
+      @context.linebuffer << line unless metadata
+      if metadata
+        if @context.preventry
+          @context.preventry.store_lines @context.linebuffer
+          @context.linebuffer = [line]
+        end
+        date = Date.new(@context.year, MONTHS[metadata[3]], metadata[4].to_i)
+
+        @id = metadata[1].to_i
+        @seq = seq
+        @line = index
+        @newspaper = metadata[2].to_sym
+        @month = MONTHS[metadata[3]]
+        @day = metadata[4].to_i
+        @displaydate = date.strftime('%e %B %Y')
+        @formatdate = date.to_s
+        @page = metadata[6].to_i
+        @column = metadata[7].to_i
+        @type = metadata[5]
+        @init = metadata[8]
+        @heading = @context.heading
+        @subheading = @context.subheading
+        @terms = []
+
+        @context.maxpage = @page if @page > @context.maxpage
+        @context.maxcolumn = @column if @column > @context.maxcolumn
+
+        @context.highest = @id if @id > @context.highest
+        @context.breaks += 1 if @id != @context.prev + 1
+
+        @context.prev = @id
       end
-      date = Date.new($year, @@months[metadata[3]], metadata[4].to_i)
-      
-      @id = metadata[1].to_i
-      @seq = seq
-      @line = index
-      @newspaper = metadata[2].to_sym
-      @month = @@months[metadata[3]]
-      @day = metadata[4].to_i
-      @displaydate = date.strftime('%e %B %Y')
-      @formatdate = date.to_s
-      @page = metadata[6].to_i
-      @column = metadata[7].to_i
-      @type = metadata[5]
-      @init = metadata[8]
-      @heading = $heading
-      @subheading = $subheading
-      @terms = []
-
-      $maxpage = @page if @page > $maxpage
-      $maxcolumn = @column if @column > $maxcolumn
-
-      $highest = @id if @id > $highest
-      $breaks += 1 if @id != @@prev + 1
-
-      @@prev = @id
     else
       # must be an id of an empty entry
       @id = line
@@ -59,35 +66,30 @@ class Entry
     end
   end
 
-  def setLines(linebuffer)
+  def store_lines(linebuffer)
     @lines = linebuffer
     inches = @lines.last.match(/.*\((\d+)\)$/)
-    if inches
-      @inches = inches[1].to_i
-    else
-      @inches = 0
-    end
-    
-    $maxinches = @inches if @inches > $maxinches
+    @inches = inches ? inches[1].to_i : 0
 
-    # capture issue for $preventry now that it is complete
-    $issues[@formatdate]= {} unless $issues[@formatdate]
-    $issues[@formatdate][@page] = {} unless $issues[@formatdate][@page]
-    $issues[@formatdate][@page][@column] = [] unless $issues[@formatdate][@page][@column]
-    $issues[@formatdate][@page][@column] << @id
+    @context.maxinches = @inches if @inches > @context.maxinches
 
+    # capture issue for @context.preventry now that it is complete
+    @context.issues[@formatdate] = {} unless @context.issues[@formatdate]
+    @context.issues[@formatdate][@page] = {} unless @context.issues[@formatdate][@page]
+    @context.issues[@formatdate][@page][@column] = [] unless @context.issues[@formatdate][@page][@column]
+    @context.issues[@formatdate][@page][@column] << @id
   end
 
-  def addTerm(term)
+  def add_term(term)
     @terms << term
   end
 
   def to_html
     inchclass = @inches > 12 ? 'inchmore' : 'inch' + @inches.to_s
     "<div class='entry #{inchclass}'>
-      <a title='#{ @init.gsub('\"', '\\"') }' href='../../headings/#{@heading.slugify.gsub(/\-+/, '')}/##{@id.to_s}''>#{@id.to_s}</a>
-      #{@type != '' ? ' (' + @type + ')' : ''}
-    </div>"
+      <a title='#{@init.gsub('\"', '\\"')}'
+        href='../../headings/#{@heading.gsub('&', 'and').slugify.gsub(/\-+/, '')}/##{@id}'>#{@id}</a>
+      #{@type != '' ? ' (' + @type + ')' : ''}</div>"
   end
 
   def to_hash
@@ -112,4 +114,3 @@ class Entry
     }
   end
 end
-
