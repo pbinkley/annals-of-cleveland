@@ -83,7 +83,7 @@ pages[24..384].each do |page|
       # TODO: handle see also reference
       is_heading = true
     end
-    if context.linebuffer.count.positive
+    if context.linebuffer.count > 0
       if context.linebuffer.last.match(/.*\((\d+)\)$/) &&
          stripped_line.match(/^[A-Z].*/) && !is_heading
         context.subheading = stripped_line
