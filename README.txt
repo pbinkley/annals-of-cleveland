@@ -1,3 +1,5 @@
+Parsing the index and digest structures for a volume of the 1930s WPA project *Annals of Cleveland*, and presenting them in a Hugo site. See [https://www.wallandbinkley.com/projects/2019/annals-of-cleveland/](https://www.wallandbinkley.com/projects/2019/annals-of-cleveland/) for the current output.
+
 ## To run
 
 - Clone this repository
