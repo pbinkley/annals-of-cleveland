@@ -10,6 +10,7 @@ require 'fileutils'
 
 require './lib/context.rb'
 require './lib/entry.rb'
+require './lib/page.rb'
 
 require 'byebug'
 
@@ -45,48 +46,82 @@ context.maxinches = 0
 context.maxpage = 0
 context.maxcolumn = 0
 
-# abstracts pages
-pages[24..384].each do |page|
-  in_header = true
-  seq = page.xpath('./@id').first.text
-  pagetext = page.xpath('./p[@class="Text"]').first.text
-                 .gsub(NWORDREGEX, '\1****r')
-  lines = pagetext.split(/\n+/)
-  lines.each_with_index do |line, index|
-    stripped_line = line.gsub(/^[ -]*/, '').gsub(/[ -]*$/, '')
-    next if stripped_line == ''
+# classification list
+class_lines = []
+pages[16..22].each_with_index do |page_ocr, page_index|
+  # skip odd pages, which are blank
+  next if page_index.odd?
+  page = Page.new(context, page_ocr)
+  page.lines.each do |line|
+    class_lines << line
+  end
+end
 
-    # detect and ignore page headers
-    if in_header
-      unless stripped_line.match(/^\d*$/) ||
-             stripped_line.match(/^CLEVELAND NEWSPAPER DIGEST.*/) ||
-             stripped_line.match(/^Abstracts \d.*/) ||
-             stripped_line.match(/.*\(Co[nr]t'd\)( -)?/)
-        in_header = false
-      end
+classification = []
+line_buffer = []
+current_class = nil
+previous_class = nil
+class_lines.each do |line|
+  if line[:text].match(/^[A-Z&, ]+$/)
+    if current_class
+      c = {headings: [], title: current_class, slug: current_class.gsub('&', 'and').slugify.gsub(/-+/, '')}
+      c['line_buffer'] = line_buffer
+      classification << c
+      line_buffer = []
     end
-    next if in_header
+    current_class = line[:text]
+  else
+    line_buffer << line[:text]
+  end
+end
+classification.each do |c|
+  heading_blocks = c['line_buffer'].join(' ').gsub(/\s+/, ' ').gsub('–', '-').gsub(/(\d)\- (\d)/, '\1-\2').gsub('- ', '').split('. ')
 
+  heading_blocks.each do |block|
+    block_parts = block.match(/^(.*)\ (.+?)$/)
+
+    block_entries = block_parts[2].split('-')
+    first = block_entries[0].to_i + 1
+    last = block_entries.count > 1 ? block_entries[1].to_i : first
+
+    c[:headings] << {
+      heading: block_parts[1], 
+      upheading: block_parts[1].upcase, 
+      slug: block_parts[1].gsub('&', 'and').slugify.gsub(/-+/, ''),
+      first: first,
+      last: last,
+      count: last - first + 1
+    }
+    puts '  ' + block_parts[1] + ': ' + block_parts[2]
+  end
+  c.delete 'line_buffer'
+end
+
+# abstracts pages
+pages[24..384].each do |page_ocr|
+  page = Page.new(context, page_ocr)
+
+  page.lines.each do |line|
     # detect headings, see, see also
     is_heading = false
     # ignore dashes at end of line
-    if stripped_line.match(/^[A-Z\&\ ]*$/)
-      context.heading = stripped_line
+    if line[:text].match(/^[A-Z\&\ ]*$/)
+      context.heading = line[:text]
       context.subheading = ''
       is_heading = true
     end
-    if stripped_line.match(/^[A-Z\&\ ]*\. See .*$/)
+    if line[:text].match(/^[A-Z\&\ ]*\. See .*$/)
       # TODO: handle see reference
       is_heading = true
     end
-    if stripped_line.match(/^See also .*$/)
+    if line[:text].match(/^See also .*$/)
       # TODO: handle see also reference
       is_heading = true
     end
     if context.linebuffer.count > 0
       if context.linebuffer.last.match(/.*\((\d+)\)$/) &&
-         stripped_line.match(/^[A-Z].*/) && !is_heading
-        context.subheading = stripped_line
+         line[:text].match(/^[A-Z].*/) && !is_heading
+        context.subheading = line[:text]
         is_heading = true
       end
     end
@@ -94,7 +129,7 @@ pages[24..384].each do |page|
 
     # returns a populated record if the line can be parsed,
     # or an empty one if it can't
-    record = Entry.new(context, line, seq, index)
+    record = Entry.new(context, line[:text], page.seq, line[:index])
 
     if record.id
       entries[record.id] = record
@@ -134,7 +169,7 @@ end
 # output full data dump
 File.open('output/data.json', 'w') do |f|
   f.puts JSON.pretty_generate(
-    'entries': entries, 'terms': terms, 'issues': context.issues
+    'entries': entries, 'terms': terms, 'issues': context.issues, 'classification': classification
   )
 end
 
@@ -181,6 +216,10 @@ FileUtils.mkdir_p 'hugo/content/issues'
 
 File.open('hugo/data/headings.json', 'w') do |f|
   f.puts JSON.pretty_generate(headings)
+end
+
+File.open('hugo/data/classification.json', 'w') do |f|
+  f.puts JSON.pretty_generate(classification)
 end
 
 headings.each do |heading|
