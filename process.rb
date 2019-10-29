@@ -46,57 +46,6 @@ context.maxinches = 0
 context.maxpage = 0
 context.maxcolumn = 0
 
-# classification list
-class_lines = []
-pages[16..22].each_with_index do |page_ocr, page_index|
-  # skip odd pages, which are blank
-  next if page_index.odd?
-  page = Page.new(context, page_ocr)
-  page.lines.each do |line|
-    class_lines << line
-  end
-end
-
-classification = []
-line_buffer = []
-current_class = nil
-previous_class = nil
-class_lines.each do |line|
-  if line[:text].match(/^[A-Z&, ]+$/)
-    if current_class
-      c = {headings: [], title: current_class, slug: current_class.gsub('&', 'and').slugify.gsub(/-+/, '')}
-      c['line_buffer'] = line_buffer
-      classification << c
-      line_buffer = []
-    end
-    current_class = line[:text]
-  else
-    line_buffer << line[:text]
-  end
-end
-classification.each do |c|
-  heading_blocks = c['line_buffer'].join(' ').gsub(/\s+/, ' ').gsub('–', '-').gsub(/(\d)\- (\d)/, '\1-\2').gsub('- ', '').split('. ')
-
-  heading_blocks.each do |block|
-    block_parts = block.match(/^(.*)\ (.+?)$/)
-
-    block_entries = block_parts[2].split('-')
-    first = block_entries[0].to_i + 1
-    last = block_entries.count > 1 ? block_entries[1].to_i : first
-
-    c[:headings] << {
-      heading: block_parts[1], 
-      upheading: block_parts[1].upcase, 
-      slug: block_parts[1].gsub('&', 'and').slugify.gsub(/-+/, ''),
-      first: first,
-      last: last,
-      count: last - first + 1
-    }
-    puts '  ' + block_parts[1] + ': ' + block_parts[2]
-  end
-  c.delete 'line_buffer'
-end
-
 # abstracts pages
 pages[24..384].each do |page_ocr|
   page = Page.new(context, page_ocr)
@@ -164,6 +113,57 @@ pages[398..465].each do |page|
       entries[id.to_i].add_term(term: term, slug: slug)
     end
   end
+end
+
+# classification list
+class_lines = []
+pages[16..22].each_with_index do |page_ocr, page_index|
+  # skip odd pages, which are blank
+  next if page_index.odd?
+  page = Page.new(context, page_ocr)
+  page.lines.each do |line|
+    class_lines << line
+  end
+end
+
+classification = []
+line_buffer = []
+current_class = nil
+previous_class = nil
+class_lines.each do |line|
+  if line[:text].match(/^[A-Z&, ]+$/)
+    if current_class
+      c = {headings: [], title: current_class, slug: current_class.gsub('&', 'and').slugify.gsub(/-+/, '')}
+      c['line_buffer'] = line_buffer
+      classification << c
+      line_buffer = []
+    end
+    current_class = line[:text]
+  else
+    line_buffer << line[:text]
+  end
+end
+classification.each do |c|
+  heading_blocks = c['line_buffer'].join(' ').gsub(/\s+/, ' ').gsub('–', '-').gsub(/(\d)\- (\d)/, '\1-\2').gsub('- ', '').split('. ')
+
+  heading_blocks.each do |block|
+    block_parts = block.match(/^(.*)\ (.+?)$/)
+
+    block_entries = block_parts[2].split('-')
+    first = block_entries[0].to_i + 1
+    last = block_entries.count > 1 ? block_entries[1].to_i : first
+
+    c[:headings] << {
+      heading: block_parts[1],
+      upheading: block_parts[1].upcase,
+      slug: block_parts[1].gsub('&', 'and').slugify.gsub(/-+/, ''),
+      first: first,
+      last: last,
+      count: last - first + 1
+    }
+    puts '  ' + block_parts[1] + ': ' + block_parts[2]
+  end
+  c.delete 'line_buffer'
 end
 
 # output full data dump

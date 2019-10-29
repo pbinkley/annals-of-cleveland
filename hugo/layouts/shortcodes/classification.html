@@ -1,8 +1,4 @@
-{{ $cur := .Page.Params.slug }}
-
-<p>Entries: {{ .Page.Params.count }}</p>
-
-{{ range (index .Site.Data.classification $cur).entries }}
+{{ range .Site.Data.classification }}
 
   {{ partial "classification.html" . }}
 

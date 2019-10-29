@@ -12,6 +12,7 @@ The project was the idea of [Robert C. Binkley](https://en.wikipedia.org/wiki/Ro
 
 This volume, 1864, was the third volume completed early in the Digest phase of the project. This prototype was inspired by Cate Peter's presentation "[Enabling Access to the Federal Writers’ Project Slave Narratives: A Case Study of Intersectionality in Digital Archive Design](https://www.youtube.com/watch?v=yi3t7MDO0IM)", in which she argued for more nuanced presentation of materials gathered in the published volumes of the *Slave Narratives*. Her argument pushed the boundary between an uncritical digitization of the published outcomes of a project like the *Slave Narratives* or the *Annals of Cleveland*, and a critical edition that would expose the process by which the publised text was established. Here I've tried to reproduce the structure, content and navigation of the original *Annals of Cleveland* volume, while also enabling views of the original newspapers, both in their digitized form at *Chronicling America* and in schematic form showing the positons of stories derived from each issue..
 
+- [Classification list](classification/)
 - Sample heading: [BOOKS & AUTHORS](headings/booksandauthors/)
 - Sample subject term: [Women's league (New York city)](terms/womensleaguenewyorkcity/)
 - Sample issue:  [10 Mar. 1864](issues/1864-03-10/)
