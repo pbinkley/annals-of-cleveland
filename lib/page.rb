@@ -22,7 +22,7 @@ class Page
             unless stripped_line.match(/^\d*$/) ||
                  stripped_line.match(/^CLEVELAND NEWSPAPER DIGEST.*/) ||
                  stripped_line.match(/^Abstracts \d.*/) ||
-                 stripped_line.match(/.*\(Co[nr]t'd\)( -)?/) ||
+                 stripped_line.match(/.*\(Co[nr]t'd\ ?\)[\.\-\ ]*/) ||
                  stripped_line.match(/CLASSIFICATION LISTS.*/) ||
                  stripped_line.match(/^[IWV]+$/)
             in_header = false

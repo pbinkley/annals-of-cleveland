@@ -68,6 +68,13 @@ class Entry
 
   def store_lines(linebuffer)
     @lines = linebuffer
+
+    # last line might be a subheading: line of text with no digits TODO: tighter definition
+    if @lines.last.match(/^[a-zA-Z\ \(\)\-]+$/)
+      @context.subheading = @lines.last
+      @lines.pop # remove last line
+    end
+
     inches = @lines.last.match(/.*\((\d+)\)$/)
     @inches = inches ? inches[1].to_i : 0
 
