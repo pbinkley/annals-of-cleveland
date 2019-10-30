@@ -7,7 +7,7 @@ class Context
                 :maxcolumn, :prev
 
   def initialize
-    @year = ''
+    @year = 1864
     @preventry = nil
     @linebuffer = []
     @heading = ''

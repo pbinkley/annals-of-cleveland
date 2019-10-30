@@ -1,4 +1,12 @@
 {{ $cur := .Page.Params.slug }}
+<div>
+  <h4>See also:</h4>
+  <ul>
+    {{ range .Page.Params.seealso }}
+      <li><a href="../{{ .slug }}/">{{ .heading }}</a></li>
+    {{ end }}
+  </ul>
+</div>
 
 <p>Entries: {{ .Page.Params.count }}</p>
 

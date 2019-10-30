@@ -34,17 +34,8 @@ entries = {}
 in_header = false
 
 context = Context.new
-context.year = 1864
-context.preventry = nil
-context.linebuffer = []
-context.heading = ''
-context.subheading = ''
-context.breaks = 0
-context.highest = 0
-context.issues = {}
-context.maxinches = 0
-context.maxpage = 0
-context.maxcolumn = 0
+
+seealsos = {}
 
 # abstracts pages
 pages[24..384].each do |page_ocr|
@@ -61,10 +52,28 @@ pages[24..384].each do |page_ocr|
     end
     if line[:text].match(/^[A-Z\&\ ]*\. See .*$/)
       # TODO: handle see reference
+      # e.g. "ABANDONED CHILDREN. See Children"
       is_heading = true
     end
     if line[:text].match(/^See also .*$/)
       # TODO: handle see also reference
+      # e.g. "See also Farm Products"
+      seealso = line[:text].sub('See also ', '')
+      puts seealso
+      seealso.split(';').each do |heading|
+        heading.strip!
+        seealsos[context.heading] = [] unless seealsos[context.heading]
+        if heading[0].match(/[A-Z]/)
+          parts = heading.split('-')
+          puts parts.to_s
+          obj = {'heading' => parts[0].to_s.strip, 'slug' => parts[0].to_s.strip.slugify.gsub(/-+/, '')}
+          obj['subheading'] = parts[1].to_s.strip if parts[1]
+          seealsos[context.heading] << obj
+        else
+          # generic entry like "names of animals"
+          seealsos[context.heading] << {generic: heading}
+        end
+      end
       is_heading = true
     end
     if context.linebuffer.count > 0
@@ -231,7 +240,7 @@ headings.each do |heading|
     )
   end
   yaml = { 'title' => heading, 'slug' => slug, 'count' =>
-    hugodata[heading].count }.to_yaml
+    hugodata[heading].count, 'seealso' => seealsos[heading] }.to_yaml
   File.open('hugo/content/headings/' + slug + '.md', 'w') do |f|
     f.puts yaml + "\n---\n\n{{< heading >}}\n"
   end
