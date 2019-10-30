@@ -42,32 +42,34 @@ pages[24..384].each do |page_ocr|
   page = Page.new(context, page_ocr)
 
   page.lines.each do |line|
+    line[:text].gsub!('–', '-')
     # detect headings, see, see also
     is_heading = false
     # ignore dashes at end of line
-    if line[:text].match(/^[A-Z\&\ ]*$/)
-      context.heading = line[:text]
-      context.subheading = ''
+    if line[:text].match(/^[A-Z\&\'\,\ ]*[\.\-\ ]*$/)
+      context.heading = line[:text].sub(/[\.\-\ ]*$/, '')
+      context.subheading1 = ''
+      context.subheading2 = ''
       is_heading = true
-    end
-    if line[:text].match(/^[A-Z\&\ ]*\. See .*$/)
+    elsif line[:text].match(/^[A-Z\&\'\,\ ]*\. See .*$/)
       # TODO: handle see reference
       # e.g. "ABANDONED CHILDREN. See Children"
       is_heading = true
-    end
-    if line[:text].match(/^See also .*$/)
-      # TODO: handle see also reference
+    elsif line[:text].match(/^.* - See .*$/)
+      # TODO: handle see entry reference
+      # e.g. "ABANDONED CHILDREN. See Children"
+      is_heading = true
+    elsif line[:text].match(/^See also .*$/)
       # e.g. "See also Farm Products"
       seealso = line[:text].sub('See also ', '')
-      puts seealso
       seealso.split(';').each do |heading|
         heading.strip!
         seealsos[context.heading] = [] unless seealsos[context.heading]
         if heading[0].match(/[A-Z]/)
           parts = heading.split('-')
-          puts parts.to_s
           obj = {'heading' => parts[0].to_s.strip, 'slug' => parts[0].to_s.strip.slugify.gsub(/-+/, '')}
-          obj['subheading'] = parts[1].to_s.strip if parts[1]
+          obj['subheading1'] = parts[1].to_s.strip
+          # TODO: handle subheading2
           seealsos[context.heading] << obj
         else
           # generic entry like "names of animals"
@@ -77,9 +79,17 @@ pages[24..384].each do |page_ocr|
       is_heading = true
     end
     if context.linebuffer.count > 0
+      # look for: previous line ends with inch count in parentheses
+      # and this line start with capital or parenthesis + letter
       if context.linebuffer.last.match(/.*\((\d+)\)$/) &&
-         line[:text].match(/^[A-Z].*/) && !is_heading
-        context.subheading = line[:text]
+        line[:text].match(/^[A-Z()].*/) && !is_heading
+        if line[:text].match(/^\([A-Z].*/)
+          context.subheading2 = line[:text].gsub(/[()]/, '')
+        else
+          context.subheading1 = line[:text].sub(/[\.\-\ ]*$/, '')
+          context.subheading2 = ''
+        end
+        puts context.subheading1 + ' - ' + context.subheading2 if context.subheading2 != ''
         is_heading = true
       end
     end
@@ -170,7 +180,6 @@ classification.each do |c|
       last: last,
       count: last - first + 1
     }
-    puts '  ' + block_parts[1] + ': ' + block_parts[2]
   end
   c.delete 'line_buffer'
 end
