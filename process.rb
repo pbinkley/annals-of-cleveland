@@ -48,7 +48,8 @@ pages[24..384].each do |page_ocr|
     # ignore dashes at end of line
     if line[:text].match(/^[A-Z\&\'\,\ ]*[\.\-\ ]*$/)
       context.heading = line[:text].sub(/[\.\-\ ]*$/, '')
-      context.subheading = ''
+      context.subheading1 = ''
+      context.subheading2 = ''
       is_heading = true
     elsif line[:text].match(/^[A-Z\&\'\,\ ]*\. See .*$/)
       # TODO: handle see reference
@@ -67,7 +68,8 @@ pages[24..384].each do |page_ocr|
         if heading[0].match(/[A-Z]/)
           parts = heading.split('-')
           obj = {'heading' => parts[0].to_s.strip, 'slug' => parts[0].to_s.strip.slugify.gsub(/-+/, '')}
-          obj['subheading'] = parts[1].to_s.strip 
+          obj['subheading1'] = parts[1].to_s.strip
+          # TODO: handle subheading2
           seealsos[context.heading] << obj
         else
           # generic entry like "names of animals"
@@ -77,10 +79,17 @@ pages[24..384].each do |page_ocr|
       is_heading = true
     end
     if context.linebuffer.count > 0
+      # look for: previous line ends with inch count in parentheses
+      # and this line start with capital or parenthesis + letter
       if context.linebuffer.last.match(/.*\((\d+)\)$/) &&
-        line[:text].match(/^[A-Z].*/) && !is_heading
-        context.subheading = line[:text].sub(/[\.\-\ ]*$/, '')
-        puts 'subheading: ' + context.heading + ' / ' + context.subheading
+        line[:text].match(/^[A-Z()].*/) && !is_heading
+        if line[:text].match(/^\([A-Z].*/)
+          context.subheading2 = line[:text].gsub(/[()]/, '')
+        else
+          context.subheading1 = line[:text].sub(/[\.\-\ ]*$/, '')
+          context.subheading2 = ''
+        end
+        puts context.subheading1 + ' - ' + context.subheading2 if context.subheading2 != ''
         is_heading = true
       end
     end
