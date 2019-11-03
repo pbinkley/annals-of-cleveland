@@ -185,9 +185,11 @@ classification.each do |c|
 end
 
 # output full data dump
+entries_array = []
+entries.keys.sort.each { |key| entries_array << entries[key].to_hash }
 File.open('output/data.json', 'w') do |f|
   f.puts JSON.pretty_generate(
-    'entries': entries, 'terms': terms, 'issues': context.issues, 'classification': classification
+    'entries': entries_array, 'terms': terms, 'issues': context.issues, 'classification': classification
   )
 end
 
