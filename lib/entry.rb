@@ -23,8 +23,8 @@ class Entry
     @context = context
     if line.is_a? String
       metadata = line.match(
-        %r{^(\d+)\ [-–]\ ([a-zA-Z]+)[\.,]?\ 
-           ((?:Jan.|Feb.|Mar.|Apr.|May|June|July|Aug.|Sept.|Oct.|Nov.|Dec.))\ 
+        %r{^(\d+)\ [-–]\ ([a-zA-Z]+)[\.,]?\s
+           ((?:Jan.|Feb.|Mar.|Apr.|May|June|July|Aug.|Sept.|Oct.|Nov.|Dec.))\s
            (\d+)[;:,]+\ ?([a-zA-Z]*)[;:,]?\ ?(\d+)/(\d+)(.*)$}x
       )
       @context.linebuffer << line unless metadata
@@ -48,7 +48,8 @@ class Entry
         @type = metadata[5]
         @init = metadata[8]
         @heading = @context.heading
-        @subheading = @context.subheading
+        @subheading1 = @context.subheading1
+        @subheading2 = @context.subheading2
         @terms = []
 
         @context.maxpage = @page if @page > @context.maxpage
@@ -71,7 +72,8 @@ class Entry
 
     # last line might be a subheading: line of text with no digits TODO: tighter definition
     if @lines.last.match(/^[a-zA-Z\ \(\)\-]+$/)
-      @context.subheading = @lines.last
+      @context.subheading1 = @lines.last
+      # TODO: handle subheading2
       @lines.pop # remove last line
     end
 
@@ -115,7 +117,8 @@ class Entry
       inches: @inches,
       init: @init,
       heading: @heading,
-      subheading: @subheading,
+      subheading1: @subheading1,
+      subheading2: @subheading2,
       terms: @terms,
       lines: @lines
     }

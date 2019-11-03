@@ -2,7 +2,7 @@
 
 # Container for working context, to be passed to Entry objects
 class Context
-  attr_accessor :year, :preventry, :linebuffer, :heading, :subheading, :subheading1, :subheading2,
+  attr_accessor :year, :preventry, :linebuffer, :heading, :subheading1, :subheading2,
                 :breaks, :highest, :issues, :maxinches, :maxpage,
                 :maxcolumn, :prev
 
@@ -11,7 +11,6 @@ class Context
     @preventry = nil
     @linebuffer = []
     @heading = ''
-    @subheading = ''
     @subheading1 = ''
     @subheading2 = ''
     @breaks = 0

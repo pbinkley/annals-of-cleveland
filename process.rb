@@ -185,10 +185,20 @@ classification.each do |c|
 end
 
 # output full data dump
+entries_array = []
+entries.keys.sort.each { |key| entries_array << entries[key].to_hash }
 File.open('output/data.json', 'w') do |f|
   f.puts JSON.pretty_generate(
-    'entries': entries, 'terms': terms, 'issues': context.issues, 'classification': classification
+    'entries': entries_array, 'terms': terms, 'issues': context.issues, 'classification': classification
   )
+end
+
+# output csv of headings
+require "csv"
+CSV.open("output/headings.csv", "w") do |csv|
+  entries_array.each do |entry|
+    csv << [entry[:id], entry[:heading], entry[:subheading1], entry[:subheading2], ]
+  end
 end
 
 # output list of missing ids
