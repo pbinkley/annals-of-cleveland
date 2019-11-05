@@ -2,7 +2,7 @@
 
 # One entry in the volume
 class Entry
-  attr_reader :id, :init, :heading
+  attr_reader :id, :init, :heading, :inches
 
   MONTHS = {
     'Jan.' => 1,
@@ -93,6 +93,10 @@ class Entry
     @terms << term
   end
 
+  def set_inches(inches)
+    @inches = inches
+  end
+  
   def to_html
     inchclass = @inches > 12 ? 'inchmore' : 'inch' + @inches.to_s
     "<div class='entry #{inchclass}'>

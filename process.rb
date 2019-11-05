@@ -109,12 +109,15 @@ pages[24..384].each do |page_ocr|
     # or an empty one if it can't
     record = Entry.new(context, line[:text], page.seq, line[:index])
 
-    if record.id
+    # do not overwrite existing entries
+    if record.id && !entries[record.id]
       entries[record.id] = record
       context.preventry = record
     end
   end
 end
+# hack to populate the last inches field
+entries[entries.keys.last].set_inches 4
 
 puts 'Breaks: ' + context.breaks.to_s
 puts 'Entries: ' + entries.keys.count.to_s
@@ -223,6 +226,10 @@ File.open('output/missing.txt', 'w') do |f|
   end
 end
 puts 'Missing: ' + missing.to_s
+
+(1..context.highest).each do |key|
+  puts 'Missing inches: ' + key.to_s unless (MISSINGENTRIES.include?(key) || entries[key].inches)
+end
 
 # generate Hugo data
 hugodata = {}
