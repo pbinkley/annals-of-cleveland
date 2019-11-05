@@ -15,6 +15,16 @@ require './lib/page.rb'
 require 'byebug'
 
 NWORDREGEX = /([#{78.chr}#{110.chr}])#{105.chr}#{103.chr}#{103.chr}#{101.chr}#{114.chr}/.freeze
+MISSINGENTRIES = ((303..454).to_a +
+                  (1758..1764).to_a +
+                  (1872..1959).to_a +
+                  (2068..2077).to_a +
+                  (2216..2255).to_a +
+                  (2533..2552).to_a +
+                  (2638..2652).to_a +
+                  (2680..2692).to_a +
+                  (2726..2727).to_a +
+                  [974, 1212, 1240, 1300, 1821, 1867, 2044, 2377, 2515, 2626]).freeze
 
 newspapers = {
   'L': {
@@ -25,7 +35,7 @@ newspapers = {
 
 # page-level url: https://chroniclingamerica.loc.gov/lccn/sn83035143/1864-01-01/ed-1/seq-2/
 
-doc = File.open('source/1864.html') { |f| Nokogiri::HTML(f) }
+doc = File.open('source/1864-corrected.html') { |f| Nokogiri::HTML(f) }
 
 FileUtils.mkdir_p './output'
 
@@ -205,8 +215,9 @@ end
 missing = 0
 File.open('output/missing.txt', 'w') do |f|
   (1..context.highest).each do |key|
-    if !entries.keys.include?(key) || !entries[key].init
+    if !MISSINGENTRIES.include?(key) && (!entries.keys.include?(key) || !entries[key].init)
       f.puts key.to_s
+      puts 'First missing: ' + key.to_s if missing == 0
       missing += 1
     end
   end
