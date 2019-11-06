@@ -2,7 +2,7 @@
 {{ $newspaper := "Cleveland Morning Leader" }}
 
 <div class="entry">
-  <h3 id="{{ .id }}">{{ .id }}</h3>
+  <h3 id="{{ .displayid }}">{{ .displayid }}</h3>
 
   <p><em>{{ $newspaper }}</em>, <a href="../../issues/{{ .formatdate }}/">{{ .displaydate }}</a>, p.{{ .page }}, col.{{ .column }}
   ({{ with .type }}{{ . }}; {{ end }}{{ .inches }} inches)

@@ -48,7 +48,7 @@ context = Context.new
 seealsos = {}
 
 # abstracts pages
-pages[24..384].each do |page_ocr|
+pages[24..383].each do |page_ocr|
   page = Page.new(context, page_ocr)
 
   page.lines.each do |line|
@@ -56,7 +56,9 @@ pages[24..384].each do |page_ocr|
     # detect headings, see, see also
     is_heading = false
     # ignore dashes at end of line
-    if line[:text].match(/^[A-Z\&\'\,\ ]*[\.\-\ ]*$/)
+    if line[:text].match(/^===/)
+      # TODO: handle heading note
+    elsif line[:text].match(/^[A-Z\&\'\,\ ]*[\.\-\ ]*$/)
       context.heading = line[:text].sub(/[\.\-\ ]*$/, '')
       context.subheading1 = ''
       context.subheading2 = ''
@@ -117,7 +119,7 @@ pages[24..384].each do |page_ocr|
   end
 end
 # hack to populate the last inches field
-entries[entries.keys.last].set_inches 4
+entries[entries.keys.last].store_lines context.linebuffer
 
 puts 'Breaks: ' + context.breaks.to_s
 puts 'Entries: ' + entries.keys.count.to_s
@@ -141,8 +143,9 @@ pages[398..465].each do |page|
     ids = elements[2].split
     terms[term] = { slug: slug, ids: ids }
     ids.each do |id|
-      entries[id.to_i] = Entry.new(context, id.to_i) unless entries[id.to_i]
-      entries[id.to_i].add_term(term: term, slug: slug)
+      id = id.to_f
+      entries[id] = Entry.new(context, id) unless entries[id]
+      entries[id].add_term(term: term, slug: slug)
     end
   end
 end
@@ -217,8 +220,8 @@ end
 # output list of missing ids
 missing = 0
 File.open('output/missing.txt', 'w') do |f|
-  (1..context.highest).each do |key|
-    if !MISSINGENTRIES.include?(key) && (!entries.keys.include?(key) || !entries[key].init)
+  (1..context.highest.to_i).each do |key|
+    if !MISSINGENTRIES.include?(key) && (!entries.keys.include?(key.to_f) || !entries[key.to_f].init)
       f.puts key.to_s
       puts 'First missing: ' + key.to_s if missing == 0
       missing += 1
@@ -227,8 +230,8 @@ File.open('output/missing.txt', 'w') do |f|
 end
 puts 'Missing: ' + missing.to_s
 
-(1..context.highest).each do |key|
-  puts 'Missing inches: ' + key.to_s unless (MISSINGENTRIES.include?(key) || entries[key].inches)
+entries.keys.sort.each do |key|
+  puts 'Missing inches: ' + key.to_s unless (MISSINGENTRIES.include?(key.to_i) || entries[key].inches.is_a?(Integer))
 end
 
 # generate Hugo data
@@ -287,7 +290,7 @@ terms.keys.each do |term|
   slug = term.to_s.gsub('&', 'and').slugify.gsub(/-+/, '')
   termentries = []
   terms[term][:ids].each do |id|
-    termentries << entries[id.to_i].to_hash
+    termentries << entries[id.to_f].to_hash
   end
   File.open('hugo/data/terms/' + slug + '.json', 'w') do |f|
     f.puts JSON.pretty_generate(
