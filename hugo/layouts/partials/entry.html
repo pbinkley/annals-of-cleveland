@@ -15,12 +15,23 @@
     {{ end }}
   </p>
 
-  <h4>Index terms:</h4>
-  <ul>
-    <li>{{ .heading }} - {{ .subheading }}</li>
-    {{ range .terms }}
-      <li><a href="../../terms/{{ .slug }}/">{{ .term }}</a></li>
-    {{ end }}
-  </ul>
+  <p>{{ .heading }} 
+      {{ if .subheading1 }} 
+        - <a href="#{{ .subheading1 | urlize }}">{{ .subheading1 }}</a>
+        {{ if .subheading2 }} 
+          - <a href="#{{.subheading1 | urlize }}_{{ .subheading2 | urlize }}">{{ .subheading2 }}</a>
+        {{ end }}
+      {{ end }}</p>
+
+  {{ if .terms }}
+    <h4>Index terms:</h4>
+    <ul>
+      {{ range .terms }}
+        <li><a href="../../terms/{{ .slug }}/">{{ .term }}</a></li>
+      {{ end }}
+    </ul>
+  {{ else }}
+    <p>No index terms.</p>
+  {{ end }}
 
 </div>

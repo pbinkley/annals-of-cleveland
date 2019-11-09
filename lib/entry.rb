@@ -2,7 +2,7 @@
 
 # One entry in the volume
 class Entry
-  attr_reader :id, :init, :heading, :inches
+  attr_reader :id, :init, :heading, :subheading1, :subheading2, :inches
 
   MONTHS = {
     'Jan.' => 1,

@@ -58,6 +58,19 @@ pages[24..383].each do |page_ocr|
     # ignore dashes at end of line
     if line[:text].match(/^===/)
       # TODO: handle heading note
+    elsif line[:text].match(/^\+/)
+      # heading inserted by editor
+      heading = line[:text].gsub(/^\++ /, '')
+      if line[:text].match(/^\+\+\+ /)
+        context.subheading2 = heading
+      elsif line[:text].match(/^\+\+ /)
+        context.subheading1 = heading
+        context.subheading2 = ''
+      else
+        context.heading = heading
+        context.subheading1 = ''
+        context.subheading2 = ''
+      end
     elsif line[:text].match(/^[A-Z\&\'\,\ ]*[\.\-\ ]*$/)
       context.heading = line[:text].sub(/[\.\-\ ]*$/, '')
       context.subheading1 = ''
@@ -240,8 +253,19 @@ headings = []
 
 entries.keys.sort.each do |key|
   entry = entries[key]
-  hugodata[entry.heading] = [] unless hugodata[entry.heading]
-  hugodata[entry.heading] << entry.to_hash
+  if !hugodata[entry.heading]
+    hugodata[entry.heading] = {}
+    hugodata[entry.heading][:entries] = []
+    hugodata[entry.heading][:subheadings] = {}
+  end
+  hugodata[entry.heading][:entries] << entry.to_hash
+  
+  if entry.subheading1 && entry.subheading1 != ''
+    hugodata[entry.heading][:subheadings][entry.subheading1] = [] unless hugodata[entry.heading][:subheadings][entry.subheading1]
+  end
+  if entry.subheading2 && entry.subheading2 != ''
+    hugodata[entry.heading][:subheadings][entry.subheading1] << entry.subheading2 unless hugodata[entry.heading][:subheadings][entry.subheading1].include?(entry.subheading2)
+  end
   headings << entry.heading unless headings.include?(entry.heading)
 end
 
@@ -273,14 +297,18 @@ end
 
 headings.each do |heading|
   slug = heading.to_s.gsub('&', 'and').slugify.gsub('-', '')
-
   File.open('hugo/data/headings/' + slug + '.json', 'w') do |f|
     f.puts JSON.pretty_generate(
-      title: heading, slug: slug, entries: hugodata[heading]
+      title: heading, slug: slug, entries: hugodata[heading][:entries]
     )
   end
+  subheadings = []
+  hugodata[heading][:subheadings].each do |subheading|
+    subheadings << {subheading[0] => subheading[1]}
+  end
   yaml = { 'title' => heading, 'slug' => slug, 'count' =>
-    hugodata[heading].count, 'seealso' => seealsos[heading] }.to_yaml
+    hugodata[heading][:entries].count, 'seealso' => seealsos[heading],
+    'subheadings' => subheadings }.to_yaml
   File.open('hugo/content/headings/' + slug + '.md', 'w') do |f|
     f.puts yaml + "\n---\n\n{{< heading >}}\n"
   end
