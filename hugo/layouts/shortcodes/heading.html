@@ -28,21 +28,21 @@
 
 <p>Entries: {{ .Page.Params.count }}</p>
 
-{{  $prevsub1 :=  "bork" }}
+{{  $prevsub1 :=  "" }}
 {{  $prevsub2 :=  "" }}
 
 {{ range (index .Site.Data.headings $cur).entries }}
 
   {{ if ne $prevsub1 .subheading1 }}
     <h2 id="{{ .subheading1 | urlize }}">{{ .subheading1 }}</h2>
-    {{ $prevsub2 :=  "" }}    
+    {{ $prevsub2 :=  "" }}
   {{ end }}
 
   {{ if and (ne $prevsub2 .subheading2) (ne .subheading2 "") }}
     <h3 id="{{ .subheading1 | urlize }}_{{ .subheading2 | urlize }}">{{ .subheading2 }}</h3>
   {{ end }}
 
-  {{ partial "entry.html" . }}
+  {{ partial "entry.html" (dict "context" . "dir" .Page.Dir) }}
 
   {{ $prevsub1 = .subheading1 }}
   {{ $prevsub2 = .subheading2 }}

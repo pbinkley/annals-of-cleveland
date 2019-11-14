@@ -2,31 +2,39 @@
 {{ $newspaper := "Cleveland Morning Leader" }}
 
 <div class="entry">
-  <h3 id="{{ .displayid }}">{{ .displayid }}</h3>
+  <h3 id="{{ .context.displayid }}">{{ .context.displayid }}</h3>
 
-  <p><em>{{ $newspaper }}</em>, <a href="../../issues/{{ .formatdate }}/">{{ .displaydate }}</a>, p.{{ .page }}, col.{{ .column }}
-  ({{ with .type }}{{ . }}; {{ end }}{{ .inches }} inches)
-  ~ <a href='{{ $chronam }}{{ .formatdate }}/ed-1/seq-{{ .page }}'>View at ChronAm</a>
-  ~ <a href='https://babel.hathitrust.org/cgi/pt?id=iau.31858046133199&view=1up&seq={{ .seq }}'>See original</a></p>
+  <p><em>{{ $newspaper }}</em>, <a href="../../issues/{{ .context.formatdate }}/">{{ .context.displaydate }}</a>, p.{{ .context.page }}, col.{{ .context.column }}
+  ({{ with .context.type }}{{ . }}; {{ end }}{{ .context.inches }} inches)
+  ~ <a href='{{ $chronam }}{{ .context.formatdate }}/ed-1/seq-{{ .context.page }}'>View at ChronAm</a>
+  ~ <a href='https://babel.hathitrust.org/cgi/pt?id=iau.31858046133199&view=1up&seq={{ .context.seq }}'>See original</a></p>
   
   <p>
-    {{ range .lines }}
+    {{ range .context.lines }}
       {{ . }} <br/>
     {{ end }}
   </p>
 
-  <p>{{ .heading }} 
-      {{ if .subheading1 }} 
-        - <a href="#{{ .subheading1 | urlize }}">{{ .subheading1 }}</a>
-        {{ if .subheading2 }} 
-          - <a href="#{{.subheading1 | urlize }}_{{ .subheading2 | urlize }}">{{ .subheading2 }}</a>
-        {{ end }}
-      {{ end }}</p>
+  <p>
+    {{ $scratch := newScratch }}
+    {{ if eq .thisdir "terms/" }}
+      {{ $scratch.Set "linkprefix" (print "../../headings/" (.context.heading |replaceRE "[&]" "and" | urlize | replaceRE "[-]" "") "/") }}
+      <a href="{{ $scratch.Get "linkprefix" }}">{{ .context.heading }}</a>
+    {{ else }}
+        {{ .context.heading }}
+    {{ end }}
+    {{ if .context.subheading1 }}
+      - <a href="{{ $scratch.Get "linkprefix" }}#{{ .context.subheading1 | urlize }}">{{ .context.subheading1 }}</a>
+      {{ if .context.subheading2 }}
+        - <a href="{{ $scratch.Get "linkprefix" }}#{{ .context.subheading1 | urlize }}_{{ .context.subheading2 | urlize }}">{{ .context.subheading2 }}</a>
+      {{ end }}
+    {{ end }}
+  </p>
 
-  {{ if .terms }}
+  {{ if .context.terms }}
     <h4>Index terms:</h4>
     <ul>
-      {{ range .terms }}
+      {{ range .context.terms }}
         <li><a href="../../terms/{{ .slug }}/">{{ .term }}</a></li>
       {{ end }}
     </ul>

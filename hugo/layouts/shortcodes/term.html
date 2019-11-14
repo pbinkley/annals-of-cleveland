@@ -4,7 +4,7 @@
 
 {{ range (index .Site.Data.terms $cur).entries }}
 
-  {{ partial "entry.html" . }}
+  {{ partial "entry.html" (dict "context" . "thisdir" $.Page.Dir) }}
 
 {{ end }}
 
