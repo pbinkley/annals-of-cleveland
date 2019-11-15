@@ -1,5 +1,23 @@
 {{ $cur := .Page.Params.slug }}
 <div>
+  {{ if .Page.Params.subheadings}}
+    <h4>Subheadings:</h4>
+    <ul>
+      {{ range $key, $value := .Page.Params.subheadings }}
+        {{ range $subhead, $s_value := $value }}
+          <li><a href="#{{ $subhead | urlize }}">{{ $subhead }}</a></li>
+          {{ if $subhead }}<ul>{{ end }}
+          {{ range $ss_value := $s_value }}
+            <li><a href="#{{ $subhead | urlize }}_{{ $ss_value | urlize }}">{{ $ss_value }}</a></li>
+          {{ end }}
+          {{ if $subhead }}</ul>{{ end }}
+        {{ end }}
+      {{ end }}
+    </ul>
+    {{ else }}
+    <p> No subheadings</p>
+  {{ end }}
+
   <h4>See also:</h4>
   <ul>
     {{ range .Page.Params.seealso }}
@@ -10,9 +28,24 @@
 
 <p>Entries: {{ .Page.Params.count }}</p>
 
+{{  $prevsub1 :=  "" }}
+{{  $prevsub2 :=  "" }}
+
 {{ range (index .Site.Data.headings $cur).entries }}
 
-  {{ partial "entry.html" . }}
+  {{ if ne $prevsub1 .subheading1 }}
+    <h2 id="{{ .subheading1 | urlize }}">{{ .subheading1 }}</h2>
+    {{ $prevsub2 :=  "" }}
+  {{ end }}
+
+  {{ if and (ne $prevsub2 .subheading2) (ne .subheading2 "") }}
+    <h3 id="{{ .subheading1 | urlize }}_{{ .subheading2 | urlize }}">{{ .subheading2 }}</h3>
+  {{ end }}
+
+  {{ partial "entry.html" (dict "context" . "dir" .Page.Dir) }}
+
+  {{ $prevsub1 = .subheading1 }}
+  {{ $prevsub2 = .subheading2 }}
 
 {{ end }}
 

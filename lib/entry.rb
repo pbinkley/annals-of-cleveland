@@ -2,7 +2,7 @@
 
 # One entry in the volume
 class Entry
-  attr_reader :id, :init, :heading
+  attr_reader :id, :init, :heading, :subheading1, :subheading2, :inches
 
   MONTHS = {
     'Jan.' => 1,
@@ -23,9 +23,9 @@ class Entry
     @context = context
     if line.is_a? String
       metadata = line.match(
-        %r{^(\d+)\ [-–]\ ([a-zA-Z]+)[\.,]?\ 
-           ((?:Jan.|Feb.|Mar.|Apr.|May|June|July|Aug.|Sept.|Oct.|Nov.|Dec.))\ 
-           (\d+)[;:,]+\ ?([a-zA-Z]*)[;:,]?\ ?(\d+)/(\d+)(.*)$}x
+        %r{^(\d+)(-1/2)?\ [-–]+\ ([a-zA-Z]+)[\.,]?\s
+           ((?:Jan.|Feb.|Mar.|Apr.|May|June|July|Aug.|Sept.|Oct.|Nov.|Dec.))\s
+           (\d+)[;:,.]+\ ?([a-zA-Z]*)[;:,.]?\ ?(\d+)[/"'](\d+)(.*)$}x
       )
       @context.linebuffer << line unless metadata
       if metadata
@@ -33,35 +33,42 @@ class Entry
           @context.preventry.store_lines @context.linebuffer
           @context.linebuffer = [line]
         end
-        date = Date.new(@context.year, MONTHS[metadata[3]], metadata[4].to_i)
+        date = Date.new(@context.year, MONTHS[metadata[4]], metadata[5].to_i)
 
-        @id = metadata[1].to_i
+        @id = metadata[1].to_f
+        # handle -1/2 suffix on id
+        @id += 0.5 if metadata[2] == '-1/2'
+
         @seq = seq
         @line = index
-        @newspaper = metadata[2].to_sym
-        @month = MONTHS[metadata[3]]
-        @day = metadata[4].to_i
+        @newspaper = metadata[3].to_sym
+        @month = MONTHS[metadata[4]]
+        @day = metadata[5].to_i
         @displaydate = date.strftime('%e %B %Y')
         @formatdate = date.to_s
-        @page = metadata[6].to_i
-        @column = metadata[7].to_i
-        @type = metadata[5]
-        @init = metadata[8]
+        @page = metadata[7].to_i
+        @column = metadata[8].to_i
+        @type = metadata[6]
+        @init = metadata[9]
         @heading = @context.heading
-        @subheading = @context.subheading
+        @subheading1 = @context.subheading1
+        @subheading2 = @context.subheading2
         @terms = []
 
         @context.maxpage = @page if @page > @context.maxpage
         @context.maxcolumn = @column if @column > @context.maxcolumn
 
         @context.highest = @id if @id > @context.highest
-        @context.breaks += 1 if @id != @context.prev + 1
+        # TODO: make sure the half items don't mess this up
+        @context.breaks += 1 if (@id - @context.prev) > 1.0
 
         @context.prev = @id
       end
     else
+      # note: this is never being called
       # must be an id of an empty entry
       @id = line
+      # TODO: handle half items
       @terms = []
     end
   end
@@ -71,7 +78,7 @@ class Entry
 
     # last line might be a subheading: line of text with no digits TODO: tighter definition
     if @lines.last.match(/^[a-zA-Z\ \(\)\-]+$/)
-      @context.subheading = @lines.last
+      @context.subheading1 = @lines.last
       @lines.pop # remove last line
     end
 
@@ -91,17 +98,23 @@ class Entry
     @terms << term
   end
 
+  def displayId
+    id.to_i.to_s + (id % 1 == 0.5 ? '-1/2' : '')
+  end
+  
   def to_html
+    display_id = displayId
     inchclass = @inches > 12 ? 'inchmore' : 'inch' + @inches.to_s
     "<div class='entry #{inchclass}'>
       <a title='#{@init.gsub('\"', '\\"')}'
-        href='../../headings/#{@heading.gsub('&', 'and').slugify.gsub(/\-+/, '')}/##{@id}'>#{@id}</a>
+        href='../../headings/#{@heading.gsub('&', 'and').slugify.gsub(/\-+/, '')}/##{display_id}'>#{display_id}</a>
       #{@type != '' ? ' (' + @type + ')' : ''}</div>"
   end
 
   def to_hash
     {
       id: @id,
+      displayid: self.displayId,
       seq: @seq,
       line: @line,
       newspaper: @newspaper,
@@ -115,7 +128,8 @@ class Entry
       inches: @inches,
       init: @init,
       heading: @heading,
-      subheading: @subheading,
+      subheading1: @subheading1,
+      subheading2: @subheading2,
       terms: @terms,
       lines: @lines
     }

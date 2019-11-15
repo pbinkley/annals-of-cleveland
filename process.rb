@@ -15,6 +15,16 @@ require './lib/page.rb'
 require 'byebug'
 
 NWORDREGEX = /([#{78.chr}#{110.chr}])#{105.chr}#{103.chr}#{103.chr}#{101.chr}#{114.chr}/.freeze
+MISSINGENTRIES = ((303..454).to_a +
+                  (1758..1764).to_a +
+                  (1872..1959).to_a +
+                  (2068..2077).to_a +
+                  (2216..2255).to_a +
+                  (2533..2552).to_a +
+                  (2638..2652).to_a +
+                  (2680..2692).to_a +
+                  (2726..2727).to_a +
+                  [974, 1212, 1240, 1300, 1821, 1867, 2044, 2377, 2515, 2626]).freeze
 
 newspapers = {
   'L': {
@@ -25,7 +35,7 @@ newspapers = {
 
 # page-level url: https://chroniclingamerica.loc.gov/lccn/sn83035143/1864-01-01/ed-1/seq-2/
 
-doc = File.open('source/1864.html') { |f| Nokogiri::HTML(f) }
+doc = File.open('source/1864-corrected.html') { |f| Nokogiri::HTML(f) }
 
 FileUtils.mkdir_p './output'
 
@@ -38,7 +48,7 @@ context = Context.new
 seealsos = {}
 
 # abstracts pages
-pages[24..384].each do |page_ocr|
+pages[24..383].each do |page_ocr|
   page = Page.new(context, page_ocr)
 
   page.lines.each do |line|
@@ -46,9 +56,25 @@ pages[24..384].each do |page_ocr|
     # detect headings, see, see also
     is_heading = false
     # ignore dashes at end of line
-    if line[:text].match(/^[A-Z\&\'\,\ ]*[\.\-\ ]*$/)
+    if line[:text].match(/^===/)
+      # TODO: handle heading note
+    elsif line[:text].match(/^\+/)
+      # heading inserted by editor
+      heading = line[:text].gsub(/^\++ /, '')
+      if line[:text].match(/^\+\+\+ /)
+        context.subheading2 = heading
+      elsif line[:text].match(/^\+\+ /)
+        context.subheading1 = heading
+        context.subheading2 = ''
+      else
+        context.heading = heading
+        context.subheading1 = ''
+        context.subheading2 = ''
+      end
+    elsif line[:text].match(/^[A-Z\&\'\,\ ]*[\.\-\ ]*$/)
       context.heading = line[:text].sub(/[\.\-\ ]*$/, '')
-      context.subheading = ''
+      context.subheading1 = ''
+      context.subheading2 = ''
       is_heading = true
     elsif line[:text].match(/^[A-Z\&\'\,\ ]*\. See .*$/)
       # TODO: handle see reference
@@ -67,7 +93,7 @@ pages[24..384].each do |page_ocr|
         if heading[0].match(/[A-Z]/)
           parts = heading.split('-')
           obj = {'heading' => parts[0].to_s.strip, 'slug' => parts[0].to_s.strip.slugify.gsub(/-+/, '')}
-          obj['subheading'] = parts[1].to_s.strip 
+          obj['subheading'] = parts[1].to_s.strip
           seealsos[context.heading] << obj
         else
           # generic entry like "names of animals"
@@ -77,10 +103,17 @@ pages[24..384].each do |page_ocr|
       is_heading = true
     end
     if context.linebuffer.count > 0
+      # look for: previous line ends with inch count in parentheses
+      # and this line start with capital or parenthesis + letter
       if context.linebuffer.last.match(/.*\((\d+)\)$/) &&
-        line[:text].match(/^[A-Z].*/) && !is_heading
-        context.subheading = line[:text].sub(/[\.\-\ ]*$/, '')
-        puts 'subheading: ' + context.heading + ' / ' + context.subheading
+        line[:text].match(/^[A-Z()].*/) && !is_heading
+        if line[:text].match(/^\([A-Z].*/)
+          context.subheading2 = line[:text].gsub(/[()]/, '')
+        else
+          context.subheading1 = line[:text].sub(/[\.\-\ ]*$/, '')
+          context.subheading2 = ''
+        end
+        puts context.subheading1 + ' - ' + context.subheading2 if context.subheading2 != ''
         is_heading = true
       end
     end
@@ -90,12 +123,15 @@ pages[24..384].each do |page_ocr|
     # or an empty one if it can't
     record = Entry.new(context, line[:text], page.seq, line[:index])
 
-    if record.id
+    # do not overwrite existing entries
+    if record.id && !entries[record.id]
       entries[record.id] = record
       context.preventry = record
     end
   end
 end
+# hack to populate the last inches field
+entries[entries.keys.last].store_lines context.linebuffer
 
 puts 'Breaks: ' + context.breaks.to_s
 puts 'Entries: ' + entries.keys.count.to_s
@@ -119,8 +155,9 @@ pages[398..465].each do |page|
     ids = elements[2].split
     terms[term] = { slug: slug, ids: ids }
     ids.each do |id|
-      entries[id.to_i] = Entry.new(context, id.to_i) unless entries[id.to_i]
-      entries[id.to_i].add_term(term: term, slug: slug)
+      id = id.to_f
+      entries[id] = Entry.new(context, id) unless entries[id]
+      entries[id].add_term(term: term, slug: slug)
     end
   end
 end
@@ -176,23 +213,38 @@ classification.each do |c|
 end
 
 # output full data dump
+entries_array = []
+entries.keys.sort.each { |key| entries_array << entries[key].to_hash }
 File.open('output/data.json', 'w') do |f|
   f.puts JSON.pretty_generate(
-    'entries': entries, 'terms': terms, 'issues': context.issues, 'classification': classification
+    'entries': entries_array, 'terms': terms, 'issues': context.issues, 'classification': classification
   )
+end
+
+# output csv of headings
+require "csv"
+CSV.open("output/headings.csv", "w") do |csv|
+  entries_array.each do |entry|
+    csv << [entry[:id], entry[:heading], entry[:subheading1], entry[:subheading2], ]
+  end
 end
 
 # output list of missing ids
 missing = 0
 File.open('output/missing.txt', 'w') do |f|
-  (1..context.highest).each do |key|
-    if !entries.keys.include?(key) || !entries[key].init
+  (1..context.highest.to_i).each do |key|
+    if !MISSINGENTRIES.include?(key) && (!entries.keys.include?(key.to_f) || !entries[key.to_f].init)
       f.puts key.to_s
+      puts 'First missing: ' + key.to_s if missing == 0
       missing += 1
     end
   end
 end
 puts 'Missing: ' + missing.to_s
+
+entries.keys.sort.each do |key|
+  puts 'Missing inches: ' + key.to_s unless (MISSINGENTRIES.include?(key.to_i) || entries[key].inches.is_a?(Integer))
+end
 
 # generate Hugo data
 hugodata = {}
@@ -200,8 +252,19 @@ headings = []
 
 entries.keys.sort.each do |key|
   entry = entries[key]
-  hugodata[entry.heading] = [] unless hugodata[entry.heading]
-  hugodata[entry.heading] << entry.to_hash
+  if !hugodata[entry.heading]
+    hugodata[entry.heading] = {}
+    hugodata[entry.heading][:entries] = []
+    hugodata[entry.heading][:subheadings] = {}
+  end
+  hugodata[entry.heading][:entries] << entry.to_hash
+  
+  if entry.subheading1 && entry.subheading1 != ''
+    hugodata[entry.heading][:subheadings][entry.subheading1] = [] unless hugodata[entry.heading][:subheadings][entry.subheading1]
+  end
+  if entry.subheading2 && entry.subheading2 != ''
+    hugodata[entry.heading][:subheadings][entry.subheading1] << entry.subheading2 unless hugodata[entry.heading][:subheadings][entry.subheading1].include?(entry.subheading2)
+  end
   headings << entry.heading unless headings.include?(entry.heading)
 end
 
@@ -233,14 +296,18 @@ end
 
 headings.each do |heading|
   slug = heading.to_s.gsub('&', 'and').slugify.gsub('-', '')
-
   File.open('hugo/data/headings/' + slug + '.json', 'w') do |f|
     f.puts JSON.pretty_generate(
-      title: heading, slug: slug, entries: hugodata[heading]
+      title: heading, slug: slug, entries: hugodata[heading][:entries]
     )
   end
+  subheadings = []
+  hugodata[heading][:subheadings].each do |subheading|
+    subheadings << {subheading[0] => subheading[1]}
+  end
   yaml = { 'title' => heading, 'slug' => slug, 'count' =>
-    hugodata[heading].count, 'seealso' => seealsos[heading] }.to_yaml
+    hugodata[heading][:entries].count, 'seealso' => seealsos[heading],
+    'subheadings' => subheadings }.to_yaml
   File.open('hugo/content/headings/' + slug + '.md', 'w') do |f|
     f.puts yaml + "\n---\n\n{{< heading >}}\n"
   end
@@ -250,7 +317,7 @@ terms.keys.each do |term|
   slug = term.to_s.gsub('&', 'and').slugify.gsub(/-+/, '')
   termentries = []
   terms[term][:ids].each do |id|
-    termentries << entries[id.to_i].to_hash
+    termentries << entries[id.to_f].to_hash
   end
   File.open('hugo/data/terms/' + slug + '.json', 'w') do |f|
     f.puts JSON.pretty_generate(
