@@ -143,24 +143,40 @@ puts 'Max column: ' + context.maxcolumn.to_s
 terms = {}
 
 # index pages - discover index terms matched to entry numbers
+badcount = 0
 pages[398..465].each do |page|
   # seq = page.xpath('./@id').first.text
   lines = page.xpath('./p[@class="Text"]').first.text.split(/\n+/)
+  inHeader = true
   lines.each do |line|
-    elements = line.match(/^(.*)\, ([0-9\ ]*)$/)
-    next unless elements
-
-    term = elements[1]
-    slug = term.slugify.gsub(/\-+/, '')
-    ids = elements[2].split
-    terms[term] = { slug: slug, ids: ids }
-    ids.each do |id|
-      id = id.to_f
-      entries[id] = Entry.new(context, id) unless entries[id]
-      entries[id].add_term(term: term, slug: slug)
+    next if (inHeader && line.match(/^[(0-9)]*$/))
+    next if (inHeader && line.match(/^INDEX/))
+    inHeader = false
+    line.gsub!(/\ [-.!,:;*º•'‘"“~ ]*$/, '') # remove trailing punctuation
+    line.gsub!(/([0-9])\.\ ?([0-9])/, '\1\2') # remove period between digits
+    
+    elements = line.match(/^(.*)\, ([0-9\ \;\-\/]*)$/)
+    seeref = line.match(/^(.+)\. See (.+)$/)
+    continuation = line.match(/^[0-9\ -\/]*$/)
+    puts line unless elements || seeref || continuation
+    badcount += 1 unless elements || seeref || continuation
+    next unless elements || seeref || continuation
+    if elements
+      term = elements[1]
+      slug = term.slugify.gsub(/\-+/, '')
+      ids = elements[2].split
+      terms[term] = { slug: slug, ids: ids }
+      ids.each do |id|
+        id = id.to_f
+        entries[id] = Entry.new(context, id) unless entries[id]
+        entries[id].add_term(term: term, slug: slug)
+      end
+    else
+      # TODO: handle seeref and continuation
     end
   end
 end
+puts "badcount: #{badcount}"
 
 # classification list
 class_lines = []
