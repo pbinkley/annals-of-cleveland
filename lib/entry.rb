@@ -23,7 +23,7 @@ class Entry
     @context = context
     if line.is_a? String
       metadata = line.match(
-        %r{^(\d+)(-1/2)?\ [-–]+\ ([a-zA-Z]+)[\.,]?\s
+        %r{^(\d+)(-1/2)?\ [-–.]+\ ([a-zA-Z]+)[\.,]?\s
            ((?:Jan.|Feb.|Mar.|Apr.|May|June|July|Aug.|Sept.|Oct.|Nov.|Dec.))\s
            (\d+)[;:,.]+\ ?([a-zA-Z]*)[;:,.]?\ ?(\d+)[/"'](\d+)(.*)$}x
       )

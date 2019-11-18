@@ -166,10 +166,16 @@ pages[398..465].each do |page|
       slug = term.slugify.gsub(/\-+/, '')
       ids = elements[2].split
       terms[term] = { slug: slug, ids: ids }
+      previd = 0.0
       ids.each do |id|
-        id = id.to_f
+        parts = id.split('-')
+        id = parts[0].to_f
+        # handle -1/2 suffix on id
+        id += 0.5 if parts.count == 2 && parts[1] == '1/2'
+        puts "High: #{term} | #{id}" if id > 2774.0
         entries[id] = Entry.new(context, id) unless entries[id]
         entries[id].add_term(term: term, slug: slug)
+        previd = id
       end
     else
       # TODO: handle seeref and continuation
@@ -230,10 +236,16 @@ end
 
 # output full data dump
 entries_array = []
-entries.keys.sort.each { |key| entries_array << entries[key].to_hash }
+entries.keys.sort.each do |key|
+  entries_array << entries[key].to_hash
+  puts "half-key: #{key}" if key % 1 == 0.5
+end
 File.open('output/data.json', 'w') do |f|
   f.puts JSON.pretty_generate(
-    'entries': entries_array, 'terms': terms, 'issues': context.issues, 'classification': classification
+    'entries': entries_array,
+    'terms': terms,
+    'issues': context.issues,
+    'classification': classification
   )
 end
 
