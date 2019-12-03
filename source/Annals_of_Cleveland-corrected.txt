@@ -7665,6 +7665,7 @@ in the United States." (2)
 111 
 
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
+
 Abstracts 670 • 674 
 
 FOREIGN RELATIONS (Cont'd) 
@@ -8216,7 +8217,9 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TQ DEC. 31, 1845
 
 Abstracts 726 - 737 
 
-HARDWARE / . ' ' .' 
+PLACEHOLDER
+
+HARDWARE
 
 726 - H Jan. 3; adv:l/5 • Tin, Sheet Iron, Copper and Wire, Now Receiving 
 100 Boxes Tin Plate, superior quality, 5 ton Sheet Iron; 1 ton Copper 
@@ -8546,7 +8549,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 756 - 760 
 
-HOLIDAYS (Cont'd) V-.-v;. 
+HOLIDAYS (Cont'd)
 
 756 - H Mar. 24:2/2 - In a letter to the editor, "Vindex" says: The 
 churches throughout the United States have fallen into a very singular '' 
@@ -8678,7 +8681,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 764 - 765 
 
-HOLIDAYS (Cont'd) -.•- -^ -.•■.. 
+HOLIDAYS (Cont'd)
 
 attendance, and the Fire Department will give a cold shower immediately 
 in front of the store at 11 a.m. 
@@ -9221,7 +9224,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 798 - 803 
 
-HORTICULTURE (Cont'd) ' ■ '' '" - ■ 
+HORTICULTURE (Cont'd)
 
 B. Harrington, H. H. Corr of Euclid. 
 
@@ -9414,6 +9417,8 @@ HOUSEHOLD EQUIPMENT &amp; FURNISHINGS. See Retail Stores &amp; Trade
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
 Abstracts 814 - 820 
+
+PLACEHOLDER
 
 IMMIGRATION &amp; EMIGRATION 
 
@@ -9757,9 +9762,9 @@ tors Chairman of the firm. (4)
 
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
-Abstracts 853 - 859 '- " ' • 
+Abstracts 853 - 859 
 
-INSURANCE (Cont'd) ' ' •- " '■■•''• -^--' 
+INSURANCE (Cont'd) 
 
 853 - H July 3; adv:2/5 - Lawrence and Wright, Merwin Square, local 
 agents for Mutual Benefit Life Insurance Co. of New York. 
@@ -9867,7 +9872,9 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 864 - 869 '■ ' 
 
-JEWELRY &amp; JEWELERS '' ^' ' ' " • •- ■ ;••".' 
+PLACEHOLDER
+
+JEWELRY &amp; JEWELERS
 
 864 - H Jan. 3; adv:l/6 - Britannia Tea Pots Just Rec'd. Those wishing 
 
@@ -9973,6 +9980,8 @@ of San Jacinto. (verbatim) (I)
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
 Abstracts 877 - 883 
+
+PLACEHOLDER
 
 LAWS. See Politics &amp; Government; specific subjects of laws 
 
@@ -10104,7 +10113,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 888 -893 ■ • ; 
 
-LECTURES &amp; SPEECHES (Cont'd) ' ' : ■ 
+LECTURES &amp; SPEECHES (Cont'd)
 
 888 - H Feb. 21; ed:2/l • "Granite's" brief communication, a few days 
 since, opened a question very similar to most others, in the fact that 
@@ -10430,6 +10439,8 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 928 - 932 
 
+PLACEHOLDER
+
 LIBEL &amp; SLANDER 
 
 928 - H July 25; ed:3/l - The Dayton JOURNAL announces that Judge Holt, 
@@ -10676,6 +10687,8 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 954 - 958 
 
+PLACEHOLDER
+
 MACHINERY 
 
 954 - H Aug. 1^:3/2 - In a letter to the editor, "Curious" says: During 
@@ -10743,7 +10756,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 959 - 968 
 
-MARBLE &amp; STONE (Cont'd) ■ ^ : 
+MARBLE &amp; STONE (Cont'd)
 
 959 - H July 23; adv:2/5 - Cleveland Marble Factory, No. 17 Seneca st. 
 Thomas Jones &amp; Sons keep constantly on hand an assortment of the best 
@@ -11284,6 +11297,8 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 1006 ■ 1010 
 
+PLACEHOLDER
+
 MEDICAL PROFESSION - Medical Colleges 
 
 new College edifice. The Class of Students will be large, and the 
@@ -11556,6 +11571,7 @@ rioters, for their own house is glass all round." (3)
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
 Abstracts 1026 - 1024 
+
 MOBS &amp; RIOTS (Cont'd) 
 
 H Sept. 19; ed:2/l,2 • See Newspapers 
@@ -11686,7 +11702,9 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 1039 - 1043 
 
-MUSEUMS &amp; GALLERIES '' '■•'•'-'''' ^ - '•'''' 
+PLACEHOLDER
+
+MUSEUMS &amp; GALLERIES
 
 1039 - H Nov. 10; ed:3/I - The Cleveland medical faculty has tendered a 
 splendid cabinet of specimens of natural curiosities to our citizens, 
@@ -12479,6 +12497,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 Abstracts 1117 - 1118 
 
 MUSICAL INSTRUMENTS (Cont'd) 
+
 Will please his customers. 
 
 All orders may be left at Hanks &amp; Hopkins' Painting Rooms, No, 80 
@@ -12502,6 +12521,8 @@ See also Music
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC, 31. 1845 
 
 Abstracts 1119 - 1121 . ;•] - -;;; ^}-r^--:^d': 
+
+PLACEHOLDER
 
 NATURAL HISTORY. See Museums &amp; Galleries • . 
 
@@ -12746,7 +12767,7 @@ circulated after the services and were numerously signed. (2)
 
 
 
-1'90
+190
 
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
@@ -13695,7 +13716,9 @@ at 2 p.m. A general attendance of the members is requested. (1)
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
 Abstracts 1207 - 1209 
+
 ORGANIZATIONS (Cont'd) 
+
 Cultural 
 
 1207 • H Nov. 25:3/1 • Tbe Academy of Natural Science, a society of 
@@ -13733,9 +13756,10 @@ the poor ye shall always have with you." (verbatim) (1)
 205
 
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1840 
+
 Abstracts 1210 - 1213 
 
-
+PLACEHOLDER
 
 PACKING INDUSTRY 
 
@@ -13864,6 +13888,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 Abstracts 1221 - 1224 
 
 PENAL &amp; CORRECTIVE INSTITUTIONS ^.Cont'd) 
+
 and notice of Mr. Child's letter. 
 
 That there has been a great change in prison discipline and in the 
@@ -14124,7 +14149,8 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 1240 - 1244 
 
-PERIODICAL PUBLICATIONS (Cont'd) 
+PERIODICAL PUBLICATIONS (Cont'd)
+
 agricultural friends. 
 
 "The work is well got up, the engravings well executed, and printed 
@@ -14248,6 +14274,8 @@ lake commerce, and important business statistics. (1)
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
 Abstracts 1249 • 1254 
+
+PLACEHOLDER
 
 PERSONS &amp; PERSONAGES 
 
@@ -14388,7 +14416,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 1263 - 1266 
 
-PHOTOGRAPHY (Cont'd) ■,.■:: 
+PHOTOGRAPHY (Cont'd)
 
 The process I am now to describe, and which I shall call "Actinography," ;.' 
 is easy in preparation and is very cheap. The image is obtained by the 
@@ -14451,6 +14479,8 @@ graphist. (2)
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
 Abstracts 1267 - 1271 
+
+PLACEHOLDER
 
 POETRY &amp; POETS 
 
@@ -15395,6 +15425,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 Abstracts 1328 - 1332 
 
 POLITICAL CAMPAIGNS &amp; ELECTIONS - Cleveland &amp; Cuyahoga (Cont'd) 
+
 such election. 
 
 Therefore, I, Samuel Starkweather, Mayor of the City of Cleveland, do 
@@ -15525,6 +15556,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 Abstracts 1340 - 1345 
 
 POLITICAL CAMPAIGNS &amp; ELECTIONS - Cleveland &amp; Cuyahoga (Cont'd) 
+
 ff. T. Goodwin; Constables - Seth A. Abbey, Thomas McKinstry, Stoughton 
 Bliss, Erastus Smith. (verbatim) (2) 
 
@@ -15772,7 +15804,7 @@ to think about the October election, and we would urge upon your
 
 235 
 
-CLEVEUND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
+CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
 Abstracts 1371 - 1373 ..... ..^ .^., 
 
@@ -16033,6 +16065,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 Abstracts 1394 - 1397 
 
 POLITICAL CAMPAIGNS &amp; ELECTIONS - Ohio (Cont'd) 
+
 commissioner. 
 
 The Whig candidates for representatives in Summit and Portage counties 
@@ -16095,6 +16128,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 Abstracts 1398 - 1399 
 
 POLITICAL CAMPAIGNS &amp; ELECTIONS - Ohio (Cont'd) 
+
 is largely a Whig state, says Benedict, but often, with the battle won 
 the Whigs rest on their oars and give the enemy Locos an opportunity to 
 slip in. The coming election, because it is an ordinary state election, 
@@ -16223,6 +16257,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 Abstracts 1405 - 1411 
 
 POLITICAL CAMPAIGNS &amp; ELECTIONS - Ohio (Cont'd) 
+
 commendation of Col. Collier, we think it hardly time yet to open the 
 canvass for a candidate, as several months we trust will intervene before 
 holding a State convention to nominate." (2) 
@@ -16480,6 +16515,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 Abstracts 1431 
 
 POLITICAL CAMPAIGNS &amp; ELECTIONS ■ United States (Cont'd) 
+
 1431 - H Oct. 22; ed:3/l - Florida. - An election for a Representative 
 in Congress from the state of Florida, to supply the vacancy caused by 
 the choice of David Levy as a United States Senator, took place on the 
@@ -16497,6 +16533,8 @@ See also Political Parties; Politics &amp; Government -
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
 Abstracts 1432 - 1437 
+
+PLACEHOLDER
 
 POLITICAL PARTIES 
 
@@ -16557,7 +16595,7 @@ of the state from the designs of the Federalists.
 
 
 
-2'48
+248
 
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
@@ -16878,6 +16916,9 @@ Politics &amp; Government
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC, 31, 1845 
 
 Abstracts 1454 - 1459 
+
+PLACEHOLDER
+
 POLITICS &amp; GOVERNMENT 
 Cleveland &amp; Cuyahoga 
 
@@ -17589,6 +17630,8 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 1509 - 1514 
 
+PLACEHOLDER
+
 POLITICS &amp; GOVERNMENT - United States 
 
 1509 - H Sept. 9; ed:3/l - As usual, the west is entirely overlooked in 
@@ -18121,6 +18164,8 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 1554 - 1556 
 
+PLACEHOLDER
+
 PUBLIC AUCTIONS. See Auctions &amp; Auctioneers 
 
 PUBLIC SQUARES &amp; CIRCLES 
@@ -18160,6 +18205,8 @@ sary either this year or the next. (verbatim) (2)
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
 Abstracts 1557 - 1562 
+
+PLACEHOLDER
 
 RAILROADS 
 
@@ -19702,7 +19749,7 @@ healthier and happier, we will apprise our readers in due time. At
 
 297 
 
-CLEVSLAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
+CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
 Abstracts 1567 - 1669 
 
@@ -20432,7 +20479,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 1736 - 1737 
 
-ROADS &amp; HIGHWAYS (Cont'd) ■ • 
+ROADS &amp; HIGHWAYS (Cont'd)
 
 thus to raise the price, and before these bonds are paid, and without 
 paying much increased taxes, dispose of said lots, leaving the purchaser 
@@ -20592,6 +20639,8 @@ See also Streets
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
 Abstracts 1742 - 1749 
+
+PLACEHOLDER
 
 SCHOOLS &amp; SEMINARIES 
 
@@ -20857,6 +20906,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 Abstracts 1767 - 1771 
 
 SCHOOLS &amp; SEMINARIES (Cont'd) 
+
 satisfy every reasonable expectation. 
 
 Having engaged the services of an able and experienced assistant, he 
@@ -21111,6 +21161,8 @@ See also Colleges &amp; Universities; Education
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
 Abstracts 1791 - 1794 
+
+PLACEHOLDER
 
 SCIENCE &amp; TECHNOLOGY 
 
@@ -21826,7 +21878,7 @@ tons iron and took on board at Buffalo 200 barrels salt and two tons goods,
 
 
 
-S30
+330
 
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31. 1845 
 
@@ -22102,7 +22154,7 @@ the slave States, would sit down and calmly and dispassionately examine
 
 
 
-SS4
+334
 
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
@@ -22496,6 +22548,8 @@ Political Parties; Churches &amp; Sects; Sectionalism
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
 Abstracts 1901 - 1905 
+
+PLACEHOLDER
 
 SOAP 
 
@@ -22929,6 +22983,8 @@ SURGERY. See Medicine &amp; Surgery
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
 Abstracts 1941 - 1944 
+
+PLACEHOLDER
 
 TARIFF 
 
@@ -23462,7 +23518,7 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 1972 - 1975 
 
-TEMPERANCE (Cont'a) 
+TEMPERANCE (Cont'd) 
 
 of Brooklyn. Temperance reports from S. Storer of Brooklyn, Freeman of 
 
@@ -24390,6 +24446,8 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 2042 - 205 D 
 
+PLACEHOLDER
+
 TEXAS. See Annexation &amp; Expansion - Texas 
 
 THEATER 
@@ -24568,6 +24626,8 @@ CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845
 
 Abstracts 2058 - 2061 
 
+PLACEHOLDER
+
 UNITED STATES ARMY 
 
 2058 - H Aug. 9:2/4 - General Order, No. 2 - Head Quarters, 1st Brigade, 
@@ -24632,7 +24692,7 @@ tion of our immediate Representative." (9)
 
 373 
 
-CLEVELARD NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
+CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
 Abstracts 2062 - 2036 
 
@@ -24697,6 +24757,8 @@ Hair Cloth, Moss, Sofa Springs, etc. etc. (1)
 CLEVELAND NEWSPAPER DIGEST JAN. 1 TO DEC. 31, 1845 
 
 Abstracts 2067 - 2072 
+
+PLACEHOLDER
 
 VEHICLES . . :. 
 
