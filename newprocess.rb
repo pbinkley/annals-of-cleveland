@@ -2,6 +2,31 @@
 
 require 'byebug'
 
+def report_list(list, name)
+  lastNumber = 0
+  missingNumbers = []
+  disorderedNumbers = []
+  list.each do |n|
+    if n < lastNumber + 1
+      # out of order
+      disorderedNumbers << n
+    elsif n != lastNumber + 1
+      missingNumbers +=  (lastNumbers + 1 .. n - 1).to_a
+    end
+    lastNumber = n
+  end
+  if missingNumbers.empty?
+    puts "No missing #{name} numbers"
+  else
+    puts "Missing #{name} numbers: #{missingPageNumbers.map { |p| p.to_s }.join(' ')}"
+  end
+  if disorderedNumbers.empty?
+    puts "No disordered #{name} numbers"
+  else
+    puts "Disordered #{name} numbers: #{disorderedPageNumbers.map { |p| p.to_s }.join(' ')}"
+  end
+end
+
 text = ''
 counter = 1
 File.readlines(ARGV[0]).each do |line|
@@ -20,28 +45,15 @@ BREAKREGEX =  /
 
 breaks = text.scan(BREAKREGEX)
 
-pagenumbers = [0]
-missingPageNumbers = []
-disorderedPageNumbers = []
+pageNumberList = []
 breaks.each do |b|
   n = b.match(/\A\n[0-9]*\|([0-9]+).*\z/m)[1].to_i
-  if n < pagenumbers.last + 1   
-    # out of order
-    disorderedPageNumbers << n
-  elsif n != pagenumbers.last + 1
-    missingPageNumbers +=  (pagenumbers.last + 1 .. n - 1).to_a
-  end
-  pagenumbers <<  n
+  pageNumberList << n
   # remove page-break lines from text
   text.sub!(b, '')
 end
 
-if missingPageNumbers.empty?
-  puts 'No missing page numbers'
-else
-  puts 'Missing page numbers: ' + missingPageNumbers.map { |p| p.to_s }.join(' ')
-end
-
+report_list(pageNumberList, 'page')
 
 # Parse entries
 
@@ -65,11 +77,9 @@ entries.each do |entry|
 end
 
 headings.each do |heading|
-  #puts heading
+  puts heading
 end
 
-puts 'Pages: ' + pagenumbers.count.to_s
-puts 'Missing: ' + missingPageNumbers.count.to_s
-puts 'Disordered: ' + disorderedPageNumbers.count.to_s
+puts 'Pages: ' + pageNumberList.count.to_s
 puts 'Headings: ' + headings.count.to_s
 puts 'Entries: ' + entries.count.to_s
