@@ -11,19 +11,19 @@ def report_list(list, name)
       # out of order
       disorderedNumbers << n
     elsif n != lastNumber + 1
-      missingNumbers +=  (lastNumbers + 1 .. n - 1).to_a
+      missingNumbers +=  (lastNumber + 1 .. n - 1).to_a
     end
     lastNumber = n
   end
   if missingNumbers.empty?
     puts "No missing #{name} numbers"
   else
-    puts "Missing #{name} numbers: #{missingPageNumbers.map { |p| p.to_s }.join(' ')}"
+    puts "Missing #{name} numbers: #{missingNumbers.map { |p| p.to_s }.join(' ')}"
   end
   if disorderedNumbers.empty?
     puts "No disordered #{name} numbers"
   else
-    puts "Disordered #{name} numbers: #{disorderedPageNumbers.map { |p| p.to_s }.join(' ')}"
+    puts "Disordered #{name} numbers: #{disorderedNumbers.map { |p| p.to_s }.join(' ')}"
   end
 end
 
@@ -50,7 +50,7 @@ breaks.each do |b|
   n = b.match(/\A\n[0-9]*\|([0-9]+).*\z/m)[1].to_i
   pageNumberList << n
   # remove page-break lines from text
-  text.sub!(b, '')
+  text.sub!(b, "\n")
 end
 
 report_list(pageNumberList, 'page')
@@ -58,6 +58,13 @@ report_list(pageNumberList, 'page')
 # Parse entries
 
 entries = text.scan(/^([0-9]+\|[0-9OlI]+ [\-•\.■] .+?\s*\([0-9OlI]+\))\s*$/m)
+entryNumberList = []
+entries.each do |entry|
+  n = entry[0].match(/\A[0-9]+\|([0-9OlI]+).*/)[1].gsub('O', '0').gsub(/[lI]/, '1').to_i
+  entryNumberList << n
+end
+
+report_list(entryNumberList, 'entry')
 
 # Identify "between" lines, which are either errors or headings
 
@@ -71,13 +78,8 @@ betweens.each do |between|
 end
 headings.reject! { |heading| heading == '' }
 
-entries.each do |entry|
-#  puts entry.first.match(/^[0-9]+\|[0-9OlI]+/)
-  #puts entry.first.split("\n").first
-end
-
 headings.each do |heading|
-  puts heading
+ # puts heading
 end
 
 puts 'Pages: ' + pageNumberList.count.to_s
