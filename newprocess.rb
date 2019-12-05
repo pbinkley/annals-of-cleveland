@@ -1,6 +1,24 @@
 #!/usr/bin/env ruby
 
+require 'date'
+require 'damerau-levenshtein'
 require 'byebug'
+
+  MONTHS = {
+    'Jan.' => 1,
+    'Feb.' => 2,
+    'Mar.' => 3,
+    'Apr.' => 4,
+    'May' => 5,
+    'June' => 6,
+    'July' => 7,
+    'Aug.' => 8,
+    'Sept.' => 9,
+    'Oct.' => 10,
+    'Nov.' => 11,
+    'Dec.' => 12
+  }.freeze
+
 
 def report_list(list, name)
   lastNumber = 0
@@ -25,6 +43,10 @@ def report_list(list, name)
   else
     puts "Disordered #{name} numbers: #{disorderedNumbers.map { |p| p.to_s }.join(' ')}"
   end
+end
+
+def convert_OCR_number(number)
+  number.gsub('O', '0').gsub(/[lI!T]/, '1').gsub(/[GS]/, '5').to_i
 end
 
 text = ''
@@ -57,7 +79,7 @@ report_list(pageNumberList, 'page')
 
 # Parse entries
 
-entries = text.scan(/^([0-9]+\|[0-9OlI]+ [\-•\.■] .+?\s*\([0-9OlI]+\))\s*$/m)
+entries = text.scan(/^([0-9]+\|[0-9OlI]+\s*[\-•\.■]\s*.+?\s*\([0-9OlI]+\))\s*$/m)
 entryNumberList = []
 entries.each do |entry|
   n = entry[0].match(/\A[0-9]+\|([0-9OlI]+).*/)[1].gsub('O', '0').gsub(/[lI]/, '1').to_i
@@ -65,6 +87,76 @@ entries.each do |entry|
 end
 
 report_list(entryNumberList, 'entry')
+
+parsedEntries = 0
+year = 1845
+
+entries.each do |entry|
+  lines = entry.first.split("\n")
+  lines.reject! { |line| line.strip == '' }
+  inputLine = lines.first
+  line, lineNum, id, half, newspaper, month, day, type, page, column = inputLine.match(
+    %r{^(\d+)\|(\d+)(-1/2)?\s       # '1234/123-1/2' line and entry
+       [-–.•■]+\ ([a-zA-Z]+)[\.,]?\s   # '- H' newspaper
+       (\S+)\s                         #month
+       ([\dOlI!TGS]+)[;:,.]+\s?        # '2:' day
+       ([a-zA-Z]*)[;:,.]?\s?        # 'ed' type (ed, adv)
+       ([\dOlI!TGS]+)[/"']([\dOlI!TGS]+)(.*)$         # '2/3' page and column
+    }x
+  ).to_a
+
+  parsed = false
+  if lineNum
+    @day = convert_OCR_number(day)
+    month.gsub!(',', '.')
+    unless MONTHS[month]
+      guess = ''
+      guessdistance = 10
+      MONTHS.keys.each do |key|
+        newGuessDistance = DamerauLevenshtein.distance(month, key, 0)
+        if newGuessDistance < guessdistance
+          guess = key
+          guessdistance = newGuessDistance
+        end
+      end
+      puts "#{lineNum} Guess: #{month} -> #{guess} (#{guessdistance})"
+      month = guess
+    end
+    begin
+      date = Date.new(year, MONTHS[month], @day)
+    rescue StandardError => e
+      puts line
+      puts e.message  
+    end
+    if date
+      @lineNum = lineNum.to_i
+      @id = id.to_f
+      # handle -1/2 suffix on id
+      @id += 0.5 if half == '-1/2'
+  
+  #    @seq = seq
+  #    @line = index
+      @newspaper = newspaper.to_sym
+      @month = MONTHS[month]
+      @displaydate = date.strftime('%e %B %Y')
+      @formatdate = date.to_s
+      @page = convert_OCR_number(page)
+      @column = convert_OCR_number(column)
+      @type = type
+  #    @init = metadata[10]
+  #    @heading = @context.heading
+  #    @subheading1 = @context.subheading1
+  #    @subheading2 = @context.subheading2
+  #    @terms = []
+
+      parsed = true
+    end
+  end
+  parsedEntries += 1 if parsed
+  puts "bad line: #{inputLine}" unless parsed
+end
+
+puts "Parsed: #{parsedEntries}/#{entries.count}"
 
 # Identify "between" lines, which are either errors or headings
 

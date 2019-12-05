@@ -180,7 +180,7 @@ V
 Abstracts 
 
 
-1 - 
+ 1 - 
 
 
 - 383 
@@ -189,7 +189,7 @@ Abstracts
 Chronological Index 
 
 
-385 - 
+ 385 - 
 
 
 397 
@@ -205,7 +205,7 @@ Subject Heading and
 Proper Names Index 
 
 
-399 - 
+ 399 - 
 
 
 ■ 454
@@ -912,7 +912,7 @@ cret of the anxiety of the South to annex Texas; the spread of slavery,
 and a controlling slave influence in Congress, are the only objects cared 
 for by these "sympathizing patriots." (verbatim) (1) 
 
-41 - H Jan. 33; ed:3/l - "The House on Saturday voted to annex Texas to 
+41 - H Jan. 30; ed:3/l - "The House on Saturday voted to annex Texas to 
 the United States, by a small majority, and the same appliances and mo- 
 tives that carried the scheme through the House will very possibly give 
 it favor with a majority of the Senate 
@@ -1281,7 +1281,7 @@ into the service of the United States! He is about calling for some
 30,000 volunteers on drafts from all the States bordering on the Miss- 
 issippi below the Ohio river!!" (1) 
 
-69 - H Sept. 12; ed:2, 1 - The Texan congress has, after much debate, 
+69 - H Sept. 12; ed:2/1 - The Texan congress has, after much debate, 
 approved a measure which is intended to prevent collection of claims 
 against Texas inhabitants by United States citizens, in the event of annex- 
 ation. "Annexation may well be popular in the 'lone star Republic,' if 
@@ -1322,7 +1322,7 @@ fully and quiet their empty blusters.
 "It now seems to be settled, almost beyond a question, that there will 
 be no war, nor difficulty of any sort with Mexico." (5) 
 
-73 - H Nov. 11; e:l:3/l - The U. S. Steamship MISSISSIPPI arrived at Pen- 
+73 - H Nov. 11; ed:3/l - The U. S. Steamship MISSISSIPPI arrived at Pen- 
 sacola on the 29th ult. from Vera Cruz direct in five days. The Mobile 
 TRIBUNE says she brings no general intelligence of interest, but she 
 
@@ -2516,7 +2516,7 @@ beautifully printed, and should find a place in every Library.
 
 (verbatim) (2) 
 
-182 - H Sept. 25; ad\:2/4 - THE LOVE M\TCH, by Henry Cochton Esq., 
+182 - H Sept. 25; adv:2/4 - THE LOVE M\TCH, by Henry Cochton Esq., 
 
 the complete work for sale by M. C. Younglove. (1) 
 
@@ -2605,7 +2605,7 @@ was the Master spirit, is now the only American Vessel afloat on that
 lake. Additional vessels will be put in service on Lake Superior this 
 season. (4) 
 
-193 - H July 16; ed:2/] • The NATIONAL MAGAZINE of England exalts in 
+193 - H July 16; ed:2/1 • The NATIONAL MAGAZINE of England exalts in 
 its latest issue the success and prosperity of the British copper smelting 
 and distributing industry, claiming for that country a monopoly of the 
 copper trade. The periodical states among other things that Britain 
@@ -3478,7 +3478,7 @@ meeting of the North Ohio conference of the Methodist Episcopal Church
 at Marion on Aug. 13 include H. S. Bradley in Ohio City, and H. L. 
 Parrish and W. Cely in Brooklyn. (4) 
 
-271 - 11 Aug. 30:2/4 - The ladies of the First Congregational church and 
+271 - H Aug. 30:2/4 - The ladies of the First Congregational church and 
 society of Cuyahoga Falls will hold a fair in Union hall on the afternoon 
 and evening of Wednesday, the 17th day of September next, to aid 
 
@@ -3982,7 +3982,7 @@ visor the year past. (3)
 was authorized to draw orders in favor of judges and clerks of the late 
 election, $3 each. (1) 
 
-322 - 11 Mar. 31:3/3 - On Mar. 17, James B. Finney, city clerk, presented 
+322 - H Mar. 31:3/3 - On Mar. 17, James B. Finney, city clerk, presented 
 the following report to the city council: general fund receipts, $10,276.01; 
 expenditures, $10,276.01; road fund receipts, $3,165.18; expenditures, 
 $3,165.18; school fund receipts, $8,168.48; expenditures $8,168.48; ceme- 
@@ -4091,7 +4091,7 @@ Caps. &amp;c. &amp;c., and would respectfully solicit a share of public patronag
 Every variety of Artificial Flowers Manufactured to order if required. 
 Country Milliners respectfully invited to call. (verbatim) (1) 
 
-337 - H Jan. 27; a-lv: 1/6 • The subscriber would respectfully inform his 
+337 - H Jan. 27; adv: 1/6 • The subscriber would respectfully inform his 
 friends and the public in general, that he has taken the store recently 
 occupied by Samuel Morse (next door below Franklin Buildings, Superior 
 Lane.) where he intends keeping a general assortment of Cloths, Cassi- 
@@ -4197,7 +4197,7 @@ rior-st. (verbatim) (2)
 of Shirts. The public are invited to call and take a look at them be- 
 fore purchasing elsewhere. T, W. Morse. (verbatim) (1) 
 
-351 - H July 7; ad^'r3/7 - Monday Morning, June 2, 1845. Another Arrival 
+351 - H July 7; adv:3/7 - Monday Morning, June 2, 1845. Another Arrival 
 Of Entire New Styles Ladies Dress Goods, viz: Shaded Tarlton, Balzorines, 
 (new patterns), Palmyrines, (very rich) Brocha and Cashmere Shawls, Barege 
 
@@ -5805,7 +5805,7 @@ intermittent fever chised his long and useful life, He was born in
 
 Berlin, Conn. (verbatim) (1) 
 
-477 • H Sept. 3T; ed:2/4 - Mortuary Chambers - In order to guard against 
+477 • H Sept. 30; ed:2/4 - Mortuary Chambers - In order to guard against 
 premature interments there is attached to most of the cemeteries in Germnny 
 a hall where the dead remain some time before being committed to the 
 ground. In this hall the body, neatly attired, is laid upon a couch - • 
@@ -5886,7 +5886,7 @@ heretofore a source of trouble, is by this method entirely obviated, and
 
 the teeth are made more durable and less complicated. (2) 
 
-486 - H Nov. 12; aiv:2''4 - Dental Surgery. Drs. Wright and Hamlen. Sur- 
+486 - H Nov. 12; adv:2/4 - Dental Surgery. Drs. Wright and Hamlen. Sur- 
 gical and Mechanical Dentists, have formed a partnership, and will perform 
 all useful operations in the best manner, and on reasonable terms. 
 
@@ -6047,7 +6047,7 @@ Abstracts 500 - 505
 
 DIVORCE &amp; ALIMONY (Cont'd) 
 
-500 - 11 Dec. 20:2/4 - Emma Shore through her attorneys, Bishop and 
+500 - H Dec. 20:2/4 - Emma Shore through her attorneys, Bishop and 
 Backus, has sued in common pleas court here for a divorce from John 
 Shore, charging gross neglect of duty. She prays for divorce, and for 
 
@@ -6538,7 +6538,7 @@ Rooms will be open from 10 to 12 A.M., from 2 to 4 P.M., and from
 
 Normal Schools 
 
-559 - 11 July 3:2/2 - A meeting of the students of the Western Reserve 
+559 - H July 3:2/2 - A meeting of the students of the Western Reserve 
 Teachers seminary took place at Kirtland, 0., on June 27, at which J. G. 
 Coleman was presiding officer and J. C. Reeve, secretary. S. H. Bushnell, 
 R. H. Osborn, and H. Benton presented resolutions expressing the feelings 
@@ -7324,7 +7324,7 @@ on the rope.
 "It will save t' e almosf ir.sjpp irtable labor now experienced by firemen, 
 and be, with'.ut djubt, a mjst invaluable i nprovement." (3) 
 
-637 - not. 10:3/1 - Tl.e dwelling house of Mr. O'e]], on Pittsburgh street, 
+637 - H Oct. 10:3/1 - Tl.e dwelling house of Mr. O'e]], on Pittsburgh street, 
 in the vicinity of the Pittsburgh House, was burned last night. The loss 
 was from $300 to $1000. There was no insurtnce. 
 
@@ -7960,7 +7960,7 @@ quantity growing large. The rains of late have been general in the
 State, and will do much to push forward crops and allay croaking and 
 panic." (3) 
 
-705 - H July !; ad v: 3/5 - Shorts and Corn. A cargo of shorts from 
+705 - H July 1; adv: 3/5 - Shorts and Corn. A cargo of shorts from 
 the Black Rock Mills, N. Y., for sale by the subscriber, in quantities 
 to suit purchasers. Also 1000 bushels first rate corn at my store house 
 
@@ -8279,7 +8279,7 @@ will find it to their advantage to call and examine a consignment of hard-
 ware just received from New York, for sale for Cash or approved paper. 
 Barber &amp; Girly. Merwin st. and dock. (1) 
 
-740 - H Dec. 17; adv:2/fi - Removed. W. Bingham &amp; Co. have removed their 
+740 - H Dec. 17; adv:2/5 - Removed. W. Bingham &amp; Co. have removed their 
 Hardware, &amp;c. to the west store, in Johnson's Block, directly opposite 
 
 the American House. (1) 
@@ -10304,7 +10304,7 @@ will attend to all Professional Business entrusted to his care. Office
 
 over J. H. Crittenden's Leather Store, in the Central Buildings. (1) 
 
-912 - 11 Jan. 3; adv:l/l - Attorney Samuel L. Mather, Attorney and 
+912 - H Jan. 3; adv:l/l - Attorney Samuel L. Mather, Attorney and 
 Counsellor at Law, Cleveland, Ohio, will attend to all professional 
 business entrusted to his care: in this and the neighboring counties. (1) 
 
@@ -10665,7 +10665,7 @@ PLACEHOLDER
 
 MACHINERY 
 
-954 - H Aug. 1^:3/2 - In a letter to the editor, "Curious" says: During 
+954 - H Aug. 18:3/2 - In a letter to the editor, "Curious" says: During 
 a recent visit to Buckstone's lath-cutting establishment along the canal, 
 and above the Merwin st., bridge, I saw laths tumbling out at the rate 
 of 80 to 100 per minute from a most ingenious machine. I was surprised 
@@ -13234,7 +13234,7 @@ Abstracts 1164 - 1169
 
 NEWSPAPERS (Cont'd) 
 
-1164 - H Aug. 2; adv:3l - Evening HERALD Removal, The Office of the 
+1164 - H Aug. 2; adv:3/l - Evening HERALD Removal, The Office of the 
 Cleveland HERALD has been removed from the Central Buildings, to Nos. 7 
 and 8, Second Story, Merchants' Exchange, Superior st. (verbatim) (1) 
 
@@ -13822,7 +13822,7 @@ Paints, Paper Hangings, Glass, etc., No. 10 Water street. (1)
 Paper, Paints, Oils, Varnish, Sash and Glass; Window Shades, Cords and 
 Tassels at No. 37 Water st. N. B. All at reduced prices for cash. (1) 
 
-1217 - H July 2; advr-i/S - Bronzes - GoH, Silver, Copper. White Metal, 
+1217 - H July 2; adv: 1/5 - Bronzes - GoH, Silver, Copper. White Metal, 
 Scarlet, Green &amp;c., Bronzes; also Gold, Silver and French Leaf, for sale 
 
 by Handerson &amp; Panderson. (1) 
@@ -13880,7 +13880,7 @@ this money for themselves or families."
 and kind tre'itraent, no matter whether that man walks unmolested in the 
 world, or whether he occupies a felon's cell." (17) 
 
-1221 - H Apr. 7; ed:3, 1 - The people of Louisville biast of a splendid 
+1221 - H Apr. 7; ed:3/1 - The people of Louisville biast of a splendid 
 new jail, with turrets and plenty of ornamental work. 
 
 The substantials were not so well looked to, for ..n the night of 
@@ -15725,7 +15725,7 @@ POLITICAL CAMPAIGNS &amp; ELECTIONS - Cleveland &amp; Cuyahoga (Cont'd)
 Barnett, as a candidate for treasurer, subject to the decision of the 
 convention. (verbatim) (1) 
 
-1362 - H Sept. GO; ed:3/l - The Wayne county DEMOCRAT says: The Whig 
+1362 - H Sept. 20; ed:3/l - The Wayne county DEMOCRAT says: The Whig 
 ticket of Cuyahoga county, as set up in the Cleveland HERALD, resembles 
 a coffin. Is not this the coffin in which federalism in that county is 
 destined soon to be encased, friend Harris? 
@@ -15806,7 +15806,7 @@ people in its naked hideousness, and every Whig be a committee of vigi-
 lance to see that the monster does not steal even a rag to hide its true 
 character - Locofocoism wearing the pure vesture of True Democracy!" (6) 
 
-1372 - H Aug. 15; ed:2T - As the fall election approaches, it is well 
+1372 - H Aug. 15; ed:2/1 - As the fall election approaches, it is well 
 to look over the battlefield and see what is to be done, and what there 
 is to fight for. 
 
@@ -15926,7 +15926,7 @@ T. Blnkeslee of Chagrin Falls, as a candidate for our representative,
 subject to the Whiti County Convention, and thereby oblige The People, 
 (verbatim) (1) 
 
-1385 - H Sept. 12; ed:.''/l - The Whigs of Cuyahoga, through their dele- 
+1385 - H Sept. 12; ed:3/l - The Whigs of Cuyahoga, through their dele- 
 gates, mret here tomnrrow to put in nomination candidates for the several 
 state and county officers to be voted on the second Tuesday of October. 
 
@@ -16217,7 +16217,7 @@ not insensible to the fact that in legislation as well as in other matters,
 'handsome is that handsome does, ' and that no sectional feeling should 
 govern in the enactment of laws for the general weal." (6) 
 
-1404 - 11 Oct. 25; ed:3/l - The Wooster DEMOCRAT suggests Col. James 
+1404 - H Oct. 25; ed:3/l - The Wooster DEMOCRAT suggests Col. James 
 Collier of Steubenville as the next Whig candidate for governor of Ohio. 
 
 "While we fully agree with our respected contemporary in its 
@@ -16310,7 +16310,7 @@ entitled to popular favor."
 He is especially well known for his heroic conduct in the last war, 
 at Fort George and at Queenstown. (4) 
 
-1413 - H Dec. Z(; ed:3/l - Representation at the Whig state convention in 
+1413 - H Dec. 20; ed:3/l - Representation at the Whig state convention in 
 Columbus on Feb. 4 will be according to these provisions: Each county 
 which gave 500 or less Whig votes for governor in 1844 will be entitled 
 to one delegate; thereon, one delegate for each 500 votes. According 
@@ -16425,7 +16425,7 @@ Abstracts 1425 - 1430
 
 POLITICAL CAMPAIGNS &amp; ELECTIONS - State (Cont'd) 
 
-1425 - -H SepL 16; ed:2/l - The Whigs of the Green Mountain state have 
+1425 - H SepL 16; ed:2/l - The Whigs of the Green Mountain state have 
 failed to elect Governor Slade, although the legislature is safely theirs; 
 now it appears the Maine Locofocos have not been able to elect their man 
 for governor, although the legislature is theirs. "The State election in 
@@ -17166,7 +17166,7 @@ abandon the principles which sent him to jail.
 "A ticket in 1848 very possibly will read - Dorr, President; Houston, 
 Vice." (3) 
 
-1476 - H Sept. 27; ed:2/',2 - The late New York papers are filled with 
+1476 - H Sept. 27; ed:2/1,2 - The late New York papers are filled with 
 developments which unveil modern Democracy and exhibit to the world the 
 political deformity of the "high priests" of the party and also expose 
 
@@ -17275,7 +17275,7 @@ Abstracts 14S3 - 1487
 
 POLITICS &amp; GOVERNMENT - United States (Cont'd) 
 
-1483 • 11 Jan. 21; e.i:3/l - Eye On The Gun - President Tyler has sent to 
+1483 • H Jan. 21; ed:3/l - Eye On The Gun - President Tyler has sent to 
 the Senate the nomination of W. H. Folk, brother of the President-elect, 
 who has for some weeks past been the lion at Washington among office 
 holders and office expectants, as Charge to Naples. Should the nomina- 
@@ -17765,7 +17765,7 @@ POPULATION. See Census &amp; Population
 
 POST OFFICE 
 
-1520 • II Mar. IH; cd:r./] - The postmaster general has appointed Col. 
+1520 • H Mar. 19; ed:3/1 - The postmaster general has appointed Col. 
 John Bigler of Pittsburgh as special agent of the post office department, 
 in place of Job. G. Patterson, who has resigned. 
 
@@ -18472,7 +18472,7 @@ the Pittsburgh road as well as of the other, I would advise this course.
 
 (7) 
 
-1577 - June 7; ed:2/l - Our friend, the Wooster DEMOCRAT, objects to our 
+1577 - H June 7; ed:2/l - Our friend, the Wooster DEMOCRAT, objects to our 
 intimation that the Loudonville hills render the Wooster and Mount Vernon 
 route impracticable for a railroad and declare it to be a well-known fact 
 that there are valleys as level and as favorable for the construction of 
@@ -19314,7 +19314,7 @@ delegates including John M. Woolsey and Samuel Starkweather of Cleveland
 was appointed to issue circulars appointing a convention to be held at some 
 future day to be designated by them. (35) 
 
-1632 - 11 Nov. 10; ed:2/l - The fact that successful efforts are being made to 
+1632 - H Nov. 10; ed:2/l - The fact that successful efforts are being made to 
 construct a railroad through Canada must arouse the energies of the people 
 along the south shore of Lake Erie, and should excite a spirit of nationality 
 among us. 
@@ -19610,7 +19610,7 @@ house, on Kinsman st. with barn, well and cistern, ten minutes walk from
 the court house. Or one on Miami - st. five minutes walk from the court 
 house. Possession given in one week. Enquire of John Wicken. (1) 
 
-1653 - H July 1; ?dv:2/7 - A house and lot on the corner of Seneca and Lake 
+1653 - H July 1; adv:2/7 - A house and lot on the corner of Seneca and Lake 
 sts., now occupied by J. R. Stafford. Also, a lot adjoining said Stafford's 
 residence on Lake st. Enquire of A. G. Lawrence, Merwin Square. (1) 
 
@@ -19699,7 +19699,7 @@ Cuyahoga County, Ohio. Known As The Ann Steven's Land. Sam S. Austin.
 
 (2) 
 
-1664 - H Sept. 25; ad\:2/4 - For Sale - A Pleasant Residence on the South 
+1664 - H Sept. 25; adv:2/4 - For Sale - A Pleasant Residence on the South 
 side of Euclid - st., a few rois east of Perry street. Lot 88 ft. front 
 
 - 13 rod deep. House, two stories - new, substantially built and com- 
@@ -19735,7 +19735,7 @@ not seeming to care a whit for the philosophers assembled at Clinton
 
 ilall. (verbatin) (I) 
 
-1667 - H Ov t. 15; ed:3/2 • The world's convention has terminated its 
+1667 - H Oct. 15; ed:3/2 • The world's convention has terminated its 
 sessions at New York, and the oi ly rt-sult is that all the plans of 
 social reform, except that of R^-bert O.ven, are crude and impracticable. 
 "This is about the sum total of th ■ work accomplished by this great 
@@ -19938,7 +19938,7 @@ Pound Cakes, and Cakes of every description. H. Mould &amp; Sons,
 
 H June 9:3/2 - See Streets 
 
-1685 - H July 1; 3dv:l/2 - Huntington &amp; Brooks, Importers of, and dealers in 
+1685 - H July 1; adv:l/2 - Huntington &amp; Brooks, Importers of, and dealers in 
 China, Glass, Earthern Ware, Lamps, Castors, etc., No. 5 Superior street, 
 Central Buildings, Cleveland; and on Main, between Fifth and Sixth streets, 
 in Cincinnati, Ohio. H. D. Huntington, Cincinnati; 0. A. Brooks, Cleveland. 
@@ -19964,13 +19964,13 @@ large assortment which will be sold as cheap as can be purchased anywhere
 
 in this city. (1) 
 
-1689 - H July 1; a.lv:l/7 - Very Important. Dry Goods, Groceries, Crockery, 
+1689 - H July 1; adv:l/7 - Very Important. Dry Goods, Groceries, Crockery, 
 Hardware, Boots &amp; Shoes. 
 
 For sale at No. 5, City Buil lings, cheaper than at any other store in 
 this city, for good pay. A. A. Selover. (1) 
 
-1690 - July 1; adv:3/5 - William Milford, No. 75 River street, and No. 32 
+1690 - H July 1; adv:3/5 - William Milford, No. 75 River street, and No. 32 
 on the dock. Groceries, Crockery, Hardware, Glassware &amp;c. &amp;c. Whole- 
 sale and Retail. 
 
@@ -20552,7 +20552,7 @@ If the committees discover any important omissions in the above state-
 ments which I can supply, they will be filled up with pleasure at any 
 time upon request. (70) 
 
-1738 - H Apr. 7; ed:2/'l - We publish today what we are not quite sure is 
+1738 - H Apr. 7; ed:2/l - We publish today what we are not quite sure is 
 a correct copy of the act incorporating the Plank Road co. by way of 
 Wadsworth to Wooster. but it is not materially different from the law as 
 passed. The charter for a road to the same place by way of Harrisburgh 
@@ -20891,7 +20891,7 @@ The terms will be 11 weeks and the prices of tuition $4, $6 and $8 per
 term, according to the age and studies of the pupil. - W. D. Beattie. 
 (verbatim) (2) 
 
-1767 - H Aug. 20;' ed:2/l - Most of our flourishing villages of the West- 
+1767 - H Aug. 20; ed:2/l - Most of our flourishing villages of the West- 
 ern Reserve are favored with institutions and seminaries of learning, 
 generally well conducted and well supported. They are beacon lights of 
 knowledge to the youthful minds of the west. 
@@ -21036,7 +21036,7 @@ questions will be taken from ADAMS' NEW ARITHMETIC.
 The board of examiners will be: Andrew Freeze, James D. Cleveland, 
 and Nicholas Bartlett, (4) 
 
-1781 - H Oct. 1"; ed:2/2 - A meeting of the Teachers institute is sched- 
+1781 - H Oct. 13; ed:2/2 - A meeting of the Teachers institute is sched- 
 uled for Oct. 22, at Chardon, 0. The recent session at Sandusky awak- 
 ened much interest among teachers, and another interesting gathering is 
 expected. 
@@ -21097,7 +21097,7 @@ Practical Penmanship" in all counties of the Western Reserve. Cowdery
 has been connected with the Western Reserve Teachers' seminary at Kirt- 
 knd, 0. (2) 
 
-1787 - 11 Nov. 10; adv:2/4 - Goodrich's NEW NATIONAL GEOGRAPHY, de* 
+1787 - H Nov. 10; adv:2/4 - Goodrich's NEW NATIONAL GEOGRAPHY, de* 
 signed for the higher classes in district and select Schools with over 220 
 engravings, 33 maps and a Globe Map, on a new plan. The form of this 
 work is quarto, showing at one view the maps, descriptive text, and en- 
@@ -22443,7 +22443,7 @@ exist in the midst of ignorance. Mr. Banner, your own Tennessee will
 stand high on the list of ignorance, until you wipe out slavery and es- 
 tablish Common Schools in all your towns." (8) 
 
-1898 - H Sept. 19; ed:2/],2 - Under the head "Pro and Con" we lately 
+1898 - H Sept. 19; ed:2/1,2 - Under the head "Pro and Con" we lately 
 published certain extracts from the writing of Thomas F. Marshall on the 
 subject of slavery. In 1840 he denounced slavery as a slow consuming 
 cancer and an unmitigated curse. In 1845 he talks about the mild form 
@@ -22625,7 +22625,7 @@ Sterling, Agent, Ohio City. (verbatim) (1)
 
 H May 5; ed:3/l - See Forgeries 
 
-1909 - H July 1; -ad v: 3/2 - Cook Stoves. I have the agency for Three 
+1909 - H July 1; adv: 3/2 - Cook Stoves. I have the agency for Three 
 different styles of the most approved Cook Stoves, a superior article 
 at greatly reduced prices. 
 
@@ -23141,7 +23141,7 @@ and calicoes, as before duties almost prohibitory were imposed?
 "The text furnishes a subject upon which a long sermon might be 
 preached, but we have neither time nor inclination to do it." (5) 
 
-1949 - H Dec. 12; ed:3/] ■ Presideni Polk and Secretary Walker are for 
+1949 - H Dec. 12; ed:3/1 ■ Presideni Polk and Secretary Walker are for 
 cutting down the tariff, the result of which would be to shut down half 
 of our manufactories and interfere with the prosperity of our people, by 
 transferring our workshop to Europe. 
@@ -23207,7 +23207,7 @@ power of appointing a collector to collect such taxes as may be assessed
 
 for discriminating purposes. (1) 
 
-1953 - May 5; adv:2/4 - Assessors Notice. - The Cleveland Township 
+1953 - H May 5; adv:2/4 - Assessors Notice. - The Cleveland Township 
 Assessor, may be found at his shop in the rear of the City Buildings, 
 from 7, a.m. to 12 m. each day. Lambert White, Assessor. (verbatim) (1) 
 
@@ -23538,7 +23538,7 @@ contains over 360 i;;embers under 30 years of age, and is fast increasing,
 
 (3) 
 
-1974 - H Feb. 7; e::3/l A rerent letter from Father Matthew, the cele- 
+1974 - H Feb. 7; ed:3/l A rerent letter from Father Matthew, the cele- 
 brated apostle of temperance, says that he still hopes to visit the United 
 States. 
 
@@ -23772,7 +23772,7 @@ Abstracts 1993 - 1997
 
 TEMPERANCE (Cont'd) 
 
-1993 - H Aug. 2^; ed:2/2 - We have been told that our readers so con- 
+1993 - H Aug. 28; ed:2/2 - We have been told that our readers so con- 
 strued our remarks yesterday regarding the course of the temperance lec- 
 tures in the street as to suppose we approved the throwing of stale ejjgs. 
 
@@ -25283,7 +25283,7 @@ Proprietors of steamers EMPIRE and CHESAPEAKE.
 Liberal cash advance made, with choice of markets, to owners of prop- 
 erty. Agents for leading lines. (4) 
 
-2136 - 11 July 1; adv: 1/1 - D. Morison &amp; Co., Commission Merchants, Patent 
+2136 - H July 1; adv: 1/1 - D. Morison &amp; Co., Commission Merchants, Patent 
 rope Manufacturers, Dealers in Ship Chandlery, Groceries, Provisions, 
 Fish, Salt, Tar, Pitch, Rosin, Nails, Glass, Paints, Oils &amp;c., on the 
 
