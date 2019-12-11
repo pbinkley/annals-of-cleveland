@@ -30,11 +30,11 @@ def report_list(list, name)
   missingNumbers = []
   disorderedNumbers = []
   list.each do |n|
-    if n < lastNumber + 1
+    if n <= lastNumber
       # out of order
       disorderedNumbers << n
     elsif n != lastNumber + 1
-      missingNumbers +=  (lastNumber + 1 .. n - 1).to_a
+      missingNumbers +=  (lastNumber.to_i + 1 .. n.to_i - 1).to_a
     end
     lastNumber = n
   end
@@ -52,7 +52,7 @@ end
 
 
 # regex components that are frequently used
-newLine = '\d+\|'
+newLine = '\d+\|' # note: includes the pipe separator
 ocrDigit = '[\dOlI!TGS]' # convert to digits using convert_OCR_number
 ocrDash = '[-–.•■]'
 ocrColon = '[;:,.]'
@@ -106,12 +106,7 @@ File.open("text-without-breaks.txt", "w") { |f| f.puts text }
 
 entries = text.scan(/^(#{newLine}#{ocrDigit}+\s*#{ocrDash}\s*.+?\s*\(#{ocrDigit}+\))\s*$/m)
 entryNumberList = []
-entries.each do |entry|
-  n = entry[0].match(/\A#{newLine}(#{ocrDigit}+).*/)[1].gsub('O', '0').gsub(/[lI]/, '1').to_i
-  entryNumberList << n
-end
 
-report_list(entryNumberList, 'entry')
 
 parsedEntries = 0
 year = 1845
@@ -162,6 +157,7 @@ entries.each do |entry|
       @id = id.to_f
       # handle -1/2 suffix on id
       @id += 0.5 if half == '-1/2'
+      entryNumberList << @id
   #    @seq = seq
   #    @line = index
       @newspaper = newspaper.to_sym
@@ -186,6 +182,8 @@ entries.each do |entry|
 end
 
 puts "Parsed: #{parsedEntries}/#{entries.count}"
+
+report_list(entryNumberList, 'entry')
 
 
 
