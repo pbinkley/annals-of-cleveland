@@ -9,21 +9,6 @@ require 'byebug'
 
 coder = HTMLEntities.new
 
-MONTHS = {
-  'Jan.' => 1,
-  'Feb.' => 2,
-  'Mar.' => 3,
-  'Apr.' => 4,
-  'May' => 5,
-  'June' => 6,
-  'July' => 7,
-  'Aug.' => 8,
-  'Sept.' => 9,
-  'Oct.' => 10,
-  'Nov.' => 11,
-  'Dec.' => 12
-}.freeze
-
 
 def report_list(list, name)
   lastNumber = 0
@@ -119,15 +104,7 @@ entries.each do |entry|
   # remove blank lines
   lines.reject! { |line| line.match (/\A#{newLine}\z/) }
   inputLine = lines.first
-  line, lineNum, id, half, newspaper, month, day, type, page, column, remainder = inputLine.match(
-    %r{^(\d+)\|(\d+)(-1\/2)?\s       # '1234/123-1/2' line and entry
-       #{ocrDash}+\ ([a-zA-Z]+)[\.,]?\s   # '- H' newspaper
-       (\S+)\s                         #month
-       (#{ocrDigit}+)#{ocrColon}+\s?        # '2:' day
-       ([a-zA-Z]*)#{ocrColon}?\s?        # 'ed' type (ed, adv)
-       (#{ocrDigit}+)[/"'](#{ocrDigit}+)(.*)$         # '2/3' page and column
-    }x
-  ).to_a
+  metadata = Metadata.new(inputLine)
 
   parsed = false
   if lineNum
