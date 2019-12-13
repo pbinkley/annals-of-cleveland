@@ -206,9 +206,12 @@ betweens.each do |between|
 end
 
 seealsos = []
+heading_data = {}
 
 headings.each do |heading|
-  text = heading.match(/\A#{newLine}(.*)/)[1]
+  line_num, text = heading.match(/^(#{newLine})(.*)/)[1..2]
+  line_num = line_num.sub('|', '').to_i
+  puts text
   if text.match(/^===/)
     # TODO: handle text note
   elsif text.match(/^\+/)
@@ -224,11 +227,12 @@ headings.each do |heading|
       context.subheading1 = ''
       context.subheading2 = ''
     end
-  elsif text.match(/^[A-Z\&\'\,\ ]*[\.\-\ ]*$/)
-    context.text = text.sub(/[\.\-\ ]*$/, '')
-    context.subheading1 = ''
-    context.subheading2 = ''
-    is_heading = true
+  elsif text =~ /^[A-Z\&\'\,\ ]*[\.\-\ ]*$/
+    heading_data[line_num] = {
+                                text: text.sub(/[\.\-\ ]*$/, ''),
+                                slug: text.slugify,
+                                type: 'heading'
+                              }
   elsif text.match(/^[A-Z\&\'\,\ ]*\. See .*$/)
     # TODO: handle see reference
     # e.g. "ABANDONED CHILDREN. See Children"
@@ -253,9 +257,9 @@ headings.each do |heading|
       end
     end
     is_heading = true
-    byebug
   end
 end
+    byebug
 
 puts 'Pages: ' + pageNumberList.count.to_s
 puts 'Headings: ' + headings.count.to_s
