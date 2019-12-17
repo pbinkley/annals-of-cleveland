@@ -4,6 +4,8 @@ require 'date'
 require 'damerau-levenshtein'
 require 'htmlentities'
 require 'slugify'
+require './lib/utils.rb'
+require './lib/metadata.rb'
 
 require 'byebug'
 
@@ -35,17 +37,6 @@ def report_list(list, name)
   end
 end
 
-
-# regex components that are frequently used
-newLine = '\d+\|' # note: includes the pipe separator
-ocrDigit = '[\dOlI!TGS]' # convert to digits using convert_OCR_number
-ocrDash = '[-–.•■]'
-ocrColon = '[;:,.]'
-
-def convert_OCR_number(number)
-  number.gsub('O', '0').gsub(/[lI!T]/, '1').gsub(/[GS]/, '5').to_i
-end
-
 text = ''
 counter = 1
 File.readlines(ARGV[0]).each do |line|
@@ -58,23 +49,23 @@ text = coder.decode(text) # decode html entities
 # Identify page breaks so that they can be removed
 
 BREAKREGEX =  /
-                \n#{newLine}#{ocrDigit}+\s*\n#{newLine}\n
-                #{newLine}CLEVELAND\ NEWSPAPER.+?\n#{newLine}\n
-                #{newLine}Abstracts.+?\n#{newLine}\n
-                #{newLine}(?:.+Cont[[:punct:]]d\)|PLACEHOLDER)[\s[[:punct:]]]*\n#{newLine}\n
+                \n#{NEWLINE}#{OCRDIGIT}+\s*\n#{NEWLINE}\n
+                #{NEWLINE}CLEVELAND\ NEWSPAPER.+?\n#{NEWLINE}\n
+                #{NEWLINE}Abstracts.+?\n#{NEWLINE}\n
+                #{NEWLINE}(?:.+Cont[[:punct:]]d\)|PLACEHOLDER)[\s[[:punct:]]]*\n#{NEWLINE}\n
               /x
 
 breaks = text.scan(BREAKREGEX)
 
 pageNumberList = []
 breaks.each do |brk|
-  entryNum = brk.match(/\A\n#{newLine}(\d+).*\z/m)[1].to_i
+  entryNum = brk.match(/\A\n#{NEWLINE}(\d+).*\z/m)[1].to_i
   pageNumberList << entryNum.to_i
   # remove page-break lines from text
   text.sub!(brk, "+++ page #{entryNum}\n")
 end
 
-pages = text.scan(/^(#{newLine}\+\+\+.*)$/)
+pages = text.scan(/^(#{NEWLINE}\+\+\+.*)$/)
 
 report_list(pageNumberList, 'page')
 
@@ -89,7 +80,7 @@ File.open("text-without-breaks.txt", "w") { |f| f.puts text }
 
 # Parse entries
 
-entries = text.scan(/^(#{newLine}#{ocrDigit}+\s*#{ocrDash}\s*.+?\s*\(#{ocrDigit}+\))\s*$/m)
+entries = text.scan(/^(#{NEWLINE}#{OCRDIGIT}+\s*#{OCRDASH}\s*.+?\s*\(#{OCRDIGIT}+\))\s*$/m)
 entryNumberList = []
 
 
@@ -102,60 +93,14 @@ year = 1845
 entries.each do |entry|
   lines = entry.first.split("\n")
   # remove blank lines
-  lines.reject! { |line| line.match (/\A#{newLine}\z/) }
+  lines.reject! { |line| line.match (/\A#{NEWLINE}\z/) }
   inputLine = lines.first
-  metadata = Metadata.new(inputLine)
+  metadata = Metadata.new(inputLine, year, entryNumberList)
 
-  parsed = false
-  if lineNum
-    @day = convert_OCR_number(day)
-    month.gsub!(',', '.')
-    unless MONTHS[month]
-      guess = ''
-      guessdistance = 10
-      MONTHS.keys.each do |key|
-        newGuessDistance = DamerauLevenshtein.distance(month, key, 0)
-        if newGuessDistance < guessdistance
-          guess = key
-          guessdistance = newGuessDistance
-        end
-      end
-      # puts "#{lineNum} Guess: #{month} -> #{guess} (#{guessdistance})"
-      month = guess
-    end
-    begin
-      date = Date.new(year, MONTHS[month], @day)
-    rescue StandardError => e
-      puts line
-      puts e.message  
-    end
-    if date
-      @lineNum = lineNum.to_i
-      @id = id.to_f
-      # handle -1/2 suffix on id
-      @id += 0.5 if half == '-1/2'
-      entryNumberList << @id
-  #    @seq = seq
-  #    @line = index
-      @newspaper = newspaper.to_sym
-      @month = MONTHS[month]
-      @displaydate = date.strftime('%e %B %Y')
-      @formatdate = date.to_s
-      @page = convert_OCR_number(page)
-      @column = convert_OCR_number(column)
-      @type = type
-  #    @init = metadata[10]
-  #    @heading = @context.heading
-  #    @subheading1 = @context.subheading1
-  #    @subheading2 = @context.subheading2
-  #    @terms = []
-      parsed = true
-      # save normalized version of first line
-      lines[0] = "#{lineNum}|#{id} - #{newspaper} #{month} #{@day}#{('; ' + @type) if !@type.empty?}:#{@page}/#{@column}#{remainder}"
-    end
-  end
-  parsedEntries += 1 if parsed
-  puts "bad line: #{inputLine}" unless parsed
+  # TODO: store metadata
+
+  parsedEntries += 1 if metadata.parsed
+  puts "bad line: #{inputLine}" unless metadata.parsed
 end
 
 puts "Parsed: #{parsedEntries}/#{entries.count}"
@@ -172,21 +117,21 @@ report_list(entryNumberList, 'entry')
 # Identify "between" lines, which are either errors or headings
 
 betweens = []
-text.scan(/\(#{ocrDigit}+\)\s*$(.+?)^#{newLine}#{ocrDigit}+ #{ocrDash} /m).map { |between| betweens += between[0].split("\n") }
+text.scan(/\(#{OCRDIGIT}+\)\s*$(.+?)^#{NEWLINE}#{OCRDIGIT}+ #{OCRDASH} /m).map { |between| betweens += between[0].split("\n") }
 
 # empty lines look like: ["\n11968|\n"]
-betweens.reject! { |between| between == '' || between.match(/\A#{newLine}\z/) || between.match(/\A#{newLine}\+\+\+/) }
+betweens.reject! { |between| between == '' || between.match(/\A#{NEWLINE}\z/) || between.match(/\A#{NEWLINE}\+\+\+/) }
 
 headings = []
 betweens.each do |between|
-  headings << between.gsub(/#{newLine}\n/, '').strip
+  headings << between.gsub(/#{NEWLINE}\n/, '').strip
 end
 
 seealsos = []
 heading_data = {}
 
 headings.each do |heading|
-  line_num, text = heading.match(/^(#{newLine})(.*)/)[1..2]
+  line_num, text = heading.match(/^(#{NEWLINE})(.*)/)[1..2]
   line_num = line_num.sub('|', '').to_i
   puts text
   if text.match(/^===/)
@@ -236,7 +181,6 @@ headings.each do |heading|
     is_heading = true
   end
 end
-    byebug
 
 puts 'Pages: ' + pageNumberList.count.to_s
 puts 'Headings: ' + headings.count.to_s
