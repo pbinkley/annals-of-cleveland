@@ -1,35 +1,38 @@
-# regex components that are frequently used
-NEWLINE = '\d+\|'.freeze # note: includes the pipe separator
-OCRDIGIT = '[\dOlI!TGS]'.freeze # convert to digits using convert_OCR_number
-OCRDASH = '[-–.•■]'.freeze
-OCRCOLON = '[;:,.]'.freeze
+# frozen_string_literal: true
 
-def convert_OCR_number(number)
+# regex components that are frequently used
+NEWLINE = '\d+\|' # note: includes the pipe separator
+OCRDIGIT = '[\dOlI!TGS]' # convert to digits using convert_ocr_number
+OCRDASH = '[-–.•■]'
+OCRCOLON = '[;:,.]'
+
+def convert_ocr_number(number)
   number.gsub('O', '0').gsub(/[lI!T]/, '1').gsub(/[GS]/, '5').to_i
 end
 
 def report_list(list, name)
-  lastNumber = 0
-  missingNumbers = []
-  disorderedNumbers = []
+  last_number = 0
+  missing_numbers = []
+  disordered_numbers = []
   list.each do |n|
-    if n <= lastNumber
+    if n <= last_number
       # out of order
-      disorderedNumbers << n
-    elsif n != lastNumber + 1
-      missingNumbers +=  (lastNumber.to_i + 1 .. n.to_i - 1).to_a
+      disordered_numbers << n
+    elsif n != last_number + 1
+      missing_numbers += (last_number.to_i + 1..n.to_i - 1).to_a
     end
-    lastNumber = n
+    last_number = n
   end
-  if missingNumbers.empty?
+  if missing_numbers.empty?
     puts "No missing #{name} numbers"
   else
-    puts "Missing #{name} numbers: #{missingNumbers.map { |p| p.to_s }.join(' ')}"
+    puts "Missing #{name} numbers: \
+#{missing_numbers.map(&:to_s).join(' ')}"
   end
-  if disorderedNumbers.empty?
+  if disordered_numbers.empty?
     puts "No disordered #{name} numbers"
   else
-    puts "Disordered #{name} numbers: #{disorderedNumbers.map { |p| p.to_s }.join(' ')}"
+    puts "Disordered #{name} numbers: \
+#{disordered_numbers.map(&:to_s).join(' ')}"
   end
 end
-

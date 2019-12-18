@@ -1,18 +1,22 @@
+# frozen_string_literal: true
+
 require 'htmlentities'
 require 'date'
 require 'slugify'
 require './lib/utils.rb'
 require './lib/metadata.rb'
 
-class SourceText
-  attr_reader :text, :pageNumberList
+BREAKREGEX = /
+                \n#{NEWLINE}#{OCRDIGIT}+\s*\n#{NEWLINE}\n
+                #{NEWLINE}CLEVELAND\ NEWSPAPER.+?\n#{NEWLINE}\n
+                #{NEWLINE}Abstracts.+?\n#{NEWLINE}\n
+                #{NEWLINE}(?:.+Cont[[:punct:]]d\)|PLACEHOLDER)[\s[[:punct:]]]*\n
+                #{NEWLINE}\n
+              /x.freeze
 
-  BREAKREGEX = /
-                  \n#{NEWLINE}#{OCRDIGIT}+\s*\n#{NEWLINE}\n
-                  #{NEWLINE}CLEVELAND\ NEWSPAPER.+?\n#{NEWLINE}\n
-                  #{NEWLINE}Abstracts.+?\n#{NEWLINE}\n
-                  #{NEWLINE}(?:.+Cont[[:punct:]]d\)|PLACEHOLDER)[\s[[:punct:]]]*\n#{NEWLINE}\n
-                /x.freeze
+class SourceText
+
+  attr_reader :text, :page_number_list
 
   def initialize(filename)
     @text = ''
@@ -25,35 +29,33 @@ class SourceText
     coder = HTMLEntities.new
     @text = coder.decode(@text) # decode html entities
 
-
     # Identify page breaks so that they can be removed
-
-
     breaks = @text.scan(BREAKREGEX)
 
-    @pageNumberList = []
+    @page_number_list = []
     breaks.each do |brk|
-      entryNum = brk.match(/\A\n#{NEWLINE}(\d+).*\z/m)[1].to_i
-      @pageNumberList << entryNum.to_i
+      entry_num = brk.match(/\A\n#{NEWLINE}(\d+).*\z/m)[1].to_i
+      @page_number_list << entry_num.to_i
       # remove page-break lines from text
-      @text.sub!(brk, "+++ page #{entryNum}\n")
+      @text.sub!(brk, "+++ page #{entry_num}\n")
     end
 
-    pages = @text.scan(/^(#{NEWLINE}\+\+\+.*)$/)
-
-    report_list(@pageNumberList, 'page')
-
-    File.open("text-without-breaks.txt", "w") { |f| f.puts @text }
-
+    report_list(@page_number_list, 'page')
+    File.open('text-without-breaks.txt', 'w') { |f| f.puts @text }
   end
 
-  def parseEntries(year)
+  def parse_entries(year)
     @year = year
 
-    @entries = text.scan(/^(#{NEWLINE}#{OCRDIGIT}+(-1\/2)?\s*#{OCRDASH}\s*.+?\s*\(#{OCRDIGIT}+\))\s*$/m)
-    entryNumberList = []
+    @entries = text.scan(
+      %r{
+        ^(#{NEWLINE}#{OCRDIGIT}+(-1\/2)?\s*#{OCRDASH}\s*.+?\s*
+        \(#{OCRDIGIT}+\))\s*$
+      }mx
+    )
+    entry_number_list = []
 
-    parsedEntries = 0
+    parsed_entries = 0
 
     # parse metadata from first line of each entry
     # canonical form:
@@ -61,45 +63,54 @@ class SourceText
     @entries.each do |entry|
       lines = entry.first.split("\n")
       # remove blank lines
-      lines.reject! { |line| line.match (/\A#{NEWLINE}\z/) }
-      inputLine = lines.first
-      metadata = Metadata.new(inputLine, @year, entryNumberList)
+      lines.reject! { |line| line.match(/\A#{NEWLINE}\z/) }
+      input_line = lines.first
+      metadata = Metadata.new(input_line, @year, entry_number_list)
 
       # TODO: store metadata
 
-      parsedEntries += 1 if metadata.parsed
-      puts "bad line: #{inputLine}" unless metadata.parsed
+      parsed_entries += 1 if metadata.parsed
+      puts "bad line: #{input_line}" unless metadata.parsed
     end
 
-    puts "Parsed: #{parsedEntries}/#{@entries.count}"
+    puts "Parsed: #{parsed_entries}/#{@entries.count}"
 
-    report_list(entryNumberList, 'entry')
+    report_list(entry_number_list, 'entry')
 
     @entries
   end
 
-  def parseHeadings
+  def parse_headings
     # Identify "between" lines, which are either errors or headings
 
     betweens = []
-    @text.scan(/\(#{OCRDIGIT}+\)\s*$(.+?)^#{NEWLINE}#{OCRDIGIT}+(\-1\/2)? #{OCRDASH} /m).map { |between| betweens += between[0].split("\n") }
+    @text.scan(
+      %r{\(#{OCRDIGIT}+\)\s*$(.+?)^#{NEWLINE}#{OCRDIGIT}+(\-1\/2)?
+        \s#{OCRDASH}\s
+      }mx
+    ).map { |between| betweens += between[0].split("\n") }
 
     # empty lines look like: ["\n11968|\n"]
-    betweens.reject! { |between| between == '' || between.match(/\A#{NEWLINE}\z/) || between.match(/\A#{NEWLINE}\+\+\+/) }
+    betweens.reject! do |between|
+      between == '' ||
+        between.match(/\A#{NEWLINE}\z/) ||
+        between.match(/\A#{NEWLINE}\+\+\+/)
+    end
 
     @headings = []
     betweens.each do |between|
       @headings << between.gsub(/#{NEWLINE}\n/, '').strip
     end
 
-    seealsos = {}
+    see_alsos = {}
 
-    headingData = {}
+    heading_data = {}
     unclassified = 0
 
     @headings.each do |heading|
       line_num, text = heading.match(/\A(#{NEWLINE})(.*)/)[1..2]
-      # strip closing punctuation from text, leaving one punctuation mark at end of string
+      # strip closing punctuation from text, leaving one punctuation mark
+      # at end of string
       text.sub!(/\A(.+?[[:punct:]]?)[\s■[[:punct:]]]+\z/, '\1')
       line_num = line_num.sub('|', '').to_i
       this_block = { text: text }
@@ -108,51 +119,58 @@ class SourceText
       elsif text.match(/^\+/)
         # text inserted by editor
         text = text.gsub(/^\++ /, '')
-        type = 'subheading2'
-        if text.match(/^\+\+ /)
-          type = 'subheading1'
-        else
-          type = 'heading'
-        end
+        type = if text.match(/^\+\+\+ /)
+                 'subheading2'
+               elsif text.match(/^\+\+ /)
+                 'subheading1'
+               else
+                 'heading'
+               end
         this_block[:type] = type
-        headingData[line_num] = this_block
+        heading_data[line_num] = this_block
       elsif text.match(/^[A-Z&',\- ]*[.\- ]*$/)
         text.gsub!(/[\.\-\ ]*$/, '')
-        headingData[line_num] = { type: 'heading', text: text }
+        heading_data[line_num] = { type: 'heading', text: text }
       elsif text.match(/^[A-Z&',\- ]+[.,] See .*$/)
         # TODO: handle see reference
         # e.g. "ABANDONED CHILDREN. See Children"
-        #puts 'see: ' + text
       elsif text.match(/^.* #{OCRDASH} See .*$/)
         # TODO: handle see entry reference
         # e.g. "H Feb. 28:3/3 - See Streets"
-        #puts 'see entry: ' + text
       elsif text.match(/^See [Aa]l[s§][Qo] .*$/)
         # e.g. "See also Farm Products"
         seealso = text.sub('See also ', '')
-        seealso.split(';').each do |text|
-          text.strip!
-          if text[0].match(/[A-Z]/)
-            parts = text.split('-')
-            obj = { 'text' => parts[0].to_s.strip, 'slug' => parts[0].to_s.strip.slugify.gsub(/-+/, '') }
+        seealso.split(';').each do |ref|
+          ref.strip!
+          if ref[0].match(/[A-Z]/)
+            parts = ref.split('-')
+            obj = {
+              'text' => parts[0].to_s.strip,
+              'slug' => parts[0].to_s.strip.slugify.gsub(/-+/, '')
+            }
             obj['subheading'] = parts[1].to_s.strip
-            seealsos[line_num] = obj
+            see_alsos[line_num] = obj
           else
             # generic entry like "names of animals"
-            seealsos[line_num] = { generic: text }
+            see_alsos[line_num] = { generic: ref }
           end
         end
       elsif !text.split(/\s+/)
                  .map { |word| word.match(/\A[A-Za-z&][a-z]*\s*\z/) }
                  .include?(nil)
-        # test whether text consists only of words which may be capitalized but not all caps
-        headingData[line_num] = { type: 'subheading1', text: text }
+        # test whether text consists only of words which may be
+        # capitalized but not all caps
+        heading_data[line_num] = { type: 'subheading1', text: text }
       elsif !text.gsub(/\A\((.*)\z/, '\1')
                  .split(/\s+/)
                  .map { |word| word.match(/\A[A-Za-z&][a-z]*\z/) }
                  .include?(nil)
-        # test whether text consists only of words which may be capitalized but not all caps
-        headingData[line_num] = { type: 'subheading2', text: text.gsub(/\A\((.*)\)\z/, '\1') }
+        # test whether text consists only of words which may be
+        # capitalized but not all caps
+        heading_data[line_num] = {
+          type: 'subheading2',
+          text: text.gsub(/\A\((.*)\)\z/, '\1')
+        }
       else
         puts "Unclassified: #{line_num}|#{text}"
         unclassified += 1
@@ -161,4 +179,5 @@ class SourceText
     puts "Unclassified: #{unclassified}"
     @headings
   end
+
 end
