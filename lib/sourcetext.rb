@@ -53,9 +53,10 @@ class SourceText
         \(#{OCRDIGIT}+\))\s*$
       }mx
     )
-    entry_number_list = []
 
     parsed_entries = 0
+    @entry_data = {}
+    @entry_number_list = []
 
     # parse metadata from first line of each entry
     # canonical form:
@@ -65,8 +66,10 @@ class SourceText
       # remove blank lines
       lines.reject! { |line| line.match(/\A#{NEWLINE}\z/) }
       input_line = lines.first
-      metadata = Metadata.new(input_line, @year, entry_number_list)
+      metadata = Metadata.new(input_line, @year)
 
+      @entry_data[metadata.line_num] = metadata
+      @entry_number_list << metadata.id
       # TODO: store metadata
 
       parsed_entries += 1 if metadata.parsed
@@ -75,7 +78,7 @@ class SourceText
 
     puts "Parsed: #{parsed_entries}/#{@entries.count}"
 
-    report_list(entry_number_list, 'entry')
+    report_list(@entry_number_list, 'entry')
 
     @entries
   end
@@ -103,6 +106,7 @@ class SourceText
     end
 
     see_alsos = {}
+    see_headings = {}
 
     heading_data = {}
     unclassified = 0
@@ -113,11 +117,11 @@ class SourceText
       # at end of string
       text.sub!(/\A(.+?[[:punct:]]?)[\s■[[:punct:]]]+\z/, '\1')
       line_num = line_num.sub('|', '').to_i
-      this_block = { text: text }
+      heading_hash = { start: line_num, text: text }
       if text.match(/^===/)
         # TODO: handle text note
       elsif text.match(/^\+/)
-        # text inserted by editor
+        # text inserted by editor, with prefix of +, ++, or +++
         text = text.gsub(/^\++ /, '')
         type = if text.match(/^\+\+\+ /)
                  'subheading2'
@@ -126,17 +130,32 @@ class SourceText
                else
                  'heading'
                end
-        this_block[:type] = type
-        heading_data[line_num] = this_block
+        heading_hash[:type] = type
+        heading_data[line_num] = heading_hash
       elsif text.match(/^[A-Z&',\- ]*[.\- ]*$/)
+        # plain heading e.g. "SLAVERY"
         text.gsub!(/[\.\-\ ]*$/, '')
-        heading_data[line_num] = { type: 'heading', text: text }
+        heading_hash[:type] = 'heading'
+        heading_data[line_num] = heading_hash
       elsif text.match(/^[A-Z&',\- ]+[.,] See .*$/)
-        # TODO: handle see reference
         # e.g. "ABANDONED CHILDREN. See Children"
+        # handles heading and subheading1
+        source, target = text.match(/^([A-Z&',\- ]+)[.,] See (.*)$/).to_a[1..2]
+        target.split('; ').each do |unit|
+          heading, subheading1 = unit.split(/ #{OCRDASH} /)
+          heading.upcase!
+          see_headings[source] = [] unless see_headings[source]
+          reference = { heading: heading }
+          reference[:subheading1] = subheading1 if subheading1
+          see_headings[source] << reference
+        end
       elsif text.match(/^.* #{OCRDASH} See .*$/)
         # TODO: handle see entry reference
         # e.g. "H Feb. 28:3/3 - See Streets"
+        metadata = Metadata.new(heading, @year, false)
+        # TODO: find the entry - maybe save entries in hash with normalized metadata as key, pointing to record number
+        @entry_data[metadata.line_num] = metadata
+        # TODO: save metadata
       elsif text.match(/^See [Aa]l[s§][Qo] .*$/)
         # e.g. "See also Farm Products"
         seealso = text.sub('See also ', '')
@@ -144,12 +163,12 @@ class SourceText
           ref.strip!
           if ref[0].match(/[A-Z]/)
             parts = ref.split('-')
-            obj = {
+            reference = {
               'text' => parts[0].to_s.strip,
               'slug' => parts[0].to_s.strip.slugify.gsub(/-+/, '')
             }
-            obj['subheading'] = parts[1].to_s.strip
-            see_alsos[line_num] = obj
+            reference['subheading'] = parts[1].to_s.strip
+            see_alsos[line_num] = reference
           else
             # generic entry like "names of animals"
             see_alsos[line_num] = { generic: ref }
@@ -166,11 +185,12 @@ class SourceText
                  .map { |word| word.match(/\A[A-Za-z&][a-z]*\z/) }
                  .include?(nil)
         # test whether text consists only of words which may be
-        # capitalized but not all caps
-        heading_data[line_num] = {
+        # capitalized but not all caps, in brackets
+        heading_hash.merge(
           type: 'subheading2',
           text: text.gsub(/\A\((.*)\)\z/, '\1')
-        }
+        )
+        heading_data[line_num] = heading_hash
       else
         puts "Unclassified: #{line_num}|#{text}"
         unclassified += 1

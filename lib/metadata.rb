@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
+require 'date'
 require 'damerau-levenshtein'
 require './lib/utils.rb'
+require 'byebug'
 
 MONTHS = {
   'Jan.' => 1,
@@ -17,6 +19,36 @@ MONTHS = {
   'Nov.' => 11,
   'Dec.' => 12
 }.freeze
+
+METADATA_LINE_ID = "^(\\d+)\\|(\\d+)(-1\/2)?\\s     # '1234|123-1/2 - ' line, id, dash
+        #{OCRDASH}+\\s"
+
+METADATA_LINE = "^(\\d+)\\|()()     # '1234|' line"
+
+METADATA_FIELDS = "
+        ([a-zA-Z]+)[\.,]?\s       # 'H' newspaper
+        (\\S+)\s                                #month
+        (#{OCRDIGIT}+)#{OCRCOLON}+\s?          # '2:' day
+        ([a-zA-Z]*)#{OCRCOLON}?\s?             # 'ed' type (ed, adv)
+        (#{OCRDIGIT}+)[/\"'](#{OCRDIGIT}+)(.*)$ # '2/3' page and column"
+
+METADATA_REGEX_LINE_ID = %r{
+  #{METADATA_LINE_ID}
+          ([a-zA-Z]+)[\.,]?\s       # 'H' newspaper
+        (\S+)\s                                #month
+        (#{OCRDIGIT}+)#{OCRCOLON}+\s?          # '2:' day
+        ([a-zA-Z]*)#{OCRCOLON}?\s?             # 'ed' type (ed, adv)
+        (#{OCRDIGIT}+)[/\"'](#{OCRDIGIT}+)(.*)$ # '2/3' page and column
+}x.freeze
+
+METADATA_REGEX_LINE = %r{
+  #{METADATA_LINE}
+          ([a-zA-Z]+)[\.,]?\s       # 'H' newspaper
+        (\S+)\s                                #month
+        (#{OCRDIGIT}+)#{OCRCOLON}+\s?          # '2:' day
+        ([a-zA-Z]*)#{OCRCOLON}?\s?             # 'ed' type (ed, adv)
+        (#{OCRDIGIT}+)[/\"'](#{OCRDIGIT}+)(.*)$ # '2/3' page and column
+}x.freeze
 
 def get_month(month)
   month.gsub!(',', '.')
@@ -36,25 +68,20 @@ end
 
 class Metadata
 
-  attr_reader :line, :lineNum, :id, :half, :newspaper, :month, :day,
+  attr_reader :line, :line_num, :id, :half, :newspaper, :month, :day,
               :type, :page, :column, :remainder, :date, :parsed,
               :normalized_line
 
-  def initialize(metadata_string, year, entry_number_list)
+  def initialize(metadata_string, year, with_id = true)
     @year = year
-    @entry_number_list = entry_number_list
+    @with_id = with_id
 
     @line, @line_num, @id, @half, @newspaper, @month, @day, @type, @page,
-    @column, @remainder = metadata_string.match(
-      %r{^(\d+)\|(\d+)(-1\/2)?\s       # '1234/123-1/2' line and entry
-         #{OCRDASH}+\ ([a-zA-Z]+)[\.,]?\s   # '- H' newspaper
-         (\S+)\s                         #month
-         (#{OCRDIGIT}+)#{OCRCOLON}+\s?        # '2:' day
-         ([a-zA-Z]*)#{OCRCOLON}?\s?        # 'ed' type (ed, adv)
-         (#{OCRDIGIT}+)[/"'](#{OCRDIGIT}+)(.*)$         # '2/3' page and column
-      }x
+    @column, @remainder = (
+      if @with_id then metadata_string.match(METADATA_REGEX_LINE_ID)
+      else metadata_string.match(METADATA_REGEX_LINE)
+      end
     ).to_a
-
     @parsed = false
     return unless @line_num
 
@@ -72,7 +99,6 @@ class Metadata
     @id = @id.to_f
     # handle -1/2 suffix on id
     @id += 0.5 if @half == '-1/2'
-    @entry_number_list << @id
     @newspaper = @newspaper.to_sym
     @month = MONTHS[@month]
     @displaydate = @date.strftime('%e %B %Y')
