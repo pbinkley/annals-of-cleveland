@@ -11,6 +11,7 @@ def convert_ocr_number(number)
 end
 
 def report_list(list, name)
+  list.sort!
   last_number = 0
   missing_numbers = []
   disordered_numbers = []

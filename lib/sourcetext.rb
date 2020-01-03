@@ -32,16 +32,15 @@ class SourceText
     # Identify page breaks so that they can be removed
     breaks = @text.scan(BREAKREGEX)
 
-    @page_number_list = []
+    @page_number_list = {}
     breaks.each do |brk|
-      entry_num = brk.match(/\A\n#{NEWLINE}(\d+).*\z/m)[1].to_i
-      @page_number_list << entry_num.to_i
+      line_num, page_num = brk.match(/\A\n(\d+)\|(\d+).*\z/m).to_a[1..2]
+      @page_number_list[page_num.to_i] = line_num.to_i
       # remove page-break lines from text
-      @text.sub!(brk, "+++ page #{entry_num}\n")
+      @text.sub!(brk, "+++ page #{page_num}\n")
     end
-
-    report_list(@page_number_list, 'page')
-    File.open('text-without-breaks.txt', 'w') { |f| f.puts @text }
+    report_list(@page_number_list.keys, 'page')
+    File.open('./intermediate/text-without-breaks.txt', 'w') { |f| f.puts @text }
   end
 
   def parse_entries(year)
@@ -186,9 +185,9 @@ class SourceText
                  .include?(nil)
         # test whether text consists only of words which may be
         # capitalized but not all caps, in brackets
-        heading_hash.merge(
+        heading_hash.merge!(
           type: 'subheading2',
-          text: text.gsub(/\A\((.*)\)\z/, '\1')
+          text: text.gsub(/\A\((.*)\z/, '\1')
         )
         heading_data[line_num] = heading_hash
       else
@@ -197,7 +196,11 @@ class SourceText
       end
     end
     puts "Unclassified: #{unclassified}"
-    @headings
+    {
+      headings: heading_data,
+      see_alsos: see_alsos,
+      see_headings: see_headings
+    }
   end
 
 end
