@@ -70,7 +70,7 @@ class Metadata
 
   attr_reader :line, :line_num, :id, :half, :newspaper, :month, :day,
               :type, :page, :column, :remainder, :date, :parsed,
-              :normalized_line
+              :normalized_line, :page_num, :heading
 
   def initialize(metadata_string, year, with_id = true)
     @year = year
@@ -109,6 +109,14 @@ class Metadata
     # save normalized version of first line
     @normalized_line = "#{@line_num}|#{@id} - #{@newspaper} #{@month} #{@day}\
 #{('\; ' + @type) unless @type.empty?}:#{@page}/#{@column}#{@remainder}"
+  end
+
+  def merge!(obj)
+    if obj[:heading] # it's a heading
+      @heading = obj
+    else
+      @page_num = obj[:page_num]
+    end
   end
 
 end

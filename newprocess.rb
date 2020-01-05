@@ -16,7 +16,19 @@ headings = source.parse_headings
 
 File.open('./intermediate/headings.txt', 'w') do |f|
   headings[:headings].keys.each do |key|
-    f.puts "#{key}|#{headings[:headings][key][:type]}|#{headings[:headings][key][:text]}"
+    this = headings[:headings][key]
+
+    f.puts "#{this[:page_num]}|#{this[:start]}|#{this[:type]}|#{this[:text]}"
+    next unless this[:subheading1]
+
+    this[:subheading1].each do |subh1|
+      f.puts "  #{subh1[:page_num]}|#{subh1[:start]}|#{subh1[:type]}|#{subh1[:text]}"
+      next unless subh1[:subheading2]
+
+      subh1[:subheading2].each do |subh2|
+        f.puts "    #{subh2[:page_num]}|#{subh2[:start]}|#{subh2[:type]}|#{subh2[:text]}"
+      end
+    end
   end
 end
 

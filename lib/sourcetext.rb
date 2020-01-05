@@ -5,6 +5,7 @@ require 'date'
 require 'slugify'
 require './lib/utils.rb'
 require './lib/metadata.rb'
+require './lib/textmap.rb'
 
 BREAKREGEX = /
                 \n#{NEWLINE}#{OCRDIGIT}+\s*\n#{NEWLINE}\n
@@ -22,7 +23,7 @@ class SourceText
     @text = ''
     counter = 1
     File.readlines(filename).each do |line|
-      @text += "#{counter}|#{line}"
+      @text += "#{counter}|#{line}" # prefix each line with line number
       counter += 1
     end
 
@@ -33,11 +34,13 @@ class SourceText
     breaks = @text.scan(BREAKREGEX)
 
     @page_number_list = {}
+    @page_map = TextMap.new('pages')
     breaks.each do |brk|
       line_num, page_num = brk.match(/\A\n(\d+)\|(\d+).*\z/m).to_a[1..2]
       @page_number_list[page_num.to_i] = line_num.to_i
       # remove page-break lines from text
       @text.sub!(brk, "+++ page #{page_num}\n")
+      @page_map.add(line_num, page_num: page_num)
     end
     report_list(@page_number_list.keys, 'page')
     File.open('./intermediate/text-without-breaks.txt', 'w') { |f| f.puts @text }
@@ -54,7 +57,7 @@ class SourceText
     )
 
     parsed_entries = 0
-    @entry_data = {}
+    @entry_map = TextMap.new('entries')
     @entry_number_list = []
 
     # parse metadata from first line of each entry
@@ -67,7 +70,7 @@ class SourceText
       input_line = lines.first
       metadata = Metadata.new(input_line, @year)
 
-      @entry_data[metadata.line_num] = metadata
+      @entry_map.add(metadata.line_num, metadata)
       @entry_number_list << metadata.id
       # TODO: store metadata
 
@@ -78,6 +81,8 @@ class SourceText
     puts "Parsed: #{parsed_entries}/#{@entries.count}"
 
     report_list(@entry_number_list, 'entry')
+
+    @page_map.merge_to(@entry_map)
 
     @entries
   end
@@ -107,7 +112,8 @@ class SourceText
     see_alsos = {}
     see_headings = {}
 
-    heading_data = {}
+    @heading_map = TextMap.new('headings')
+    @sees_map = TextMap.new('sees')
     unclassified = 0
 
     @headings.each do |heading|
@@ -130,12 +136,12 @@ class SourceText
                  'heading'
                end
         heading_hash[:type] = type
-        heading_data[line_num] = heading_hash
+        @heading_map.add(line_num, heading_hash)
       elsif text.match(/^[A-Z&',\- ]*[.\- ]*$/)
         # plain heading e.g. "SLAVERY"
         text.gsub!(/[\.\-\ ]*$/, '')
         heading_hash[:type] = 'heading'
-        heading_data[line_num] = heading_hash
+        @heading_map.add(line_num, heading_hash)
       elsif text.match(/^[A-Z&',\- ]+[.,] See .*$/)
         # e.g. "ABANDONED CHILDREN. See Children"
         # handles heading and subheading1
@@ -153,7 +159,7 @@ class SourceText
         # e.g. "H Feb. 28:3/3 - See Streets"
         metadata = Metadata.new(heading, @year, false)
         # TODO: find the entry - maybe save entries in hash with normalized metadata as key, pointing to record number
-        @entry_data[metadata.line_num] = metadata
+        @sees_map.add(metadata.line_num, metadata)
         # TODO: save metadata
       elsif text.match(/^See [Aa]l[s§][Qo] .*$/)
         # e.g. "See also Farm Products"
@@ -176,9 +182,10 @@ class SourceText
       elsif !text.split(/\s+/)
                  .map { |word| word.match(/\A[A-Za-z&][a-z]*\s*\z/) }
                  .include?(nil)
-        # test whether text consists only of words which may be
+        # test whether text consists only of words, which may be
         # capitalized but not all caps
-        heading_data[line_num] = { type: 'subheading1', text: text }
+        heading_hash.merge!(type: 'subheading1', text: text)
+        @heading_map.add(line_num, heading_hash)
       elsif !text.gsub(/\A\((.*)\z/, '\1')
                  .split(/\s+/)
                  .map { |word| word.match(/\A[A-Za-z&][a-z]*\z/) }
@@ -189,15 +196,28 @@ class SourceText
           type: 'subheading2',
           text: text.gsub(/\A\((.*)\z/, '\1')
         )
-        heading_data[line_num] = heading_hash
+        @heading_map.add(line_num, heading_hash)
       else
         puts "Unclassified: #{line_num}|#{text}"
         unclassified += 1
       end
     end
     puts "Unclassified: #{unclassified}"
+
+    @page_map.merge_to(@heading_map) # add page numbers to headings
+    @heading_map.validate_headings
+    @heading_map.merge_to(@entry_map)
+    @heading_map.nest_headings
+
+    File.open('./intermediate/entry.txt', 'w') do |f|
+      @entry_map.hash.keys.each do |key|
+        this = @entry_map.hash[key]
+        f.puts "#{key}|#{this.id}|#{this.page_num}|#{this.heading}"
+      end
+    end
+
     {
-      headings: heading_data,
+      headings: @heading_map.hash,
       see_alsos: see_alsos,
       see_headings: see_headings
     }
