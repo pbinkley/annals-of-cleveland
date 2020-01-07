@@ -36,3 +36,11 @@ Newspapers:
 
 L: Cleveland Leader https://chroniclingamerica.loc.gov/lccn/sn83035143/
 
+## Markup
+
+Mark the sections of the volumes to show where they begin and end.
+
+- #START\_CLASSIFICATION, #END\_CLASSIFICATION
+- #START\_ENTRIES, #END\_ENTRIES
+- #START\_CHRON, #END\_CHRON
+- #START\_TERMS, #END\_TERMS

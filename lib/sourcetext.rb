@@ -92,11 +92,11 @@ class SourceText
 
     betweens = []
     @text.scan(
-      %r{\(#{OCRDIGIT}+\)\s*$(.+?)^#{NEWLINE}#{OCRDIGIT}+(\-1\/2)?
-        \s#{OCRDASH}\s
+      %r{(?:\(#{OCRDIGIT}+\)|\#START_ENTRIES)\s*$(.+?)^(?:#{NEWLINE}#{OCRDIGIT}+(?:\-1\/2)?
+        \s#{OCRDASH}\s|\#END_ENTRIES)
       }mx
     ).map { |between| betweens += between[0].split("\n") }
-
+byebug
     # empty lines look like: ["\n11968|\n"]
     betweens.reject! do |between|
       between == '' ||

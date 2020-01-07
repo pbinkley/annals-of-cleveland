@@ -265,6 +265,8 @@ Ill
 
 CLASSIFICATION LISTS 1845 
 
+#START_CLASSIFICATION
+
 ACCIDENTS &amp; DISASTERS 
 
 Accidents &amp; Disasters; Droughts; Fires. 
@@ -428,13 +430,17 @@ MISCELLANEOUS
 Animals; Lost &amp; Found; Missing Persons; Persons &amp; Personages; 
 Public Squares &amp; Circles; Soap; Superstition; Weather. 
 
+#END_CLASSIFICATION
+
 1
 
 CLEVELAND NEWSPAPER DIGEST JAN. I TO DEC. 31, 1845 
 
 Abstracts 1-7 
 
-PLACEHOLDER 
+PLACEHOLDER
+
+#START_ENTRIES
 
 ABOLITION. See Slavery . • 
 
@@ -25347,13 +25353,15 @@ and destroy a source of profit to Western farmers that is second only to
 Wheat growing, and at the ratio it is increasing under the protective 
 policy, bids fair soon to take the lead." (3) 
 
-
+#END_ENTRIES
 
 385 
 
 
 
 CHRONOLOGICAL INDEX - 1845 
+
+#START_CHRON
 
 ABSTRACT NUMBERS 
 H Jan. 3 163 187 188 206-208 220 221 242 250 251 256 325 335 
@@ -26121,10 +26129,15 @@ H Dec. 19 38 94 392 508 834 1019 1470 2087
 31 262 770 931 933 1199 1260 1325 1471 1518 1519 1784 
 
 
+#END_CHRON
 
-* Denotes subject heading 399 
 
-or subject reference INDEX 1845 
+399 
+
+#START_TERMS
+
+### Denotes subject heading 
+### or subject reference INDEX 1845 
 
 Abbey, Perley, 998 
 
@@ -31454,7 +31467,7 @@ Zanesville, Ohio, 373 .';.•"'■ ;- .&gt;
 
 Zanesville line, 1812 
 
-
+#END_TERMS
 
 HECKMAN 
 
