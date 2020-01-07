@@ -440,7 +440,7 @@ Abstracts 1-7
 
 PLACEHOLDER
 
-#START_ENTRIES
+#START_ABSTRACTS
 
 ABOLITION. See Slavery . • 
 
@@ -25353,7 +25353,7 @@ and destroy a source of profit to Western farmers that is second only to
 Wheat growing, and at the ratio it is increasing under the protective 
 policy, bids fair soon to take the lead." (3) 
 
-#END_ENTRIES
+#END_ABSTRACTS
 
 385 
 

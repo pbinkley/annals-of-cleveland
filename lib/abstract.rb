@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# One entry in the volume
+# One abstract in the volume
 class Entry
   attr_reader :id, :init, :heading, :subheading1, :subheading2, :inches
 
@@ -29,8 +29,8 @@ class Entry
       )
       @context.linebuffer << line unless metadata
       if metadata
-        if @context.preventry
-          @context.preventry.store_lines @context.linebuffer
+        if @context.prevabstract
+          @context.prevabstract.store_lines @context.linebuffer
           @context.linebuffer = [line]
         end
         date = Date.new(@context.year, MONTHS[metadata[4]], metadata[5].to_i)
@@ -66,7 +66,7 @@ class Entry
       end
     else
       # note: this is never being called
-      # must be an id of an empty entry
+      # must be an id of an empty abstract
       @id = line
       # TODO: handle half items
       @terms = []
@@ -87,7 +87,7 @@ class Entry
 
     @context.maxinches = @inches if @inches > @context.maxinches
 
-    # capture issue for @context.preventry now that it is complete
+    # capture issue for @context.prevabstract now that it is complete
     @context.issues[@formatdate] = {} unless @context.issues[@formatdate]
     @context.issues[@formatdate][@page] = {} unless @context.issues[@formatdate][@page]
     @context.issues[@formatdate][@page][@column] = [] unless @context.issues[@formatdate][@page][@column]
@@ -105,7 +105,7 @@ class Entry
   def to_html
     display_id = displayId
     inchclass = @inches > 12 ? 'inchmore' : 'inch' + @inches.to_s
-    "<div class='entry #{inchclass}'>
+    "<div class='abstract #{inchclass}'>
       <a title='#{@init.gsub('\"', '\\"')}'
         href='../../headings/#{@heading.gsub('&', 'and').slugify.gsub(/\-+/, '')}/##{display_id}'>#{display_id}</a>
       #{@type != '' ? ' (' + @type + ')' : ''}</div>"

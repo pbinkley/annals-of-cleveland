@@ -46,45 +46,45 @@ class SourceText
     File.open('./intermediate/text-without-breaks.txt', 'w') { |f| f.puts @text }
   end
 
-  def parse_entries(year)
+  def parse_abstracts(year)
     @year = year
 
-    @entries = text.scan(
+    @abstracts = text.scan(
       %r{
         ^(#{NEWLINE}#{OCRDIGIT}+(-1\/2)?\s*#{OCRDASH}\s*.+?\s*
         \(#{OCRDIGIT}+\))\s*$
       }mx
     )
 
-    parsed_entries = 0
-    @entry_map = TextMap.new('entries')
-    @entry_number_list = []
+    parsed_abstracts = 0
+    @abstract_map = TextMap.new('abstracts')
+    @abstract_number_list = []
 
-    # parse metadata from first line of each entry
+    # parse metadata from first line of each abstract
     # canonical form:
     # 1234|5 - H July 14:3/1 - Samuel H. Barton, a mason by trade, an^ recently
-    @entries.each do |entry|
-      lines = entry.first.split("\n")
+    @abstracts.each do |abstract|
+      lines = abstract.first.split("\n")
       # remove blank lines
       lines.reject! { |line| line.match(/\A#{NEWLINE}\z/) }
       input_line = lines.first
       metadata = Metadata.new(input_line, @year)
 
-      @entry_map.add(metadata.line_num, metadata)
-      @entry_number_list << metadata.id
+      @abstract_map.add(metadata.line_num, metadata)
+      @abstract_number_list << metadata.id
       # TODO: store metadata
 
-      parsed_entries += 1 if metadata.parsed
+      parsed_abstracts += 1 if metadata.parsed
       puts "bad line: #{input_line}" unless metadata.parsed
     end
 
-    puts "Parsed: #{parsed_entries}/#{@entries.count}"
+    puts "Parsed: #{parsed_abstracts}/#{@abstracts.count}"
 
-    report_list(@entry_number_list, 'entry')
+    report_list(@abstract_number_list, 'abstract')
 
-    @page_map.merge_to(@entry_map)
+    @page_map.merge_to(@abstract_map)
 
-    @entries
+    @abstracts
   end
 
   def parse_headings
@@ -92,11 +92,11 @@ class SourceText
 
     betweens = []
     @text.scan(
-      %r{(?:\(#{OCRDIGIT}+\)|\#START_ENTRIES)\s*$(.+?)^(?:#{NEWLINE}#{OCRDIGIT}+(?:\-1\/2)?
-        \s#{OCRDASH}\s|\#END_ENTRIES)
+      %r{(?:\(#{OCRDIGIT}+\)|\#START_ABSTRACTS)\s*$(.+?)^(?:#{NEWLINE}#{OCRDIGIT}+(?:\-1\/2)?
+        \s#{OCRDASH}\s|\#END_ABSTRACTS)
       }mx
     ).map { |between| betweens += between[0].split("\n") }
-byebug
+
     # empty lines look like: ["\n11968|\n"]
     betweens.reject! do |between|
       between == '' ||
@@ -155,10 +155,10 @@ byebug
           see_headings[source] << reference
         end
       elsif text.match(/^.* #{OCRDASH} See .*$/)
-        # TODO: handle see entry reference
+        # TODO: handle see abstract reference
         # e.g. "H Feb. 28:3/3 - See Streets"
         metadata = Metadata.new(heading, @year, false)
-        # TODO: find the entry - maybe save entries in hash with normalized metadata as key, pointing to record number
+        # TODO: find the abstract - maybe save abstracts in hash with normalized metadata as key, pointing to record number
         @sees_map.add(metadata.line_num, metadata)
         # TODO: save metadata
       elsif text.match(/^See [Aa]l[s§][Qo] .*$/)
@@ -175,7 +175,7 @@ byebug
             reference['subheading'] = parts[1].to_s.strip
             see_alsos[line_num] = reference
           else
-            # generic entry like "names of animals"
+            # generic abstract like "names of animals"
             see_alsos[line_num] = { generic: ref }
           end
         end
@@ -206,12 +206,12 @@ byebug
 
     @page_map.merge_to(@heading_map) # add page numbers to headings
     @heading_map.validate_headings
-    @heading_map.merge_to(@entry_map)
+    @heading_map.merge_to(@abstract_map)
     @heading_map.nest_headings
 
-    File.open('./intermediate/entry.txt', 'w') do |f|
-      @entry_map.hash.keys.each do |key|
-        this = @entry_map.hash[key]
+    File.open('./intermediate/abstract.txt', 'w') do |f|
+      @abstract_map.hash.keys.each do |key|
+        this = @abstract_map.hash[key]
         f.puts "#{key}|#{this.id}|#{this.page_num}|#{this.heading}"
       end
     end
