@@ -128,8 +128,6 @@ class Entry
       inches: @inches,
       init: @init,
       heading: @heading,
-      subheading1: @subheading1,
-      subheading2: @subheading2,
       terms: @terms,
       lines: @lines
     }

@@ -15,23 +15,30 @@ BREAKREGEX = /
                 #{NEWLINE}\n
               /x.freeze
 
+# TODO: handle page breaks in the other sections (with different headers)
+
 class SourceText
 
   attr_reader :text, :page_number_list
 
   def initialize(filename)
-    @text = ''
+    sectionName = 'INTRO'
+    @text = {sectionName => ''}
     counter = 1
     File.readlines(filename).each do |line|
-      @text += "#{counter}|#{line}" # prefix each line with line number
+      if line.match(/^#START_/)
+        sectionName = line.sub('#START_', '').strip
+        @text[sectionName] = ''
+      end
+      @text[sectionName] += "#{counter}|#{line}" # prefix each line with line number
       counter += 1
     end
 
     coder = HTMLEntities.new
-    @text = coder.decode(@text) # decode html entities
+    @text.keys.each { |key| @text[key] = coder.decode(@text[key]) }
 
     # Identify page breaks so that they can be removed
-    breaks = @text.scan(BREAKREGEX)
+    breaks = @text['ABSTRACTS'].scan(BREAKREGEX)
 
     @page_number_list = {}
     @page_map = TextMap.new('pages')
@@ -39,17 +46,17 @@ class SourceText
       line_num, page_num = brk.match(/\A\n(\d+)\|(\d+).*\z/m).to_a[1..2]
       @page_number_list[page_num.to_i] = line_num.to_i
       # remove page-break lines from text
-      @text.sub!(brk, "+++ page #{page_num}\n")
+      @text['ABSTRACTS'].sub!(brk, "+++ page #{page_num}\n")
       @page_map.add(line_num, page_num: page_num)
     end
     report_list(@page_number_list.keys, 'page')
-    File.open('./intermediate/text-without-breaks.txt', 'w') { |f| f.puts @text }
+    File.open('./intermediate/text-without-breaks.txt', 'w') { |f| f.puts @text['ABSTRACTS'] }
   end
 
   def parse_abstracts(year)
     @year = year
 
-    @abstracts = text.scan(
+    @abstracts = @text['ABSTRACTS'].scan(
       %r{
         ^(#{NEWLINE}#{OCRDIGIT}+(-1\/2)?\s*#{OCRDASH}\s*.+?\s*
         \(#{OCRDIGIT}+\))\s*$
@@ -91,7 +98,7 @@ class SourceText
     # Identify "between" lines, which are either errors or headings
 
     betweens = []
-    @text.scan(
+    @text['ABSTRACTS'].scan(
       %r{(?:\(#{OCRDIGIT}+\)|\#START_ABSTRACTS)\s*$(.+?)^(?:#{NEWLINE}#{OCRDIGIT}+(?:\-1\/2)?
         \s#{OCRDASH}\s|\#END_ABSTRACTS)
       }mx

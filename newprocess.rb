@@ -34,4 +34,4 @@ end
 
 puts 'Pages: ' + source.page_number_list.count.to_s
 puts 'Headings: ' + headings.count.to_s
-puts 'Entries: ' + abstracts.count.to_s
+puts 'Abstracts: ' + abstracts.count.to_s
