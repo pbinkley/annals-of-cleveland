@@ -215,11 +215,56 @@ class SourceText
     @heading_map.validate_headings
     @heading_map.merge_to(@abstract_map)
     @heading_map.nest_headings
+    
+    # handle index terms
+    
+    inHeader = true
+    badCount = 0
+    terms = {}
+    # TODO: Handle page breaks in TERMS section
+    @text['TERMS'].split("\n").each do |line|
+      next if line =~ /^#{NEWLINE}$/ # ignore blank line
+      inHeader = false
+      line.gsub!(/\ [\p{P}\p{S} ]*$/, '')
+      line.gsub!(/([0-9])\.\ ?([0-9])/, '\1\2') # remove period between digits
+      
+      elements = line.match(/^#{NEWLINE}(.*)\, ([#{OCRDIGIT}\ \;\-\/]*)$/)
+      seeref = line.match(/^#{NEWLINE}(.+)\. See (.+)$/)
+      continuation = line.match(/^#{NEWLINE}[#{OCRDIGIT}\ -\/]*$/)
+      puts line unless elements || seeref || continuation
+      badCount += 1 unless elements || seeref || continuation
+      next unless elements || seeref || continuation
+      if elements
+        term = elements[1].sub(/^#{NEWLINE}/, '')
+        slug = term.slugify.gsub(/\-+/, '')
+        ids = elements[2].split.each { |id| convert_ocr_number(id) }
+        terms[term] = { slug: slug, ids: ids }
+        previd = 0.0
+        ids.each do |id|
+          parts = id.split('-')
+          id = parts[0].to_f
+          # handle -1/2 suffix on id
+          id += 0.5 if parts.count == 2 && parts[1] == '1/2'
+          puts "High: #{term} | #{id}" if id > 2774.0
+          thiskey = @abstract_map.hash.keys.select { |key| @abstract_map.hash[key].id == id }.first
+          this = @abstract_map.hash[thiskey]
+          if this
+            this.add_term(term: term, slug: slug)
+          else
+            puts "No abstract #{id} for term #{term}"
+          end
+          previd = id
+        end
+      else
+        # TODO: handle seeref and continuation
+      end
+    end
+    puts "Unparsed TERMS lines: #{badCount}"
 
     File.open('./intermediate/abstract.txt', 'w') do |f|
       @abstract_map.hash.keys.each do |key|
         this = @abstract_map.hash[key]
-        f.puts "#{key}|#{this.id}|#{this.page_num}|#{this.heading}"
+        f.puts "#{key}|#{this.id}|#{this.page_num}|#{this.heading}|#{this.terms}"
       end
     end
 
