@@ -2,12 +2,12 @@
 
 # regex components that are frequently used
 NEWLINE = '\d+\|' # note: includes the pipe separator
-OCRDIGIT = '[\dOlI!TGS]' # convert to digits using convert_ocr_number
+OCRDIGIT = '[\dCOlI!TGS]' # convert to digits using convert_ocr_number
 OCRDASH = '[-–.•■]'
 OCRCOLON = '[;:,.]'
 
 def convert_ocr_number(number)
-  number.gsub('O', '0').gsub(/[lI!T]/, '1').gsub(/[GS]/, '5').to_i
+  number.gsub(/CO/, '0').gsub(/[lI!T]/, '1').gsub(/[GS]/, '5').to_i
 end
 
 def report_list(list, name)
