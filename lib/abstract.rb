@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # One abstract in the volume
-class Entry
+class Abstract
   attr_reader :id, :init, :heading, :subheading1, :subheading2, :inches
 
   MONTHS = {
