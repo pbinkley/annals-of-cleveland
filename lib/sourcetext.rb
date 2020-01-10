@@ -26,6 +26,7 @@ class SourceText
     @text = {sectionName => ''}
     counter = 1
     File.readlines(filename).each do |line|
+      line.gsub!(NWORDREGEX, '\1****r')
       if line.match(/^#START_/)
         sectionName = line.sub('#START_', '').strip
         @text[sectionName] = ''

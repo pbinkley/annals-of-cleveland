@@ -6,6 +6,8 @@ OCRDIGIT = '[\dCOlI!TGS]' # convert to digits using convert_ocr_number
 OCRDASH = '[-–.•■]'
 OCRCOLON = '[;:,.]'
 
+NWORDREGEX = /([#{78.chr}#{110.chr}])#{105.chr}#{103.chr}#{103.chr}#{101.chr}#{114.chr}/.freeze
+
 def convert_ocr_number(number)
   number.gsub(/CO/, '0').gsub(/[lI!T]/, '1').gsub(/[GS]/, '5').to_i
 end
