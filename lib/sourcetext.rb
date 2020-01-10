@@ -54,7 +54,7 @@ class SourceText
     File.open('./intermediate/text-without-breaks.txt', 'w') { |f| f.puts @text['ABSTRACTS'] }
   end
 
-  def parse_abstracts(year)
+  def parse_abstracts(year, issues)
     @year = year
 
     @abstracts = @text['ABSTRACTS'].scan(
@@ -81,6 +81,8 @@ class SourceText
       @abstract_map.add(metadata.line_num, metadata)
       @abstract_number_list << metadata.id
       # TODO: store metadata
+      
+      issues.addAbstract(metadata)
 
       parsed_abstracts += 1 if metadata.parsed
       puts "bad line: #{input_line}" unless metadata.parsed

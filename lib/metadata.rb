@@ -69,7 +69,7 @@ end
 class Metadata
 
   attr_reader :line, :line_num, :id, :half, :newspaper, :month, :day,
-              :type, :page, :column, :remainder, :date, :parsed,
+              :type, :page, :column, :remainder, :date, :formatdate, :parsed,
               :normalized_line, :page_num, :heading, :terms
 
   def initialize(metadata_string, year, with_id = true)

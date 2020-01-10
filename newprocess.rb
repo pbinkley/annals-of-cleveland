@@ -3,6 +3,7 @@
 # frozen_string_literal: true
 
 require './lib/sourcetext.rb'
+require './lib/issuelist.rb'
 
 require 'byebug'
 
@@ -10,7 +11,9 @@ year = 1845 # TODO: read from metadata for volume
 
 source = SourceText.new(ARGV[0])
 
-abstracts = source.parse_abstracts(year)
+issues = IssueList.new
+
+abstracts = source.parse_abstracts(year, issues)
 
 headings = source.parse_headings
 
@@ -35,3 +38,4 @@ end
 puts 'Pages: ' + source.page_number_list.count.to_s
 puts 'Headings: ' + headings.count.to_s
 puts 'Abstracts: ' + abstracts.count.to_s
+puts 'Issues: ' + issues.list.keys.count.to_s
