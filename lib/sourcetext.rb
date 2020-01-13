@@ -4,8 +4,12 @@ require 'htmlentities'
 require 'date'
 require 'slugify'
 require './lib/utils.rb'
-require './lib/metadata.rb'
+require './lib/abstract.rb'
 require './lib/textmap.rb'
+
+require 'linguistics'
+require 'linguistics/en'
+require 'linguistics/en/titlecase'
 
 BREAKREGEX = /
                 \n#{NEWLINE}#{OCRDIGIT}+\s*\n#{NEWLINE}\n
@@ -20,6 +24,8 @@ BREAKREGEX = /
 class SourceText
 
   attr_reader :text, :page_number_list
+
+  Linguistics.use( :en )
 
   def initialize(filename)
     sectionName = 'INTRO'
@@ -57,7 +63,7 @@ class SourceText
   def parse_abstracts(year, issues)
     @year = year
 
-    @abstracts = @text['ABSTRACTS'].scan(
+    units = @text['ABSTRACTS'].scan(
       %r{
         ^(#{NEWLINE}#{OCRDIGIT}+(-1\/2)?\s*#{OCRDASH}\s*.+?\s*
         \(#{OCRDIGIT}+\))\s*$
@@ -65,38 +71,46 @@ class SourceText
     )
 
     parsed_abstracts = 0
-    @abstract_map = TextMap.new('abstracts')
+    @abstract_map = AbstractsTextMap.new('abstracts')
     @abstract_number_list = []
 
     # parse metadata from first line of each abstract
     # canonical form:
     # 1234|5 - H July 14:3/1 - Samuel H. Barton, a mason by trade, an^ recently
-    @abstracts.each do |abstract|
-      lines = abstract.first.split("\n")
+    units.each do |unit|
+      lines = unit.first.split("\n")
       # remove blank lines
       lines.reject! { |line| line.match(/\A#{NEWLINE}\z/) }
       input_line = lines.first
-      metadata = Metadata.new(input_line, @year)
+      abstract = Abstract.new(lines, @year)
 
-      @abstract_map.add(metadata.line_num, metadata)
-      @abstract_number_list << metadata.id
-      # TODO: store metadata
+      @abstract_map.add(abstract.line_num, abstract)
+      @abstract_number_list << abstract.id
+      # TODO: store abstract
       
-      issues.addAbstract(metadata)
+      issues.addAbstract(abstract)
 
-      parsed_abstracts += 1 if metadata.parsed
-      puts "bad line: #{input_line}" unless metadata.parsed
+      parsed_abstracts += 1 if abstract.parsed
+      puts "bad line: #{input_line}" unless abstract.parsed
     end
 
-    puts "Parsed: #{parsed_abstracts}/#{@abstracts.count}"
+    puts "Parsed: #{parsed_abstracts}/#{units.count}"
 
     report_list(@abstract_number_list, 'abstract')
 
     @page_map.merge_to(@abstract_map)
-
-    @abstracts
+    
+    @abstract_map
   end
 
+  def titlecase(s)
+    if s.length > 0
+      s.gsub('&', 'and').downcase.en.titlecase
+    else
+      s
+    end
+  end
+  
   def parse_headings
     # Identify "between" lines, which are either errors or headings
 
@@ -122,7 +136,7 @@ class SourceText
     see_alsos = {}
     see_headings = {}
 
-    @heading_map = TextMap.new('headings')
+    @heading_map = HeadingsTextMap.new('headings')
     @sees_map = TextMap.new('sees')
     unclassified = 0
 
@@ -137,7 +151,6 @@ class SourceText
         # TODO: handle text note
       elsif text.match(/^\+/)
         # text inserted by editor, with prefix of +, ++, or +++
-        text = text.gsub(/^\++ /, '')
         type = if text.match(/^\+\+\+ /)
                  'subheading2'
                elsif text.match(/^\+\+ /)
@@ -145,11 +158,13 @@ class SourceText
                else
                  'heading'
                end
+        text.gsub!(/^\++ /, '')
         heading_hash[:type] = type
+        heading_hash[:text] = titlecase(heading_hash[:text])
         @heading_map.add(line_num, heading_hash)
       elsif text.match(/^[A-Z&',\- ]*[.\- ]*$/)
         # plain heading e.g. "SLAVERY"
-        text.gsub!(/[\.\-\ ]*$/, '')
+        heading_hash[:text] = titlecase(heading_hash[:text].gsub(/[\.\-\ ]*$/, ''))
         heading_hash[:type] = 'heading'
         @heading_map.add(line_num, heading_hash)
       elsif text.match(/^[A-Z&',\- ]+[.,] See .*$/)
@@ -158,7 +173,7 @@ class SourceText
         source, target = text.match(/^([A-Z&',\- ]+)[.,] See (.*)$/).to_a[1..2]
         target.split('; ').each do |unit|
           heading, subheading1 = unit.split(/ #{OCRDASH} /)
-          heading.upcase!
+          heading = titlecase(heading)
           see_headings[source] = [] unless see_headings[source]
           reference = { heading: heading }
           reference[:subheading1] = subheading1 if subheading1
@@ -167,9 +182,9 @@ class SourceText
       elsif text.match(/^.* #{OCRDASH} See .*$/)
         # TODO: handle see abstract reference
         # e.g. "H Feb. 28:3/3 - See Streets"
-        metadata = Metadata.new(heading, @year, false)
+        abstract = Abstract.new(heading, @year, false)
         # TODO: find the abstract - maybe save abstracts in hash with normalized metadata as key, pointing to record number
-        @sees_map.add(metadata.line_num, metadata)
+        @sees_map.add(abstract.line_num, abstract)
         # TODO: save metadata
       elsif text.match(/^See [Aa]l[s§][Qo] .*$/)
         # e.g. "See also Farm Products"
@@ -179,10 +194,10 @@ class SourceText
           if ref[0].match(/[A-Z]/)
             parts = ref.split('-')
             reference = {
-              'text' => parts[0].to_s.strip,
+              'text' => titlecase = (parts[0].to_s.strip),
               'slug' => parts[0].to_s.strip.slugify.gsub(/-+/, '')
             }
-            reference['subheading'] = parts[1].to_s.strip
+            reference['subheading'] = titlecase(parts[1].to_s.strip)
             see_alsos[line_num] = reference
           else
             # generic abstract like "names of animals"
@@ -194,7 +209,7 @@ class SourceText
                  .include?(nil)
         # test whether text consists only of words, which may be
         # capitalized but not all caps
-        heading_hash.merge!(type: 'subheading1', text: text)
+        heading_hash.merge!(type: 'subheading1', text: titlecase(text))
         @heading_map.add(line_num, heading_hash)
       elsif !text.gsub(/\A\((.*)\z/, '\1')
                  .split(/\s+/)
@@ -204,7 +219,7 @@ class SourceText
         # capitalized but not all caps, in brackets
         heading_hash.merge!(
           type: 'subheading2',
-          text: text.gsub(/\A\((.*)\z/, '\1')
+          text: titlecase(text.gsub(/\A\((.*)\z/, '\1'))
         )
         @heading_map.add(line_num, heading_hash)
       else

@@ -2,8 +2,8 @@
 
 # frozen_string_literal: true
 
+require 'json'
 require './lib/sourcetext.rb'
-require './lib/issuelist.rb'
 
 require 'byebug'
 
@@ -11,7 +11,7 @@ year = 1845 # TODO: read from metadata for volume
 
 source = SourceText.new(ARGV[0])
 
-issues = IssueList.new
+issues = IssuesTextMap.new('issues')
 
 abstracts = source.parse_abstracts(year, issues)
 
@@ -37,5 +37,15 @@ end
 
 puts 'Pages: ' + source.page_number_list.count.to_s
 puts 'Headings: ' + headings.count.to_s
-puts 'Abstracts: ' + abstracts.count.to_s
-puts 'Issues: ' + issues.list.keys.count.to_s
+puts 'Abstracts: ' + abstracts.hash.keys.count.to_s
+puts 'Issues: ' + issues.hash.keys.count.to_s
+
+File.open('output/data.json', 'w') do |f|
+  f.puts JSON.pretty_generate(
+    'abstracts': abstracts.data,
+    'headings': headings,
+    'issues': issues.hash
+  )
+end
+
+puts 'Data written to output/data.json'

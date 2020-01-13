@@ -1,124 +1,147 @@
 # frozen_string_literal: true
 
-# One abstract in the volume
-class Abstract
-  attr_reader :id, :init, :heading, :subheading1, :subheading2, :inches
+require 'date'
+require 'damerau-levenshtein'
+require './lib/utils.rb'
+require 'byebug'
 
-  MONTHS = {
-    'Jan.' => 1,
-    'Feb.' => 2,
-    'Mar.' => 3,
-    'Apr.' => 4,
-    'May' => 5,
-    'June' => 6,
-    'July' => 7,
-    'Aug.' => 8,
-    'Sept.' => 9,
-    'Oct.' => 10,
-    'Nov.' => 11,
-    'Dec.' => 12
-  }.freeze
+MONTHS = {
+  'Jan.' => 1,
+  'Feb.' => 2,
+  'Mar.' => 3,
+  'Apr.' => 4,
+  'May' => 5,
+  'June' => 6,
+  'July' => 7,
+  'Aug.' => 8,
+  'Sept.' => 9,
+  'Oct.' => 10,
+  'Nov.' => 11,
+  'Dec.' => 12
+}.freeze
 
-  def initialize(context, line = nil, seq = nil, index = nil)
-    @context = context
-    if line.is_a? String
-      metadata = line.match(
-        %r{^(\d+)(-1/2)?\ [-–.]+\ ([a-zA-Z]+)[\.,]?\s
-           ((?:Jan.|Feb.|Mar.|Apr.|May|June|July|Aug.|Sept.|Oct.|Nov.|Dec.))\s
-           (\d+)[;:,.]+\ ?([a-zA-Z]*)[;:,.]?\ ?(\d+)[/"'](\d+)(.*)$}x
-      )
-      @context.linebuffer << line unless metadata
-      if metadata
-        if @context.prevabstract
-          @context.prevabstract.store_lines @context.linebuffer
-          @context.linebuffer = [line]
-        end
-        date = Date.new(@context.year, MONTHS[metadata[4]], metadata[5].to_i)
+METADATA_LINE_ID = "^(\\d+)\\|(\\d+)(-1\/2)?\\s     # '1234|123-1/2 - ' line, id, dash
+        #{OCRDASH}+\\s"
 
-        @id = metadata[1].to_f
-        # handle -1/2 suffix on id
-        @id += 0.5 if metadata[2] == '-1/2'
+METADATA_LINE = "^(\\d+)\\|()()     # '1234|' line"
 
-        @seq = seq
-        @line = index
-        @newspaper = metadata[3].to_sym
-        @month = MONTHS[metadata[4]]
-        @day = metadata[5].to_i
-        @displaydate = date.strftime('%e %B %Y')
-        @formatdate = date.to_s
-        @page = metadata[7].to_i
-        @column = metadata[8].to_i
-        @type = metadata[6]
-        @init = metadata[9]
-        @heading = @context.heading
-        @subheading1 = @context.subheading1
-        @subheading2 = @context.subheading2
-        @terms = []
+METADATA_FIELDS = "
+        ([a-zA-Z]+)[\.,]?\s       # 'H' newspaper
+        (\\S+)\s                                #month
+        (#{OCRDIGIT}+)#{OCRCOLON}+\s?          # '2:' day
+        ([a-zA-Z]*)#{OCRCOLON}?\s?             # 'ed' type (ed, adv)
+        (#{OCRDIGIT}+)[/\"'](#{OCRDIGIT}+)(.*)$ # '2/3' page and column"
 
-        @context.maxpage = @page if @page > @context.maxpage
-        @context.maxcolumn = @column if @column > @context.maxcolumn
+METADATA_REGEX_LINE_ID = %r{
+  #{METADATA_LINE_ID}
+          ([a-zA-Z]+)[\.,]?\s       # 'H' newspaper
+        (\S+)\s                                #month
+        (#{OCRDIGIT}+)#{OCRCOLON}+\s?          # '2:' day
+        ([a-zA-Z]*)#{OCRCOLON}?\s?             # 'ed' type (ed, adv)
+        (#{OCRDIGIT}+)[/\"'](#{OCRDIGIT}+)(.*)$ # '2/3' page and column
+}x.freeze
 
-        @context.highest = @id if @id > @context.highest
-        # TODO: make sure the half items don't mess this up
-        @context.breaks += 1 if (@id - @context.prev) > 1.0
+METADATA_REGEX_LINE = %r{
+  #{METADATA_LINE}
+          ([a-zA-Z]+)[\.,]?\s       # 'H' newspaper
+        (\S+)\s                                #month
+        (#{OCRDIGIT}+)#{OCRCOLON}+\s?          # '2:' day
+        ([a-zA-Z]*)#{OCRCOLON}?\s?             # 'ed' type (ed, adv)
+        (#{OCRDIGIT}+)[/\"'](#{OCRDIGIT}+)(.*)$ # '2/3' page and column
+}x.freeze
 
-        @context.prev = @id
-      end
-    else
-      # note: this is never being called
-      # must be an id of an empty abstract
-      @id = line
-      # TODO: handle half items
-      @terms = []
+def get_month(month)
+  # given OCR of month abbreviation, make best guess at true abbreviation
+  month.gsub!(',', '.')
+  return month if MONTHS[month]
+
+  guess = ''
+  guess_distance = 10
+  MONTHS.keys.each do |key|
+    new_guess_distance = DamerauLevenshtein.distance(month, key, 0)
+    if new_guess_distance < guess_distance
+      guess = key
+      guess_distance = new_guess_distance
     end
   end
+  guess
+end
 
-  def store_lines(linebuffer)
-    @lines = linebuffer
+class Abstract
 
-    # last line might be a subheading: line of text with no digits TODO: tighter definition
-    if @lines.last.match(/^[a-zA-Z\ \(\)\-]+$/)
-      @context.subheading1 = @lines.last
-      @lines.pop # remove last line
+  attr_reader :line, :line_num, :id, :half, :newspaper, :month, :day,
+              :type, :page, :column, :remainder, :date, :formatdate, :parsed,
+              :normalized_line, :page_num, :heading, :terms
+
+  def initialize(lines, year, with_id = true)
+    @year = year
+    @lines = lines
+    @with_id = with_id
+
+    metadata_string = @lines[0]
+    
+    @line, @line_num, @id, @half, @newspaper, @month, @day, @type, @page,
+    @column, @remainder = (
+      if @with_id then metadata_string.match(METADATA_REGEX_LINE_ID)
+      else metadata_string.match(METADATA_REGEX_LINE)
+      end
+    ).to_a
+    @parsed = false
+    return unless @line_num
+
+    @day = convert_ocr_number(@day)
+    @month_abbr = get_month(@month)
+    @month_number = MONTHS[@month_abbr]
+    begin
+      @date = Date.new(@year, @month_number, @day)
+    rescue StandardError => e
+      puts @line
+      puts e.message
     end
+    return unless @date
 
+    @displaydate = @date.strftime('%e %B %Y').strip
+    @formatdate = @date.to_s
+
+    @line_num = @line_num.to_i
+    @id = @id.to_f
+    # handle -1/2 suffix on id
+    @id += 0.5 if @half == '-1/2'
+    @newspaper = @newspaper.to_sym
+    @page = convert_ocr_number(@page)
+    @column = convert_ocr_number(@column)
+    @parsed = true
+    # save normalized version of first line
+    @normalized_line = "#{@line_num}|#{@id} - #{@newspaper} #{@month_abbr} #{@day}\
+#{('\; ' + @type) unless @type.empty?}:#{@page}/#{@column}"
+    @terms = []
     inches = @lines.last.match(/.*\((\d+)\)$/)
     @inches = inches ? inches[1].to_i : 0
-
-    @context.maxinches = @inches if @inches > @context.maxinches
-
-    # capture issue for @context.prevabstract now that it is complete
-    @context.issues[@formatdate] = {} unless @context.issues[@formatdate]
-    @context.issues[@formatdate][@page] = {} unless @context.issues[@formatdate][@page]
-    @context.issues[@formatdate][@page][@column] = [] unless @context.issues[@formatdate][@page][@column]
-    @context.issues[@formatdate][@page][@column] << @id
   end
-
+  
   def add_term(term)
     @terms << term
   end
 
-  def displayId
-    id.to_i.to_s + (id % 1 == 0.5 ? '-1/2' : '')
+  def merge!(obj)
+    if obj[:heading] # it's a heading
+      @heading = obj
+    else
+      @page_num = obj[:page_num]
+    end
   end
   
-  def to_html
-    display_id = displayId
-    inchclass = @inches > 12 ? 'inchmore' : 'inch' + @inches.to_s
-    "<div class='abstract #{inchclass}'>
-      <a title='#{@init.gsub('\"', '\\"')}'
-        href='../../headings/#{@heading.gsub('&', 'and').slugify.gsub(/\-+/, '')}/##{display_id}'>#{display_id}</a>
-      #{@type != '' ? ' (' + @type + ')' : ''}</div>"
+  def displayId
+    id.to_i.to_s + (id % 1 == 0.5 ? '-1/2' : '')
   end
 
   def to_hash
     {
       id: @id,
       displayid: self.displayId,
-      seq: @seq,
-      line: @line,
+      metadata: @normalized_line,
       newspaper: @newspaper,
-      month: @month,
+      month: @month_number,
       day: @day,
       displaydate: @displaydate,
       formatdate: @formatdate,
@@ -126,10 +149,10 @@ class Abstract
       column: @column,
       type: @type,
       inches: @inches,
-      init: @init,
+      lines: @lines,
       heading: @heading,
-      terms: @terms,
-      lines: @lines
+      terms: @terms
     }
   end
+
 end

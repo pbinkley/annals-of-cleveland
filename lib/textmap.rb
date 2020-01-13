@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'deepsort'
+
 # manages a hash of objects parsed from the source text, keyed by line numbers
 class TextMap
 
@@ -17,17 +19,26 @@ class TextMap
   def merge_to(target)
     # merge objects from hash into objects in another TextMap, using line number ranges
 
-    if @name == 'headings'
-      merge_headings_to(target)
-    else
-      @hash.keys.each_with_index do |key, index|
-        start_next = @hash.keys.count > index ? @hash.keys[index + 1] : nil
-        target.merge_from(key, start_next, @hash[key])
-      end
+    @hash.keys.each_with_index do |key, index|
+      start_next = @hash.keys.count > index ? @hash.keys[index + 1] : nil
+      target.merge_from(key, start_next, @hash[key])
     end
   end
 
-  def merge_headings_to(target)
+
+  def merge_from(start, start_next, obj)
+    # select keys between start and start_next, or after start if start_next is nil
+    @hash
+      .keys
+      .select { |key| key >= start && (start_next ? key < start_next : true) }
+      .each { |target_key| @hash[target_key].merge!(obj.dup) }
+  end
+
+end
+
+class HeadingsTextMap < TextMap
+  
+  def merge_to(target)
     # heading objects are like { type: 'subheading2', text:'Finance' }
     @obj = { heading: 'dummy' }
     @hash.keys.sort.each_with_index do |key, index|
@@ -47,14 +58,6 @@ class TextMap
       start_next = @hash.keys.count > index ? @hash.keys[index + 1] : nil
       target.merge_from(key, start_next, @obj)
     end
-  end
-
-  def merge_from(start, start_next, obj)
-    # select keys between start and start_next, or after start if start_next is nil
-    @hash
-      .keys
-      .select { |key| key >= start && (start_next ? key < start_next : true) }
-      .each { |target_key| @hash[target_key].merge!(obj.dup) }
   end
 
   def validate_headings
@@ -103,4 +106,38 @@ class TextMap
     end
   end
 
+end
+
+class IssuesTextMap < TextMap
+  
+  attr_reader :name
+
+  def addAbstract (abstract)  
+#    @context.maxinches = @inches if @inches > @context.maxinches
+
+    @hash[abstract.formatdate] = {} unless @hash[abstract.formatdate]
+    @hash[abstract.formatdate][abstract.page] = {} unless @hash[abstract.formatdate][abstract.page]
+    @hash[abstract.formatdate][abstract.page][abstract.column] = [] unless @hash[abstract.formatdate][abstract.page][abstract.column]
+    @hash[abstract.formatdate][abstract.page][abstract.column] << abstract.id
+  end
+
+  def hash
+    # sort keys
+    puts 'Sorting hash'
+    @hash.deep_sort
+  end
+  
+end
+
+class AbstractsTextMap < TextMap
+  
+  def data
+    abstracts_data = {}
+    @hash.keys.sort.each do |key|
+      this = @hash[key]
+      abstracts_data[this.id] = this.to_hash
+    end
+    abstracts_data    
+  end
+  
 end
