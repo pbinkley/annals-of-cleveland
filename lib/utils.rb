@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+require 'linguistics'
+require 'linguistics/en'
+require 'linguistics/en/titlecase'
+
+Linguistics.use( :en )
+
 # regex components that are frequently used
 NEWLINE = '\d+\|' # note: includes the pipe separator
 OCRDIGIT = '[\dCOlI!TGS]' # convert to digits using convert_ocr_number
@@ -39,3 +45,12 @@ def report_list(list, name)
 #{disordered_numbers.map(&:to_s).join(' ')}"
   end
 end
+
+def titlecase(s)
+  if s.length > 0
+    s.gsub('&', 'and').downcase.en.titlecase
+  else
+    s
+  end
+end
+

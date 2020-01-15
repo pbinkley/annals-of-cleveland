@@ -14,22 +14,22 @@ source = SourceText.new(ARGV[0])
 issues = IssuesTextMap.new('issues')
 
 abstracts = source.parse_abstracts(year, issues)
-
+byebug
 headings = source.parse_headings
 
 File.open('./intermediate/headings.txt', 'w') do |f|
-  headings[:headings].keys.each do |key|
-    this = headings[:headings][key]
+  headings.keys.each do |key|
+    this = headings[key]
 
-    f.puts "#{this[:page_num]}|#{this[:start]}|#{this[:type]}|#{this[:text]}"
+    f.puts "#{this[:source_page]}|#{this[:start]}|#{this[:type]}|#{this[:text]}"
     next unless this[:subheading1]
 
     this[:subheading1].each do |subh1|
-      f.puts "  #{subh1[:page_num]}|#{subh1[:start]}|#{subh1[:type]}|#{subh1[:text]}"
+      f.puts "  #{subh1[:source_page]}|#{subh1[:start]}|#{subh1[:type]}|#{subh1[:text]}"
       next unless subh1[:subheading2]
 
       subh1[:subheading2].each do |subh2|
-        f.puts "    #{subh2[:page_num]}|#{subh2[:start]}|#{subh2[:type]}|#{subh2[:text]}"
+        f.puts "    #{subh2[:source_page]}|#{subh2[:start]}|#{subh2[:type]}|#{subh2[:text]}"
       end
     end
   end
@@ -37,6 +37,7 @@ end
 
 puts 'Pages: ' + source.page_number_list.count.to_s
 puts 'Headings: ' + headings.count.to_s
+byebug
 puts 'Abstracts: ' + abstracts.hash.keys.count.to_s
 puts 'Issues: ' + issues.hash.keys.count.to_s
 

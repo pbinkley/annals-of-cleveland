@@ -71,7 +71,7 @@ class Abstract
 
   attr_reader :line, :line_num, :id, :half, :newspaper, :month, :day,
               :type, :page, :column, :remainder, :date, :formatdate, :parsed,
-              :normalized_line, :page_num, :heading, :terms
+              :normalized_line, :source_page, :heading, :terms
 
   def initialize(lines, year, with_id = true)
     @year = year
@@ -127,7 +127,7 @@ class Abstract
     if obj[:heading] # it's a heading
       @heading = obj
     else
-      @page_num = obj[:page_num]
+      @source_page = obj[:source_page]
     end
   end
   
@@ -151,7 +151,8 @@ class Abstract
       inches: @inches,
       lines: @lines,
       heading: @heading,
-      terms: @terms
+      terms: @terms,
+      source_page: @source_page
     }
   end
 
