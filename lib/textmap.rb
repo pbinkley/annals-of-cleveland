@@ -229,6 +229,9 @@ class TestPagesTextMap < TestTextMap
     File.open('./intermediate/text-without-breaks.txt', 'w') { |f| f.puts text }
   end
   
+  def count
+    @page_number_list.keys.count
+  end
 end
 
 class TestAbstractsTextMap < TestTextMap
@@ -244,7 +247,7 @@ class TestAbstractsTextMap < TestTextMap
 
   def parseUnits
     @year = 1845 # TODO: manage issue metadata
-    @issues = IssuesTextMap.new('ISSUES') # temporary - needs to be global
+    @issues = {}
     
     parsed_abstracts = 0
     @abstract_number_list = []
@@ -259,7 +262,7 @@ class TestAbstractsTextMap < TestTextMap
       self.add(abstract.line_num, abstract)
       @abstract_number_list << abstract.id
       
-      @issues.addAbstract(abstract)
+      self.addIssue(abstract)
 
       parsed_abstracts += 1 if abstract.parsed
       puts "#{@name} bad line: #{input_line}" unless abstract.parsed
@@ -269,12 +272,17 @@ class TestAbstractsTextMap < TestTextMap
 
     report_list(@abstract_number_list, 'abstract')
     
-    #@page_map.merge_to(@abstract_map)
-
     nil
   end
 
-  def data
+  def addIssue(abstract)
+    @issues[abstract.formatdate] = {} unless @issues[abstract.formatdate]
+    @issues[abstract.formatdate][abstract.page] = {} unless @issues[abstract.formatdate][abstract.page]
+    @issues[abstract.formatdate][abstract.page][abstract.column] = [] unless @issues[abstract.formatdate][abstract.page][abstract.column]
+    @issues[abstract.formatdate][abstract.page][abstract.column] << abstract.id
+  end
+
+  def abstractsData
     # sort keys
     abstracts_data = {}
     @hash.keys.sort.each do |key|
@@ -284,6 +292,15 @@ class TestAbstractsTextMap < TestTextMap
     abstracts_data    
   end
   
+  def issuesData
+    # sort keys
+    puts '#{@name} Sorting issues'
+    @issues.deep_sort
+  end
+  
+  def issuesCount
+    @issues.count
+  end
 end
 
 class TestHeadingsTextMap < TestTextMap
@@ -480,3 +497,64 @@ class TestHeadingsTextMap < TestTextMap
 
 end
 
+
+class TestTermsTextMap < TestTextMap
+  
+  def config
+    # returns array: ["full abstract", "-1/2" or nil] 
+    @unit_regex = /^(.*)$/
+    @name = 'TERMS'
+  end
+
+  def parseUnits
+
+    # handle index terms
+    
+    badCount = 0
+    terms = {}
+    # TODO: Handle page breaks in TERMS section
+    units.each do |unit|
+      next if unit =~ /^#{NEWLINE}$/ # ignore blank line
+      unit.gsub!(/\ [\p{P}\p{S} ]*$/, '')
+      unit.gsub!(/([0-9])\.\ ?([0-9])/, '\1\2') # remove period between digits
+      
+      elements = unit.match(/^#{NEWLINE}(.*)\, ([#{OCRDIGIT}\ \;\-\/]*)$/)
+      seeref = unit.match(/^#{NEWLINE}(.+)\. See (.+)$/)
+      continuation = unit.match(/^#{NEWLINE}[#{OCRDIGIT}\ -\/]*$/)
+      ok = elements || seeref || continuation
+
+      puts unit unless ok
+      badCount += 1 unless ok
+      next unless ok
+      
+      if elements
+        term = elements[1].sub(/^#{NEWLINE}/, '')
+        slug = term.slugify.gsub(/\-+/, '')
+        ids = elements[2].split.each { |id| convert_ocr_number(id) }
+        terms[term] = { slug: slug, ids: ids }
+        previd = 0.0
+        ids.each do |id|
+          parts = id.split('-')
+          id = parts[0].to_f
+          # handle -1/2 suffix on id
+          id += 0.5 if parts.count == 2 && parts[1] == '1/2'
+ 
+=begin
+          thiskey = @abstract_map.hash.keys.select { |key| @abstract_map.hash[key].id == id }.first
+          this = @abstract_map.hash[thiskey]
+          if this
+            this.add_term(term: term, slug: slug)
+          else
+            puts "No abstract #{id} for term #{term}"
+          end
+=end
+          previd = id
+        end
+      else
+        # TODO: handle seeref and continuation
+      end
+    end
+    puts "Unparsed TERMS lines: #{badCount}"
+  end
+  
+end

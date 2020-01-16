@@ -14,7 +14,7 @@ source = SourceText.new(ARGV[0])
 issues = IssuesTextMap.new('issues')
 
 abstracts = source.parse_abstracts(year, issues)
-byebug
+
 headings = source.parse_headings
 
 File.open('./intermediate/headings.txt', 'w') do |f|
@@ -35,17 +35,16 @@ File.open('./intermediate/headings.txt', 'w') do |f|
   end
 end
 
-puts 'Pages: ' + source.page_number_list.count.to_s
+puts 'Pages: ' + source.page_number_count.to_s
 puts 'Headings: ' + headings.count.to_s
-byebug
 puts 'Abstracts: ' + abstracts.hash.keys.count.to_s
-puts 'Issues: ' + issues.hash.keys.count.to_s
+puts 'Issues: ' + abstracts.issuesCount.to_s
 
 File.open('output/data.json', 'w') do |f|
   f.puts JSON.pretty_generate(
-    'abstracts': abstracts.data,
+    'abstracts': abstracts.abstractsData,
     'headings': headings,
-    'issues': issues.hash
+    'issues': abstracts.issuesData
   )
 end
 
