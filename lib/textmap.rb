@@ -6,146 +6,7 @@ require './lib/utils.rb'
 # manages a hash of objects parsed from the source text, keyed by line numbers
 class TextMap
 
-  attr_reader :hash, :name
-
-  def initialize(name)
-    @name = name
-    @hash = {}
-  end
-
-  def add(line_num, obj)
-    @hash[line_num.to_i] = obj
-  end
-
-  def merge_to(target)
-    # merge objects from hash into objects in another TextMap, using line number ranges
-
-    @hash.keys.each_with_index do |key, index|
-      start_next = @hash.keys.count > index ? @hash.keys[index + 1] : nil
-      target.merge_from(key, start_next, @hash[key])
-    end
-  end
-
-
-  def merge_from(start, start_next, obj)
-    # select keys between start and start_next, or after start if start_next is nil
-    @hash
-      .keys
-      .select { |key| key >= start && (start_next ? key < start_next : true) }
-      .each { |target_key| @hash[target_key].merge!(obj.dup) }
-  end
-
-end
-
-class HeadingsTextMap < TextMap
-  
-  def merge_to(target)
-    # heading objects are like { type: 'subheading2', text:'Finance' }
-    @obj = { heading: 'dummy' }
-    @hash.keys.sort.each_with_index do |key, index|
-      this = @hash[key]
-      case this[:type]
-      when 'heading'
-        @obj[:heading] = this[:text]
-        @obj.delete(:subheading1)
-        @obj.delete(:subheading2)
-      when 'subheading1'
-        @obj[:subheading1] = this[:text]
-        @obj.delete(:subheading2)
-      when 'subheading2'
-        @obj[:subheading2] = this[:text]
-      end
-      # start_next = start of next item, if any
-      start_next = @hash.keys.count > index ? @hash.keys[index + 1] : nil
-      target.merge_from(key, start_next, @obj)
-    end
-  end
-
-  def validate_headings
-    # validate and nest headings
-
-    # validation
-    previous = nil
-    @hash.keys.each_with_index do |key, index|
-      this = @hash[key]
-      if (index == 0) && (this[:type] != 'heading')
-        puts "#{@name} Bad heading sequence: #{key}|#{this[:type]}|#{this[:text]} - first must be heading"
-      end
-      if previous
-        # look for invalid sequence, i.e. subheading2 following heading
-        if this[:type] == 'subheading2' && previous[:type] == 'heading'
-          puts "#{@name} Bad heading sequence: #{key}|#{this[:type]}|#{this[:text]} - #{this[:type]} follows #{previous[:type]}"
-        end
-      end
-      previous = this
-    end
-  end
-
-  def nest_headings
-    # nesting: roll up from the end
-    # if subheading2: add it to the subheading2 array, remove from hash
-    # if subheading1: add subheading2 array (if any) and clear it; add this to subheading1 array, remove from hash
-    # if heading: add subheading1 array and clear it
-    subheading1s = []
-    subheading2s = []
-    @hash.keys.reverse.each do |key|
-      this = @hash[key]
-      case this[:type]
-      when 'subheading2'
-        subheading2s << this
-        @hash[key] = nil
-      when 'subheading1'
-        this[:subheading2] = subheading2s.reverse if subheading2s.count > 0
-        subheading2s = []
-        subheading1s << this
-        @hash[key] = nil
-      when 'heading'
-        this[:subheading1] = subheading1s.reverse if subheading1s.count > 0
-        subheading1s = []
-      end
-      @hash.compact! # remove nils
-    end
-  end
-
-end
-
-class IssuesTextMap < TextMap
-  
-  attr_reader :name
-
-  def addAbstract (abstract)  
-#    @context.maxinches = @inches if @inches > @context.maxinches
-
-    @hash[abstract.formatdate] = {} unless @hash[abstract.formatdate]
-    @hash[abstract.formatdate][abstract.page] = {} unless @hash[abstract.formatdate][abstract.page]
-    @hash[abstract.formatdate][abstract.page][abstract.column] = [] unless @hash[abstract.formatdate][abstract.page][abstract.column]
-    @hash[abstract.formatdate][abstract.page][abstract.column] << abstract.id
-  end
-
-  def hash
-    # sort keys
-    puts '#{@name} Sorting hash'
-    @hash.deep_sort
-  end
-  
-end
-
-class AbstractsTextMap < TextMap
-  
-  def data
-    abstracts_data = {}
-    @hash.keys.sort.each do |key|
-      this = @hash[key]
-      abstracts_data[this.id] = this.to_hash
-    end
-    abstracts_data    
-  end
-  
-end
-
-class TestTextMap
-
-  attr_reader :units, :hash
+  attr_reader :units, :hash, :name
 
   def config  
     @unit_regex = nil
@@ -178,25 +39,43 @@ class TestTextMap
   
   def merge_to(target)
     # merge objects from hash into objects in another TextMap, using line number ranges
+    use = @name == 'TERMS' ? :id : :key
 
     @hash.keys.each_with_index do |key, index|
-      start_next = @hash.keys.count > index ? @hash.keys[index + 1] : nil
-      target.merge_from(key, start_next, @hash[key])
+      case use
+        when :key
+          start = key
+          start_next = @hash.keys.count > index ? @hash.keys[index + 1] : nil
+          target.merge_from(key, start_next, @hash[key], use)
+        when :id
+          @hash[key][:ids].each do |id|
+            target.merge_from(id, start_next, @hash[key], use)
+          end
+      end
     end
   end
 
 
-  def merge_from(start, start_next, obj)
+  def merge_from(start, start_next, obj, use = :key)
     # select keys between start and start_next, or after start if start_next is nil
-    @hash
-      .keys
-      .select { |key| key >= start && (start_next ? key < start_next : true) }
-      .each { |target_key| @hash[target_key].merge!(obj.dup) }
+    case use
+      when :key
+        @hash
+          .keys
+          .select { |key| key >= start && (start_next ? key < start_next : true) }
+          .each { |target_key| @hash[target_key].merge!(obj.dup) }
+
+      when :id
+        @hash
+          .keys
+          .select { |key| @hash[key].id == start }
+          .each { |target_key| @hash[target_key].terms << obj.dup }
+    end
   end
 
 end
 
-class TestPagesTextMap < TestTextMap
+class PagesTextMap < TextMap
 
   def config
     @unit_regex = /
@@ -232,9 +111,47 @@ class TestPagesTextMap < TestTextMap
   def count
     @page_number_list.keys.count
   end
+  
 end
 
-class TestAbstractsTextMap < TestTextMap
+class TermsPagesTextMap < TextMap
+
+  def config
+    @unit_regex = /
+                \n#{NEWLINE}#{OCRDIGIT}+\s*\n
+                #{NEWLINE}INDEX\ #{OCRDIGIT}+?\s*\n
+              /x
+    @name = 'TERMS PAGES'
+  end
+  
+  def parseUnits
+    puts "#{@name} parsing pages"
+    # Identify page breaks so that they can be removed
+    @page_number_list = {}
+    @units.each do |unit|
+      next if unit == "\n"
+      line_num, source_page = unit.match(/\A\n(\d+)\|(\d+).*\z/m).to_a[1..2]
+      @page_number_list[source_page.to_i] = line_num.to_i
+      self.add(line_num, source_page: source_page)
+    end
+    report_list(@page_number_list.keys, 'page')
+  end
+
+  def postProcess(text)
+    # remove page-break lines from text
+    @units.each do |unit|
+      text.sub!(unit, "\n")
+    end
+    File.open('./intermediate/text-without-terms-breaks.txt', 'w') { |f| f.puts text }
+  end
+  
+  def count
+    @page_number_list.keys.count
+  end
+  
+end
+
+class AbstractsTextMap < TextMap
   
   def config
     # returns array: ["full abstract", "-1/2" or nil] 
@@ -303,7 +220,7 @@ class TestAbstractsTextMap < TestTextMap
   end
 end
 
-class TestHeadingsTextMap < TestTextMap
+class HeadingsTextMap < TextMap
   
   def config
     @unit_regex = %r{(?:\(#{OCRDIGIT}+\)|\#START_ABSTRACTS)\s*$(.+?)^(?:#{NEWLINE}#{OCRDIGIT}+(?:\-1\/2)?
@@ -497,8 +414,7 @@ class TestHeadingsTextMap < TestTextMap
 
 end
 
-
-class TestTermsTextMap < TestTextMap
+class TermsTextMap < TextMap
   
   def config
     # returns array: ["full abstract", "-1/2" or nil] 
@@ -512,9 +428,9 @@ class TestTermsTextMap < TestTextMap
     
     badCount = 0
     terms = {}
-    # TODO: Handle page breaks in TERMS section
     units.each do |unit|
       next if unit =~ /^#{NEWLINE}$/ # ignore blank line
+      line_num = unit.match(/^(\d*)\|.*/)[1].to_i
       unit.gsub!(/\ [\p{P}\p{S} ]*$/, '')
       unit.gsub!(/([0-9])\.\ ?([0-9])/, '\1\2') # remove period between digits
       
@@ -538,16 +454,8 @@ class TestTermsTextMap < TestTextMap
           id = parts[0].to_f
           # handle -1/2 suffix on id
           id += 0.5 if parts.count == 2 && parts[1] == '1/2'
- 
-=begin
-          thiskey = @abstract_map.hash.keys.select { |key| @abstract_map.hash[key].id == id }.first
-          this = @abstract_map.hash[thiskey]
-          if this
-            this.add_term(term: term, slug: slug)
-          else
-            puts "No abstract #{id} for term #{term}"
-          end
-=end
+          @hash[line_num] = { term: term, ids: [] } unless @hash[line_num]
+          @hash[line_num][:ids] << id
           previd = id
         end
       else

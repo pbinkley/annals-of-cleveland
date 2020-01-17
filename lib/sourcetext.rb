@@ -6,7 +6,6 @@ require 'slugify'
 require './lib/utils.rb'
 require './lib/abstract.rb'
 require './lib/textmap.rb'
-#require './lib/units.rb'
 
 # TODO: handle page breaks in the other sections (with different headers)
 
@@ -34,12 +33,12 @@ class SourceText
       @section[key].gsub!(/\n\d+\|$/, "") # remove blank lines
     end
 
-    @page_map = TestPagesTextMap.new(@section, 'ABSTRACTS')
+    @page_map = PagesTextMap.new(@section, 'ABSTRACTS')
     @page_number_count = @page_map.count
   end
 
-  def parse_abstracts(year, issues)
-    @abstract_map = TestAbstractsTextMap.new(@section, 'ABSTRACTS')
+  def parse_abstracts(year)
+    @abstract_map = AbstractsTextMap.new(@section, 'ABSTRACTS')
     @page_map.merge_to(@abstract_map)
     @abstract_map
   end
@@ -49,9 +48,12 @@ class SourceText
 
     # headings code removed here
 
-    @heading_map = TestHeadingsTextMap.new(@section, 'ABSTRACTS')
+    @heading_map = HeadingsTextMap.new(@section, 'ABSTRACTS')
     
-    @terms_map = TestTermsTextMap.new(@section, 'TERMS')
+    @termspages_map = TermsPagesTextMap.new(@section, 'TERMS')
+    @terms_map = TermsTextMap.new(@section, 'TERMS')
+    @termspages_map.merge_to(@terms_map)
+    @terms_map.merge_to(@abstract_map)
 
     File.open('./intermediate/abstract.txt', 'w') do |f|
       @abstract_map.hash.keys.each do |key|

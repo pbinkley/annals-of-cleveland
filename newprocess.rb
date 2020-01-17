@@ -11,9 +11,7 @@ year = 1845 # TODO: read from metadata for volume
 
 source = SourceText.new(ARGV[0])
 
-issues = IssuesTextMap.new('issues')
-
-abstracts = source.parse_abstracts(year, issues)
+abstracts = source.parse_abstracts(year)
 
 headings = source.parse_headings
 
