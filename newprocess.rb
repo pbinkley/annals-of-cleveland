@@ -15,9 +15,18 @@ abstracts = source.parse_abstracts(year)
 
 headings = source.parse_headings
 
+terms = source.parse_terms
+
+File.open('./intermediate/abstract.txt', 'w') do |f|
+  abstracts.hash.keys.each do |key|
+    this = abstracts.hash[key]
+    f.puts "#{key}|#{this.id}|#{this.source_page}|#{this.heading}|#{this.terms}"
+  end
+end
+    
 File.open('./intermediate/headings.txt', 'w') do |f|
-  headings.keys.each do |key|
-    this = headings[key]
+  headings.hash.keys.each do |key|
+    this = headings.hash[key]
 
     f.puts "#{this[:source_page]}|#{this[:start]}|#{this[:type]}|#{this[:text]}"
     next unless this[:subheading1]
@@ -34,14 +43,15 @@ File.open('./intermediate/headings.txt', 'w') do |f|
 end
 
 puts 'Pages: ' + source.page_number_count.to_s
-puts 'Headings: ' + headings.count.to_s
+puts 'Headings: ' + headings.hash.keys.count.to_s
 puts 'Abstracts: ' + abstracts.hash.keys.count.to_s
 puts 'Issues: ' + abstracts.issuesCount.to_s
 
 File.open('output/data.json', 'w') do |f|
   f.puts JSON.pretty_generate(
     'abstracts': abstracts.abstractsData,
-    'headings': headings,
+    'headings': headings.hash,
+    'terms': terms.termsData,
     'issues': abstracts.issuesData
   )
 end

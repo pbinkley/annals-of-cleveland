@@ -454,7 +454,7 @@ class TermsTextMap < TextMap
           id = parts[0].to_f
           # handle -1/2 suffix on id
           id += 0.5 if parts.count == 2 && parts[1] == '1/2'
-          @hash[line_num] = { term: term, ids: [] } unless @hash[line_num]
+          @hash[line_num] = { term: term, slug: slug, ids: [] } unless @hash[line_num]
           @hash[line_num][:ids] << id
           previd = id
         end
@@ -463,6 +463,16 @@ class TermsTextMap < TextMap
       end
     end
     puts "Unparsed TERMS lines: #{badCount}"
+  end
+  
+  def termsData
+    # sort keys
+    terms_data = {}
+    @hash.keys.sort.each do |key|
+      this = @hash[key]
+      terms_data[this[:term]] = this.to_hash
+    end
+    terms_data
   end
   
 end

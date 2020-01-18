@@ -50,19 +50,16 @@ class SourceText
 
     @heading_map = HeadingsTextMap.new(@section, 'ABSTRACTS')
     
+    @heading_map
+  end
+
+  def parse_terms
     @termspages_map = TermsPagesTextMap.new(@section, 'TERMS')
+    # TODO: maybe merge terms pages into a master pages map
     @terms_map = TermsTextMap.new(@section, 'TERMS')
     @termspages_map.merge_to(@terms_map)
     @terms_map.merge_to(@abstract_map)
 
-    File.open('./intermediate/abstract.txt', 'w') do |f|
-      @abstract_map.hash.keys.each do |key|
-        this = @abstract_map.hash[key]
-        f.puts "#{key}|#{this.id}|#{this.source_page}|#{this.heading}|#{this.terms}"
-      end
-    end
-
-    @heading_map.hash
+    @terms_map
   end
-
 end
