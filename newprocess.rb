@@ -3,6 +3,7 @@
 # frozen_string_literal: true
 
 require 'json'
+require './lib/hugo.rb'
 require './lib/sourcetext.rb'
 
 require 'byebug'
@@ -47,13 +48,32 @@ puts 'Headings: ' + headings.hash.keys.count.to_s
 puts 'Abstracts: ' + abstracts.hash.keys.count.to_s
 puts 'Issues: ' + abstracts.issuesCount.to_s
 
+@data = {
+  abstracts: abstracts,
+  headings: headings.hash,
+  terms: terms.termsData,
+  issues: abstracts.issuesData
+}
+
+# rehash abstracts by id instead of line_num
+abstracts_by_ids = {}
+abstracts.hash.keys.each do |key| 
+  abstract = abstracts.hash[key]
+  abstracts_by_ids[abstract.id] = abstract 
+end
+
+@data = {
+  abstracts: abstracts_by_ids,
+  headings: headings.hash,
+  terms: terms.termsData,
+  issues: abstracts.issuesData
+}
+
 File.open('output/data.json', 'w') do |f|
-  f.puts JSON.pretty_generate(
-    'abstracts': abstracts.abstractsData,
-    'headings': headings.hash,
-    'terms': terms.termsData,
-    'issues': abstracts.issuesData
-  )
+  f.puts JSON.pretty_generate(@data)
 end
 
 puts 'Data written to output/data.json'
+
+hugo = Hugo.new(@data)
+hugo.generate

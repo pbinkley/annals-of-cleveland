@@ -49,6 +49,7 @@ class SourceText
     # headings code removed here
 
     @heading_map = HeadingsTextMap.new(@section, 'ABSTRACTS')
+    @heading_map.merge_to(@abstract_map)
     
     @heading_map
   end

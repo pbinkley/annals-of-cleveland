@@ -114,6 +114,7 @@ class Abstract
     # save normalized version of first line
     @normalized_line = "#{@line_num}|#{@id} - #{@newspaper} #{@month_abbr} #{@day}\
 #{('\; ' + @type) unless @type.empty?}:#{@page}/#{@column}"
+    @init = @remainder.sub(/^ - /, '')
     @terms = []
     inches = @lines.last.match(/.*\((\d+)\)$/)
     @inches = inches ? inches[1].to_i : 0
@@ -149,6 +150,7 @@ class Abstract
       column: @column,
       type: @type,
       inches: @inches,
+      init: @init,
       lines: @lines,
       heading: @heading,
       terms: @terms,
@@ -156,4 +158,15 @@ class Abstract
     }
   end
 
+  def to_html
+    display_id = displayId
+    inchclass = @inches > 12 ? 'inchmore' : 'inch' + @inches.to_s
+    @heading = {heading: 'dummy'} unless @heading # TODO: make sure all abstracts get heading
+    
+    "<div class='entry #{inchclass}'>
+      <a title='#{@init.gsub('\"', '\\"')}'
+        href='../../headings/#{@heading[:heading].slugify.gsub(/\-+/, '')}/##{display_id}'>#{display_id}</a>
+      #{@type != '' ? ' (' + @type + ')' : ''}</div>"
+  end
+  
 end
