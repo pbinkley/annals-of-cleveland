@@ -14,30 +14,30 @@ class SourceText
   attr_reader :text, :page_number_count
 
   def initialize(filename)
-    sectionName = 'INTRO'
-    @section = {sectionName => ''}
+    section_name = 'INTRO'
+    @section = { section_name => '' }
     counter = 1
     File.readlines(filename).each do |line|
       line.gsub!(NWORDREGEX, '\1****r')
       if line.match(/^#START_/)
-        sectionName = line.sub('#START_', '').strip
-        @section[sectionName] = ''
+        section_name = line.sub('#START_', '').strip
+        @section[section_name] = ''
       end
-      @section[sectionName] += "#{counter}|#{ line }" unless line.empty? # prefix each line with line number
+      @section[section_name] += "#{counter}|#{line}" unless line.empty? # prefix each line with line number
       counter += 1
     end
 
     coder = HTMLEntities.new
-    @section.keys.each do |key| 
+    @section.keys.each do |key|
       @section[key] = coder.decode(@section[key])
-      @section[key].gsub!(/\n\d+\|$/, "") # remove blank lines
+      @section[key].gsub!(/\n\d+\|$/, '') # remove blank lines
     end
 
     @page_map = PagesTextMap.new(@section, 'ABSTRACTS')
     @page_number_count = @page_map.count
   end
 
-  def parse_abstracts(year)
+  def parse_abstracts
     @abstract_map = AbstractsTextMap.new(@section, 'ABSTRACTS')
     @page_map.merge_to(@abstract_map)
     @abstract_map
@@ -45,12 +45,9 @@ class SourceText
 
   def parse_headings
     # Identify "between" lines, which are either errors or headings
-
-    # headings code removed here
-
     @heading_map = HeadingsTextMap.new(@section, 'ABSTRACTS')
     @heading_map.merge_to(@abstract_map)
-    
+
     @heading_map
   end
 
@@ -63,4 +60,5 @@ class SourceText
 
     @terms_map
   end
+
 end

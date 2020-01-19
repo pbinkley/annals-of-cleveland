@@ -8,68 +8,64 @@ class TextMap
 
   attr_reader :units, :hash, :name
 
-  def config  
+  def config
     @unit_regex = nil
     @name = ''
   end
-  
+
   def initialize(sections, section_name)
-    self.config
+    config
     @sections = sections
     @section_name = section_name
     puts "#{@name} initialize"
     @text = @sections[@section_name]
     @hash = {}
     @units = @text.scan(@unit_regex).flatten
-    self.parseUnits
-    
-    # postProcess may modify the text, e.g. removing page breaks
-    self.postProcess(@sections[@section_name])
+    parse_units
+
+    # post_process may modify the text, e.g. removing page breaks
+    post_process(@sections[@section_name])
   end
-  
+
   def add(line_num, obj)
     @hash[line_num.to_i] = obj
   end
 
-  def parseUnits
-  end
-  
-  def postProcess(text)
-  end
-  
+  def parse_units() end
+
+  def post_process(text) end
+
   def merge_to(target)
     # merge objects from hash into objects in another TextMap, using line number ranges
     use = @name == 'TERMS' ? :id : :key
 
     @hash.keys.each_with_index do |key, index|
       case use
-        when :key
-          start = key
-          start_next = @hash.keys.count > index ? @hash.keys[index + 1] : nil
-          target.merge_from(key, start_next, @hash[key], use)
-        when :id
-          @hash[key][:ids].each do |id|
-            target.merge_from(id, start_next, @hash[key], use)
-          end
+      when :key
+        start_next = @hash.keys.count > index ? @hash.keys[index + 1] : nil
+        target.merge_from(key, start_next, @hash[key], use)
+      when :id
+        @hash[key][:ids].each do |id|
+          target.merge_from(id, start_next, @hash[key], use)
+        end
       end
     end
   end
 
-
   def merge_from(start, start_next, obj, use = :key)
     # select keys between start and start_next, or after start if start_next is nil
     case use
-      when :key
-        @hash
-          .keys
-          .select { |key| key >= start && (start_next ? key < start_next : true) }
-          .each { |target_key| @hash[target_key].merge!(obj.dup) }
+    when :key
+      @hash
+        .keys
+        .select { |key| key >= start && (start_next ? key < start_next : true) }
+        .each { |target_key| @hash[target_key].merge!(obj.dup) }
 
-      when :id
-        @hash
-          .keys
-          .select { |key| @hash[key].id == start }
-          .each { |target_key| @hash[target_key].terms << obj.dup }
+    when :id
+      @hash
+        .keys
+        .select { |key| @hash[key].id == start }
+        .each { |target_key| @hash[target_key].terms << obj.dup }
     end
   end
 
@@ -86,32 +82,33 @@ class PagesTextMap < TextMap
               /x
     @name = 'PAGES'
   end
-  
-  def parseUnits
+
+  def parse_units
     puts "#{@name} parsing pages"
     # Identify page breaks so that they can be removed
     @page_number_list = {}
     @units.each do |unit|
       next if unit == "\n"
+
       line_num, source_page = unit.match(/\A\n(\d+)\|(\d+).*\z/m).to_a[1..2]
       @page_number_list[source_page.to_i] = line_num.to_i
-      self.add(line_num, source_page: source_page)
+      add(line_num, source_page: source_page)
     end
     report_list(@page_number_list.keys, 'page')
   end
 
-  def postProcess(text)
+  def post_process(text)
     # remove page-break lines from text
     @units.each do |unit|
       text.sub!(unit, "\n")
     end
     File.open('./intermediate/text-without-breaks.txt', 'w') { |f| f.puts text }
   end
-  
+
   def count
     @page_number_list.keys.count
   end
-  
+
 end
 
 class TermsPagesTextMap < TextMap
@@ -123,38 +120,39 @@ class TermsPagesTextMap < TextMap
               /x
     @name = 'TERMS PAGES'
   end
-  
-  def parseUnits
+
+  def parse_units
     puts "#{@name} parsing pages"
     # Identify page breaks so that they can be removed
     @page_number_list = {}
     @units.each do |unit|
       next if unit == "\n"
+
       line_num, source_page = unit.match(/\A\n(\d+)\|(\d+).*\z/m).to_a[1..2]
       @page_number_list[source_page.to_i] = line_num.to_i
-      self.add(line_num, source_page: source_page)
+      add(line_num, source_page: source_page)
     end
     report_list(@page_number_list.keys, 'page')
   end
 
-  def postProcess(text)
+  def post_process(text)
     # remove page-break lines from text
     @units.each do |unit|
       text.sub!(unit, "\n")
     end
     File.open('./intermediate/text-without-terms-breaks.txt', 'w') { |f| f.puts text }
   end
-  
+
   def count
     @page_number_list.keys.count
   end
-  
+
 end
 
 class AbstractsTextMap < TextMap
-  
+
   def config
-    # returns array: ["full abstract", "-1/2" or nil] 
+    # returns array: ["full abstract", "-1/2" or nil]
     @unit_regex = %r{
       ^(#{NEWLINE}#{OCRDIGIT}+(?:-1\/2)?\s*#{OCRDASH}\s*.+?\s*
       \(#{OCRDIGIT}+\))\s*$
@@ -162,10 +160,10 @@ class AbstractsTextMap < TextMap
     @name = 'ABSTRACTS'
   end
 
-  def parseUnits
+  def parse_units
     @year = 1845 # TODO: manage issue metadata
     @issues = {}
-    
+
     parsed_abstracts = 0
     @abstract_number_list = []
 
@@ -176,10 +174,10 @@ class AbstractsTextMap < TextMap
       lines = unit.split("\n")
       input_line = lines.first
       abstract = Abstract.new(lines, @year)
-      self.add(abstract.line_num, abstract)
+      add(abstract.line_num, abstract)
       @abstract_number_list << abstract.id
-      
-      self.addIssue(abstract)
+
+      add_issue(abstract)
 
       parsed_abstracts += 1 if abstract.parsed
       puts "#{@name} bad line: #{input_line}" unless abstract.parsed
@@ -188,40 +186,41 @@ class AbstractsTextMap < TextMap
     puts "#{@name} Parsed: #{parsed_abstracts}/#{units.count}"
 
     report_list(@abstract_number_list, 'abstract')
-    
+
     nil
   end
 
-  def addIssue(abstract)
-    @issues[abstract.formatdate] = {} unless @issues[abstract.formatdate]
-    @issues[abstract.formatdate][abstract.page] = {} unless @issues[abstract.formatdate][abstract.page]
-    @issues[abstract.formatdate][abstract.page][abstract.column] = [] unless @issues[abstract.formatdate][abstract.page][abstract.column]
+  def add_issue(abstract)
+    @issues[abstract.formatdate] ||= {}
+    @issues[abstract.formatdate][abstract.page] ||= {}
+    @issues[abstract.formatdate][abstract.page][abstract.column] ||= []
     @issues[abstract.formatdate][abstract.page][abstract.column] << abstract.id
   end
 
-  def abstractsData
+  def abstracts_data
     # sort keys
     abstracts_data = {}
     @hash.keys.sort.each do |key|
       this = @hash[key]
       abstracts_data[this.id] = this.to_hash
     end
-    abstracts_data    
+    abstracts_data
   end
-  
-  def issuesData
+
+  def issues_data
     # sort keys
-    puts '#{@name} Sorting issues'
+    puts "#{@name} Sorting issues"
     @issues.deep_sort
   end
-  
-  def issuesCount
+
+  def issues_count
     @issues.count
   end
+
 end
 
 class HeadingsTextMap < TextMap
-  
+
   def config
     @unit_regex = %r{(?:\(#{OCRDIGIT}+\)|\#START_ABSTRACTS)\s*$(.+?)^(?:#{NEWLINE}#{OCRDIGIT}+(?:\-1\/2)?
           \s#{OCRDASH}\s|\#END_ABSTRACTS)
@@ -229,8 +228,7 @@ class HeadingsTextMap < TextMap
     @name = 'HEADINGS'
   end
 
-  def parseUnits
-
+  def parse_units
     # empty lines look like: ["\n11968|\n"]
     units.reject! do |unit|
       unit.strip!
@@ -269,12 +267,12 @@ class HeadingsTextMap < TextMap
         text.gsub!(/^\++ /, '')
         heading_hash[:type] = type
         heading_hash[:text] = titlecase(heading_hash[:text])
-        self.add(line_num, heading_hash)
+        add(line_num, heading_hash)
       elsif text.match(/^[A-Z&',\- ]*[.\- ]*$/)
         # plain heading e.g. "SLAVERY"
         heading_hash[:text] = titlecase(heading_hash[:text].gsub(/[\.\-\ ]*$/, ''))
         heading_hash[:type] = 'heading'
-        self.add(line_num, heading_hash)
+        add(line_num, heading_hash)
       elsif text.match(/^[A-Z&',\- ]+[.,] See .*$/)
         # e.g. "ABANDONED CHILDREN. See Children"
         # handles heading and subheading1
@@ -303,7 +301,7 @@ class HeadingsTextMap < TextMap
           if ref[0].match(/[A-Z]/)
             parts = ref.split('-')
             reference = {
-              'text' => titlecase = (parts[0].to_s.strip),
+              'text' => titlecase(parts[0].to_s.strip),
               'slug' => parts[0].to_s.strip.slugify.gsub(/-+/, '')
             }
             reference['subheading'] = titlecase(parts[1].to_s.strip)
@@ -319,7 +317,7 @@ class HeadingsTextMap < TextMap
         # test whether text consists only of words, which may be
         # capitalized but not all caps
         heading_hash.merge!(type: 'subheading1', text: titlecase(text))
-        self.add(line_num, heading_hash)
+        add(line_num, heading_hash)
       elsif !text.gsub(/\A\((.*)\z/, '\1')
                  .split(/\s+/)
                  .map { |word| word.match(/\A[A-Za-z&][a-z]*\z/) }
@@ -330,7 +328,7 @@ class HeadingsTextMap < TextMap
           type: 'subheading2',
           text: titlecase(text.gsub(/\A\((.*)\z/, '\1'))
         )
-        self.add(line_num, heading_hash)
+        add(line_num, heading_hash)
       else
         puts "#{@name} Unclassified: #{line_num}|#{text}"
         unclassified += 1
@@ -338,12 +336,10 @@ class HeadingsTextMap < TextMap
     end
     puts "#{@name} Unclassified: #{unclassified}"
 
-    #@page_map.merge_to(@heading_map) # add page numbers to headings
-    self.validate_headings
-    #@heading_map.merge_to(@abstract_map)
-    self.nest_headings
+    validate_headings
+    nest_headings
   end
-  
+
   def merge_to(target)
     # heading objects are like { type: 'subheading2', text:'Finance' }
     @obj = { heading: 'dummy' }
@@ -415,32 +411,32 @@ class HeadingsTextMap < TextMap
 end
 
 class TermsTextMap < TextMap
-  
+
   def config
-    # returns array: ["full abstract", "-1/2" or nil] 
+    # returns array: ["full abstract", "-1/2" or nil]
     @unit_regex = /^(.*)$/
     @name = 'TERMS'
   end
 
-  def parseUnits
-
+  def parse_units
     # handle index terms
-    
-    badCount = 0
+
+    bad_count = 0
     terms = {}
     units.each do |unit|
       next if unit =~ /^#{NEWLINE}$/ # ignore blank line
+
       line_num = unit.match(/^(\d*)\|.*/)[1].to_i
       unit.gsub!(/\ [\p{P}\p{S} ]*$/, '')
       unit.gsub!(/([0-9])\.\ ?([0-9])/, '\1\2') # remove period between digits
-      
+
       elements = unit.match(/^#{NEWLINE}(.*)\, ([#{OCRDIGIT}\ \;\-\/]*)$/)
       seeref = unit.match(/^#{NEWLINE}(.+)\. See (.+)$/)
       continuation = unit.match(/^#{NEWLINE}[#{OCRDIGIT}\ -\/]*$/)
       ok = elements || seeref || continuation
 
       puts unit unless ok
-      badCount += 1 unless ok
+      bad_count += 1 unless ok
       next unless ok
       
       if elements
@@ -462,10 +458,10 @@ class TermsTextMap < TextMap
         # TODO: handle seeref and continuation
       end
     end
-    puts "Unparsed TERMS lines: #{badCount}"
+    puts "Unparsed TERMS lines: #{bad_count}"
   end
-  
-  def termsData
+
+  def terms_data
     # sort keys
     terms_data = {}
     @hash.keys.sort.each do |key|
@@ -474,5 +470,5 @@ class TermsTextMap < TextMap
     end
     terms_data
   end
-  
+
 end

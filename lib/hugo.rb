@@ -20,58 +20,31 @@ class Hugo
     @hugodata = {}
     @headings = []
   end
-  
-  def generate
-=begin
-    @abstracts.keys.sort.each do |key|
-      abstract = @abstracts[key]
-      if !hugodata[abstract.heading]
-        hugodata[abstract.heading] = {}
-        hugodata[abstract.heading][:abstracts] = []
-        hugodata[abstract.heading][:subheadings] = {}
-      end
-      hugodata[abstract.heading][:abstracts] << abstract.to_hash
-      
-      if abstract.subheading1 && abstract.subheading1 != ''
-        hugodata[abstract.heading][:subheadings][abstract.subheading1] = [] unless hugodata[abstract.heading][:subheadings][abstract.subheading1]
-      end
-      if abstract.subheading2 && abstract.subheading2 != ''
-        hugodata[abstract.heading][:subheadings][abstract.subheading1] << abstract.subheading2 unless hugodata[abstract.heading][:subheadings][abstract.subheading1].include?(abstract.subheading2)
-      end
-      headings << abstract.heading unless headings.include?(abstract.heading)
-    end
-=end
 
+  def generate
     FileUtils.rm_rf('hugo/data/headings')
     FileUtils.mkdir_p 'hugo/data/headings'
-    
+
     FileUtils.rm_rf('hugo/content/headings')
     FileUtils.mkdir_p 'hugo/content/headings'
-    
+
     FileUtils.rm_rf 'hugo/data/terms'
     FileUtils.mkdir_p 'hugo/data/terms'
-    
+
     FileUtils.rm_rf 'hugo/content/terms'
     FileUtils.mkdir_p 'hugo/content/terms'
-    
+
     FileUtils.rm_rf 'hugo/data/issues'
     FileUtils.mkdir_p 'hugo/data/issues'
-    
+
     FileUtils.rm_rf 'hugo/content/issues'
     FileUtils.mkdir_p 'hugo/content/issues'
-    
+
     File.open('hugo/data/headings.json', 'w') do |f|
       f.puts JSON.pretty_generate(@headings)
     end
-    
-=begin
-    File.open('hugo/data/classification.json', 'w') do |f|
-      f.puts JSON.pretty_generate(classification)
-    end
-=end
 
     @headings.each do |heading|
-      byebug
       slug = heading.to_s.gsub('&', 'and').slugify.gsub('-', '')
       File.open('hugo/data/headings/' + slug + '.json', 'w') do |f|
         f.puts JSON.pretty_generate(
@@ -80,16 +53,16 @@ class Hugo
       end
       subheadings = []
       hugodata[heading][:subheadings].each do |subheading|
-        subheadings << {subheading[0] => subheading[1]}
+        subheadings << { subheading[0] => subheading[1] }
       end
       yaml = { 'title' => heading, 'slug' => slug, 'count' =>
         hugodata[heading][:abstracts].count, 'seealso' => seealsos[heading],
-        'subheadings' => subheadings }.to_yaml
+               'subheadings' => subheadings }.to_yaml
       File.open('hugo/content/headings/' + slug + '.md', 'w') do |f|
         f.puts yaml + "\n---\n\n{{< heading >}}\n"
       end
     end
-    
+
     @terms.keys.each do |term|
       slug = term.to_s.gsub('&', 'and').slugify.gsub(/-+/, '')
       termentries = []
@@ -107,10 +80,10 @@ class Hugo
         f.puts yaml + "\n---\n\n{{< term >}}\n"
       end
     end
-    
+
     @issues.keys.each do |key|
       issue = @issues[key]
-    
+
       yaml = { 'title' => key }.to_yaml
       File.open('hugo/content/issues/' + key + '.md', 'w') do |f|
         f.puts yaml + "---\n\n"
@@ -158,4 +131,5 @@ class Hugo
       end
     end
   end
+
 end

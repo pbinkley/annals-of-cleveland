@@ -12,7 +12,7 @@ year = 1845 # TODO: read from metadata for volume
 
 source = SourceText.new(ARGV[0])
 
-abstracts = source.parse_abstracts(year)
+abstracts = source.parse_abstracts
 
 headings = source.parse_headings
 
@@ -24,7 +24,7 @@ File.open('./intermediate/abstract.txt', 'w') do |f|
     f.puts "#{key}|#{this.id}|#{this.source_page}|#{this.heading}|#{this.terms}"
   end
 end
-    
+
 File.open('./intermediate/headings.txt', 'w') do |f|
   headings.hash.keys.each do |key|
     this = headings.hash[key]
@@ -46,27 +46,27 @@ end
 puts 'Pages: ' + source.page_number_count.to_s
 puts 'Headings: ' + headings.hash.keys.count.to_s
 puts 'Abstracts: ' + abstracts.hash.keys.count.to_s
-puts 'Issues: ' + abstracts.issuesCount.to_s
+puts 'Issues: ' + abstracts.issues_count.to_s
 
 @data = {
   abstracts: abstracts,
   headings: headings.hash,
-  terms: terms.termsData,
-  issues: abstracts.issuesData
+  terms: terms.terms_data,
+  issues: abstracts.issues_data
 }
 
 # rehash abstracts by id instead of line_num
 abstracts_by_ids = {}
-abstracts.hash.keys.each do |key| 
+abstracts.hash.keys.each do |key|
   abstract = abstracts.hash[key]
-  abstracts_by_ids[abstract.id] = abstract 
+  abstracts_by_ids[abstract.id] = abstract
 end
 
 @data = {
   abstracts: abstracts_by_ids,
   headings: headings.hash,
-  terms: terms.termsData,
-  issues: abstracts.issuesData
+  terms: terms.terms_data,
+  issues: abstracts.issues_data
 }
 
 File.open('output/data.json', 'w') do |f|

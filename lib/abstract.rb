@@ -79,7 +79,7 @@ class Abstract
     @with_id = with_id
 
     metadata_string = @lines[0]
-    
+
     @line, @line_num, @id, @half, @newspaper, @month, @day, @type, @page,
     @column, @remainder = (
       if @with_id then metadata_string.match(METADATA_REGEX_LINE_ID)
@@ -119,7 +119,7 @@ class Abstract
     inches = @lines.last.match(/.*\((\d+)\)$/)
     @inches = inches ? inches[1].to_i : 0
   end
-  
+
   def add_term(term)
     @terms << term
   end
@@ -131,15 +131,15 @@ class Abstract
       @source_page = obj[:source_page]
     end
   end
-  
-  def displayId
+
+  def display_id
     id.to_i.to_s + (id % 1 == 0.5 ? '-1/2' : '')
   end
 
   def to_hash
     {
       id: @id,
-      displayid: self.displayId,
+      displayid: display_id,
       metadata: @normalized_line,
       newspaper: @newspaper,
       month: @month_number,
@@ -159,14 +159,14 @@ class Abstract
   end
 
   def to_html
-    display_id = displayId
+    disp_id = display_id
     inchclass = @inches > 12 ? 'inchmore' : 'inch' + @inches.to_s
-    @heading = {heading: 'dummy'} unless @heading # TODO: make sure all abstracts get heading
-    
+    @heading ||= { heading: 'dummy' } # TODO: make sure all abstracts get heading
+
     "<div class='entry #{inchclass}'>
       <a title='#{@init.gsub('\"', '\\"')}'
-        href='../../headings/#{@heading[:heading].slugify.gsub(/\-+/, '')}/##{display_id}'>#{display_id}</a>
+        href='../../headings/#{@heading[:heading].slugify.gsub(/\-+/, '')}/##{disp_id}'>#{disp_id}</a>
       #{@type != '' ? ' (' + @type + ')' : ''}</div>"
   end
-  
+
 end
