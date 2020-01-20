@@ -65,17 +65,17 @@ class Hugo
 
     @terms.keys.each do |term|
       slug = term.to_s.gsub('&', 'and').slugify.gsub(/-+/, '')
-      termentries = []
+      term_abstracts = []
       @terms[term][:ids].each do |id|
-        termentries << @abstracts[id]
+        term_abstracts << @abstracts[id]
       end
       File.open('hugo/data/terms/' + slug + '.json', 'w') do |f|
         f.puts JSON.pretty_generate(
-          title: term, slug: slug, abstracts: termentries
+          title: term, slug: slug, abstracts: term_abstracts
         )
       end
       yaml = { 'title' => term, 'slug' => slug, 'count' =>
-        termentries.count }.to_yaml
+        term_abstracts.count }.to_yaml
       File.open('hugo/content/terms/' + slug + '.md', 'w') do |f|
         f.puts yaml + "\n---\n\n{{< term >}}\n"
       end
@@ -120,8 +120,8 @@ class Hugo
           (1..8).each do |col|
             coldata = pagedata ? pagedata.dig(col) : nil
             f.puts '<td>'
-            coldata&.each do |entrykey|
-              abstract = @abstracts[entrykey]
+            coldata&.each do |abstract_key|
+              abstract = @abstracts[abstract_key]
               f.puts abstract.to_html
             end
             f.puts '</td>'

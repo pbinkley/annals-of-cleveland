@@ -26,12 +26,12 @@
   </ul>
 </div>
 
-<p>Entries: {{ .Page.Params.count }}</p>
+<p>Abstracts: {{ .Page.Params.count }}</p>
 
 {{  $prevsub1 :=  "" }}
 {{  $prevsub2 :=  "" }}
 
-{{ range (index .Site.Data.headings $cur).entries }}
+{{ range (index .Site.Data.headings $cur).abstracts }}
 
   {{ if ne $prevsub1 .subheading1 }}
     <h2 id="{{ .subheading1 | urlize }}">{{ .subheading1 }}</h2>
@@ -42,7 +42,7 @@
     <h3 id="{{ .subheading1 | urlize }}_{{ .subheading2 | urlize }}">{{ .subheading2 }}</h3>
   {{ end }}
 
-  {{ partial "entry.html" (dict "context" . "dir" .Page.Dir) }}
+  {{ partial "abstract.html" (dict "context" . "dir" .Page.Dir) }}
 
   {{ $prevsub1 = .subheading1 }}
   {{ $prevsub2 = .subheading2 }}

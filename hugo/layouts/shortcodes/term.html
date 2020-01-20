@@ -1,10 +1,10 @@
 {{ $cur := .Page.Params.slug }}
 
-<p>Entries: {{ .Page.Params.count }}</p>
+<p>Abstracts: {{ .Page.Params.count }}</p>
 
-{{ range (index .Site.Data.terms $cur).entries }}
+{{ range (index .Site.Data.terms $cur).abstracts }}
 
-  {{ partial "entry.html" (dict "context" . "thisdir" $.Page.Dir) }}
+  {{ partial "abstract.html" (dict "context" . "thisdir" $.Page.Dir) }}
 
 {{ end }}
 
