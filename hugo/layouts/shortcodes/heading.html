@@ -1,17 +1,16 @@
 {{ $cur := .Page.Params.slug }}
+
 <div>
-  {{ if .Page.Params.subheadings}}
+  {{ if .Page.Params.parents}}
+    <p>Parents: 
+      {{ partial "heading-parents.html" (dict "context" .Page.Params) }}
+    </p>
+  {{ end }}
+  {{ if .Page.Params.children}}
     <h4>Subheadings:</h4>
     <ul>
-      {{ range $key, $value := .Page.Params.subheadings }}
-        {{ range $subhead, $s_value := $value }}
-          <li><a href="#{{ $subhead | urlize }}">{{ $subhead }}</a></li>
-          {{ if $subhead }}<ul>{{ end }}
-          {{ range $ss_value := $s_value }}
-            <li><a href="#{{ $subhead | urlize }}_{{ $ss_value | urlize }}">{{ $ss_value }}</a></li>
-          {{ end }}
-          {{ if $subhead }}</ul>{{ end }}
-        {{ end }}
+      {{ range .Page.Params.children }}
+        <li><a href="{{ .slug }}/">{{ .text }}</a></li>
       {{ end }}
     </ul>
     {{ else }}
@@ -26,26 +25,16 @@
   </ul>
 </div>
 
-<p>Entries: {{ .Page.Params.count }}</p>
+<p>Abstracts: {{ .Page.Params.count }}</p>
 
 {{  $prevsub1 :=  "" }}
 {{  $prevsub2 :=  "" }}
 
-{{ range (index .Site.Data.headings $cur).entries }}
+<h3>Abstracts</h3>
 
-  {{ if ne $prevsub1 .subheading1 }}
-    <h2 id="{{ .subheading1 | urlize }}">{{ .subheading1 }}</h2>
-    {{ $prevsub2 :=  "" }}
-  {{ end }}
+{{ range .Page.Params.abstracts }}
 
-  {{ if and (ne $prevsub2 .subheading2) (ne .subheading2 "") }}
-    <h3 id="{{ .subheading1 | urlize }}_{{ .subheading2 | urlize }}">{{ .subheading2 }}</h3>
-  {{ end }}
-
-  {{ partial "entry.html" (dict "context" . "dir" .Page.Dir) }}
-
-  {{ $prevsub1 = .subheading1 }}
-  {{ $prevsub2 = .subheading2 }}
+  {{ partial "abstract.html" (dict "context" . "thisdir" $.Page.Dir) }}
 
 {{ end }}
 

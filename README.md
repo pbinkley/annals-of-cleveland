@@ -13,7 +13,7 @@ Parsing the index and digest structures for a volume of the 1930s WPA project *A
 
 ## To Do
 
-- improve the regex in ```lib/entry.rb``` to handle more ocr variants
+- improve the regex in ```lib/abstract.rb``` to handle more ocr variants
 - extend the regex and the hugo output to handle multi-column references
 - learn more about hugo and improve the implementation
 - etc. etc.
@@ -36,3 +36,11 @@ Newspapers:
 
 L: Cleveland Leader https://chroniclingamerica.loc.gov/lccn/sn83035143/
 
+## Markup
+
+Mark the sections of the volumes to show where they begin and end.
+
+- #START\_CLASSIFICATION, #END\_CLASSIFICATION
+- #START\_ABSTRACTS, #END\_ABSTRACTS
+- #START\_CHRON, #END\_CHRON
+- #START\_TERMS, #END\_TERMS

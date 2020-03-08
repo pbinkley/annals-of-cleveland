@@ -1,0 +1,41 @@
+{{ $chronam := "https://chroniclingamerica.loc.gov/lccn/sn83035143/" }}
+{{ $newspaper := "Cleveland Morning Leader" }}
+{{ $scratch := newScratch }}
+{{ $scratch.Set "formatdate" .context.formatdate }}
+<article class="abstract">
+  <h4 id="{{ .context.displayid }}">{{ .context.displayid }}</h4>
+
+  <p><em>{{ $newspaper }}</em>, <a href="/issues/{{ .context.formatdate }}/">{{ .context.displaydate }}</a>
+  ({{ with .context.type }}{{ . }}; {{ end }}{{ .context.inches }} inches)   {{/* TODO handle non-hathitrust sources */}}
+  ~ <a href='https://babel.hathitrust.org/cgi/pt?id=iau.31858046133199&view=1up&seq={{ .seq }}'>See original</a>
+  <br/>
+  {{ range .context.blocksarray }}
+  p.{{ .page }}, col.{{ delimit .columns "," }}
+  ~ <a href='{{ $chronam }}{{ $scratch.Get "formatdate" }}/ed-1/seq-{{ .page }}'>View at ChronAm</a>
+  {{ end }}
+  </p>
+  
+  <p>
+    {{ range .context.lines }}
+      {{ . }} <br/>
+    {{ end }}
+  </p>
+
+  {{ if eq .thisdir "terms/" }}
+    <p>
+        {{ partial "heading-parents.html" (dict "context" .context.heading) }} /
+        {{ $scratch.Set "linkprefix" (print "/headings/" .context.heading.path "/") }}
+        <a href="{{ $scratch.Get "linkprefix" }}">{{ .context.heading.text }}</a>
+    </p>
+  {{ end }}
+
+  {{ if .context.terms }}
+    <h5>Index terms:</h5>
+    <p>
+      {{ range $index, $value := .context.terms }}{{ if ne $index 0 }}; {{ end }}<a href="/terms/{{ $value.slug }}/">{{ $value.term }}</a>{{ end }} 
+    </p>
+  {{ else }}
+    <p>No index terms.</p>
+  {{ end }}
+
+</article>

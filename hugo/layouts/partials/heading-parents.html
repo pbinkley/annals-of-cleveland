@@ -1,0 +1,7 @@
+{{ if .context.parents }}
+  {{ $parentcount := len .context.parents }}
+  {{ range $index, $element := .context.parents }}
+   {{ if ne $index 0 }} / {{ end }}
+    <a href="{{ range seq (sub $parentcount $index) }}../{{ end }}">{{ $element }}</a>
+  {{ end }}
+{{ end }}

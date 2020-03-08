@@ -1,0 +1,28 @@
+1864 notes:
+- processing text from IA; checked again CWRU pdf
+
+pp. 241-2 are repeated in place of pp. 341-2 - I've deleted them to enable processing
+pp. 347-348 missing
+
+Abstracts
+67: missing inches; added (1)
+302-454 missing (at page break; page numbering is continuous)
+974: missing
+1212: missing
+1240: missing
+1300: missing
+1758-1764 missing (at page break, page numbering is continuous)
+1821 missing (at page break, page numbering is continuous)
+1846: missing inches; added (1)
+1867: missing
+1872-1959 missing (at page break; page numbering is continuous)
+2044: missing
+2068-2077 missing; have sequence 2066 2078 2067 2079; corrected order of 2067 2078
+2216-2255 missing (at page break, page numbering is continuous)
+2377 missing (at page break, page numbering is continuous)
+2515 missing
+2533-3552 missing
+2626 missing
+2638-2651 missing (in repetition of pp. 341-342)
+2680-2693 missing (in missing 347-8 - note that these pages are present in the CWRU pdf)
+2726-2727 missing

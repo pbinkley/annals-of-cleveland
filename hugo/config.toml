@@ -2,3 +2,15 @@ baseURL = "https://www.wallandbinkley.com/projects/2019/annals-of-cleveland/"
 languageCode = "en-us"
 title = "Annals of Cleveland"
 theme = "hugo-theme-techdoc"
+relativeURLs = true
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+[Params]
+  menu_style = "slide-menu" # "open-menu" or "slide-menu"
+  menu_exclusion = [
+    "issues"
+  ]
