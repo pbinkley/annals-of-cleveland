@@ -1,4 +1,4 @@
-{{ if .context.parents }}
+{{ if isset .context "parents" }}
   {{ $parentcount := len .context.parents }}
   {{ range $index, $element := .context.parents }}
    {{ if ne $index 0 }} / {{ end }}

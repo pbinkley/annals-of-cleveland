@@ -22,10 +22,15 @@
   </p>
 
   {{ if eq .thisdir "terms/" }}
+    {{/* we are generating a terms page, so we need to provide a link to the abstract's heading */}}
     <p>
-        {{ partial "heading-parents.html" (dict "context" .context.heading) }} /
-        {{ $scratch.Set "linkprefix" (print "/headings/" .context.heading.path "/") }}
-        <a href="{{ $scratch.Get "linkprefix" }}">{{ .context.heading.text }}</a>
+        {{ if isset .context.heading "path" }}
+          {{ partial "heading-parents.html" (dict "context" .context.heading) }} /
+          {{ $scratch.Set "linkprefix" (print "/headings/" .context.heading.path "/") }}
+          <a href="{{ $scratch.Get "linkprefix" }}">{{ .context.heading.text }}</a>
+        {{ else }}
+          No path found.
+        {{ end }}
     </p>
   {{ end }}
 
