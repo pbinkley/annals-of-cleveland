@@ -29,15 +29,17 @@ class Hugo
         title: heading[:text], slug: slug, abstracts: heading[:abstracts]
       )
     end
-    abstracts = heading[:abstracts].map do |abstract_id|
-      @abstracts[abstract_id].to_hash
+    if heading[:abstracts]
+      abstracts = heading[:abstracts].map do |abstract_id|
+        @abstracts[abstract_id].to_hash
+      end
     end
     children = heading[:children].to_a
     yaml =
       {
         'title' => heading[:text],
         'slug' => slug,
-        'count' => heading[:abstracts].count,
+        'count' => heading[:abstracts] ? heading[:abstracts].count : 0,
         'seealso' => @seealsos[heading],
         'children' => children,
         'parents' => parents,

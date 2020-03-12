@@ -2,6 +2,7 @@
 
 require 'deepsort'
 require './lib/utils.rb'
+require './lib/heading.rb'
 
 # manages a hash of objects parsed from the source text, keyed by line numbers
 class TextMap
@@ -57,12 +58,13 @@ class TextMap
   def merge_from(start, start_next, obj, use = :key)
     # select keys between start and start_next, or after start if start_next is nil
     target_list = []
+    byebug unless start
     case use
     when :key
       @hash
         .keys
-        .select { |key| key >= start && (start_next ? key < start_next : true) }
-        .each do |target_key| 
+        .select { |key| key >= start && (!start_next.nil? ? key < start_next : true) }
+        .each do |target_key|
           @hash[target_key].merge!(obj.dup)
           target_list << @hash[target_key].id if @hash[target_key].is_a? Abstract
         end
@@ -274,122 +276,37 @@ class HeadingsTextMap < YearTextMap
     see_headings = {}
     unclassified = 0
     prev_heading_key = nil
-    
+
     most_recent = {}
 
     # TODO: handle crossrefs like L July 1: 1/2-7 - CLEVELAND MORNING LEADER July 1, 1864 (9)
-    @headings.each do |heading|
-      line_num, text = heading.match(/\A(#{NEWLINE})(.*)/)[1..2]
-      # strip closing punctuation from text, leaving one punctuation mark
-      # at end of string
-      text.sub!(/\A(.+?[[:punct:]]?)[\s■\º[[:punct:]]]+\z/, '\1')
-      line_num = line_num.sub('|', '').to_i
-      heading_hash = { start: line_num, text: text }
-      # use line_num as end for previous heading
-      if prev_heading_key
-        @hash[prev_heading_key][:end] = line_num
-      end
-      if text.match(/^===/)
-        # TODO: handle text note
-      elsif text.match(/^\+/)
-        # text inserted by editor, with prefix of +, ++, or +++
-        type = if text.match(/^\+\+\+ /)
-                 'subheading2'
-               elsif text.match(/^\+\+ /)
-                 'subheading1'
-               else
-                 'heading'
-               end
-        text.gsub!(/^\++ /, '')
-        heading_hash[:type] = type
-        heading_hash[:text] = titlecase(heading_hash[:text])
-        most_recent[heading_hash[:type]] = heading_hash[:text]
-        add_obj(line_num, heading_hash)
-        prev_heading_key = line_num
-      elsif text.match(/^[A-Z&',\- ]*[.\- ]*$/)
-        # plain heading e.g. "SLAVERY"
-        heading_hash[:text] = titlecase(heading_hash[:text].gsub(/[\.\-\ ]*$/, ''))
-        heading_hash[:type] = 'heading'
-        most_recent[heading_hash[:type]] = heading_hash[:text]
-        add_obj(line_num, heading_hash)
-        prev_heading_key = line_num
-      elsif text.match(/^[A-Z&',\- ]+[.,] See .*$/)
-        # e.g. "ABANDONED CHILDREN. See Children"
-        # handles heading and subheading1
-        source, target = text.match(/^([A-Z&',\- ]+)[.,] See (.*)$/).to_a[1..2]
-        target.split('; ').each do |unit|
-          heading, subheading1 = unit.split(/ #{OCRDASH} /)
-          heading = titlecase(heading)
-          see_headings[source] = [] unless see_headings[source]
-          reference = { heading: heading }
-          reference[:subheading1] = subheading1 if subheading1
-          see_headings[source] << reference
-        end
-      elsif text.match(/^.* #{OCRDASH} See .*$/)
-        # TODO: handle see abstract reference
-        # e.g. "H Feb. 28:3/3 - See Streets"
-        abstract = Abstract.new(text, @year, false)
-        # TODO: find the abstract - maybe save abstracts in hash with normalized metadata as key, pointing to record number
-        # TODO: handle @sees_map
-        # @sees_map.add_obj(abstract.line_num, abstract)
-        # TODO: save metadata
-      elsif text.match(/^See [Aa]l[s§][Qo] .*$/)
-        # e.g. "See also Farm Products"
-        seealso = text.sub('See also ', '')
-        seealso.split(';').each do |ref|
-          ref.strip!
-          if ref[0].match(/[A-Z]/)
-            parts = ref.split('-')
-            reference = {
-              'text' => titlecase(parts[0].to_s.strip),
-              'slug' => parts[0].to_s.strip.slugify.gsub(/-+/, '')
-            }
-            reference['subheading'] = titlecase(parts[1].to_s.strip)
-            see_alsos[line_num] = reference
-          else
-            # generic abstract like "names of animals"
-            see_alsos[line_num] = { generic: ref }
-          end
-        end
-      elsif !text.split(/\s+/)
-                 .map { |word| word.match(/\A[A-Za-z&][a-z']*\s*\z/) }
-                 .include?(nil)
-        # text consists only of words (which may be
-        # capitalized but not all caps): subheading1
-        heading_hash.merge!(
-          type: 'subheading1', 
-          text: titlecase(text),
-          slug: text.slugify.gsub(/\-+/, '')
-        )
-        most_recent[heading_hash[:type]] = heading_hash[:text]
-        heading_hash[:parents] = [most_recent['heading']]
-        add_obj(line_num, heading_hash)
-        prev_heading_key = line_num
-      elsif !text.gsub(/\A\((.*)\z/, '\1')
-                 .split(/\s+/)
-                 .map { |word| word.match(/\A[A-Za-z&][a-z']*,?\z/) }
-                 .include?(nil)
-        # text consists only of words (which may be
-        # capitalized but not all caps), in brackets: subheading2
-        heading_hash.merge!(
-          type: 'subheading2',
-          text: titlecase(text.gsub(/\A\((.*)\z/, '\1')),
-          slug: text.slugify.gsub(/\-+/, '')
-        )
-        heading_hash[:parents] = [most_recent['heading'], most_recent['subheading1']]
-        most_recent[heading_hash[:type]] = heading_hash[:text]
-        add_obj(line_num, heading_hash)
-        prev_heading_key = line_num
-      else
-        puts "#{@name} Unclassified: #{line_num}|#{text}"
+    @headings.each do |heading_text|
+      heading = Heading.new(heading_text, prev_heading_key, @year)
+
+      if !heading.type
+        puts "#{@name} Unclassified: #{heading.start}|#{heading_text}"
         unclassified += 1
-      end
-      if heading_hash[:slug]
-        path = ''
-        heading_hash[:parents].to_a.each { |x| path += x.slugify.gsub(/\-+/, '') + '/' }
-        path += heading_hash[:text].slugify.gsub(/\-+/, '')
-        heading_hash[:path] = path
-        #byebug if heading_hash[:parents].to_a.count > 1
+      else
+        # now we add properties that derive from the context and not from within this heading
+        @hash[prev_heading_key][:end] = heading.start if prev_heading_key
+
+        if heading.type == 'subheading2'
+          heading.set_parents([most_recent['heading'], most_recent['subheading1']])
+        elsif heading.type == 'subheading1'
+          heading.set_parents([most_recent['heading']])
+        end
+
+        if heading.slug
+          path = ''
+          heading.parents.to_a.each { |x| path += x.slugify.gsub(/\-+/, '') + '/' }
+          path += heading.text.slugify.gsub(/\-+/, '')
+          heading.set_path(path)
+         # byebug if heading.parents.to_a.count > 1
+        end
+
+        most_recent[heading.type] = heading.text
+        add_obj(heading.start, heading.to_hash)
+        prev_heading_key = heading.start
       end
     end
     puts "#{@name} Unclassified: #{unclassified}"
@@ -399,7 +316,7 @@ class HeadingsTextMap < YearTextMap
 
   def merge_heading(target, heading)
     # like {:start=>372, :text=>"Alcoholic Liquors", :type=>"heading", :children=>[{:start=>376, :text=>"Taxation", :type=>"subheading1", :slug=>"taxation", :parents=>["Alcoholic Liquors"]}], :source_page=>"1", :abstracts=>[6.0, 7.0, 8.0, 9.0, 10.0]}
-    heading_end = heading[:end] ? heading[:end] : nil
+    heading_end = heading[:end] || nil
     target_list = target.merge_from(heading[:start], heading_end, heading.dup)
     heading[:abstracts] = target_list
     # apply merge_to to children
@@ -409,8 +326,9 @@ class HeadingsTextMap < YearTextMap
   end
 
   def merge_to(target)
+    # only merge headings, not see or see also etc.
     @hash.keys.sort.each do |key|
-      merge_heading(target, @hash[key])
+      merge_heading(target, @hash[key]) if @hash[key][:type] == 'heading'
     end
   end
 
@@ -419,7 +337,7 @@ class HeadingsTextMap < YearTextMap
     previous = nil
     @hash.keys.each_with_index do |key, index|
       this = @hash[key]
-      if (index == 0) && (this[:type] != 'heading')
+      if (index == 0) && !(this[:type].match(/heading|see/))
         puts "#{@name} Bad heading sequence: #{key}|#{this[:type]}|#{this[:text]} - first must be heading"
       end
       if previous
