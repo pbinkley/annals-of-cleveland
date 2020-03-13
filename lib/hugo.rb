@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'slugify'
 require 'json'
 require 'yaml'
 require 'date'
@@ -23,7 +22,7 @@ class Hugo
 
   def generate_heading(heading, parents, path)
     FileUtils.mkdir_p(path)
-    slug = heading[:text].slugify.gsub('-', '')
+    slug = filenamify(heading[:text])
     File.open('hugo/data/headings/' + slug + '.json', 'w') do |f|
       f.puts JSON.pretty_generate(
         title: heading[:text], slug: slug, abstracts: heading[:abstracts]
@@ -90,7 +89,7 @@ class Hugo
     end
 
     @terms.keys.each do |term|
-      slug = term.to_s.gsub('&', 'and').slugify.gsub(/-+/, '')
+      slug = filenamify(term.to_s.gsub('&', 'and'))
       term_abstracts = []
       @terms[term][:ids].each do |id|
         term_abstracts << @abstracts[id].to_hash if @abstracts[id]

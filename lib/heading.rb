@@ -1,5 +1,4 @@
 require './lib/utils.rb'
-require 'slugify'
 
 class Heading
 
@@ -33,7 +32,7 @@ class Heading
       # plain heading e.g. "SLAVERY"
       @type = 'heading'
       @text = titlecase(@text.gsub(/[\.\-\ ]*$/, ''))
-      @slug = @text.slugify.gsub(/\-+/, '')
+      @slug = filenamify(@text)
     elsif text.match(/^[A-Z&',\- ]+[.,] See .*$/)
       # e.g. "ABANDONED CHILDREN. See Children"
       # handles heading and subheading1
@@ -69,7 +68,7 @@ class Heading
           parts = ref.split('-')
           reference = {
             text: titlecase(parts[0].to_s.strip),
-            slug: parts[0].to_s.strip.slugify.gsub(/-+/, '')
+            slug: filenamify(parts[0].to_s.strip)
           }
           reference['subheading'] = titlecase(parts[1].to_s.strip)
           @targets << reference
@@ -86,7 +85,7 @@ class Heading
       # e.g. "Book Stores"
       @type = 'subheading1'
       @text = titlecase(@text)
-      @slug = @text.slugify.gsub(/\-+/, '')
+      @slug = filenamify(@text)
     elsif !@text.gsub(/\A\((.*)\)\z/, '\1')
                .split(/\s+/)
                .map { |word| word.match(/\A[A-Za-z&][a-z']*,?\z/) }
@@ -96,7 +95,7 @@ class Heading
       # e.g. "(Bandits & Guerrillas)"
       @type = 'subheading2'
       @text = titlecase(@text.gsub(/\A\((.*)\)\z/, '\1'))
-      @slug = @text.slugify.gsub(/\-+/, '')
+      @slug = filenamify(@text)
     end
   end
 

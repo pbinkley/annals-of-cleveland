@@ -298,8 +298,8 @@ class HeadingsTextMap < YearTextMap
 
         if heading.slug
           path = ''
-          heading.parents.to_a.each { |x| path += x.slugify.gsub(/\-+/, '') + '/' }
-          path += heading.text.slugify.gsub(/\-+/, '')
+          heading.parents.to_a.each { |x| path += filenamify(x) + '/' }
+          path += filenamify(heading.text)
           heading.set_path(path)
          # byebug if heading.parents.to_a.count > 1
         end
@@ -419,7 +419,7 @@ class TermsTextMap < TextMap
 
       if elements
         term = elements[1].sub(/^#{NEWLINE}/, '')
-        slug = term.slugify.gsub(/\-+/, '')
+        slug = filenamify(term)
         ids = elements[2].split.each { |id| convert_ocr_number(id) }
         terms[term] = { slug: slug, ids: ids }
         previd = 0.0

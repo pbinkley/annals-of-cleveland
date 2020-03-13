@@ -3,7 +3,6 @@
 require 'htmlentities'
 require 'date'
 require 'nokogiri'
-require 'slugify'
 require './lib/utils.rb'
 require './lib/abstract.rb'
 require './lib/textmap.rb'

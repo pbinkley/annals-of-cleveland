@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'slugify'
 require 'linguistics'
 require 'linguistics/en'
 require 'linguistics/en/titlecase'
@@ -52,4 +53,9 @@ def titlecase(str)
   else
     str
   end
+end
+
+def filenamify(str)
+  filename = str.slugify.gsub(/-+/, '-').gsub(/\A-|-\z/, '')
+  filename.length > 100 ? filename[0..99] : filename
 end
