@@ -18,7 +18,7 @@ class TextMap
     config
     @sections = sections
     @section_name = section_name
-    puts "#{@name} initialize"
+    puts "\n#{@name} section"
     @text = @sections[@section_name]
     @hash = {}
     @units = @text.scan(@unit_regex).flatten

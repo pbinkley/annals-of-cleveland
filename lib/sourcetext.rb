@@ -28,25 +28,29 @@ class SourceText
     else
       lines = File.readlines(filename)
     end
-
     lines.each do |line|
+      # objuscate the n-word
       line.gsub!(NWORDREGEX, '\1****r')
+      # detect section breaks
       if line.match(/^#START_/)
         section_name = line.sub('#START_', '').strip
         @section[section_name] = ''
       end
       # prefix each line with line number - even blank lines, so that the
-      # line numbers can be used to locate lines in the editor
+      # line numbers can be used to locate source lines in the editor
       @section[section_name] += "#{counter}|#{line.strip}\n" unless line.strip.empty?
       counter += 1
     end
 
+    puts "Sections found: #{@section.keys.join('; ')}"
+
     coder = HTMLEntities.new
     @section.keys.each do |key|
-      @section[key] = coder.decode(@section[key])
+      @section[key] = coder.decode(@section[key]) # decode html entities
       @section[key].gsub!(/\n\d+\|$/, '') # remove blank lines
     end
 
+    # parse pages of the ABSTRACTS section
     @page_map = PagesTextMap.new(@section, 'ABSTRACTS', @year)
     @page_number_count = @page_map.count
   end
@@ -72,7 +76,6 @@ class SourceText
 
   def parse_terms
     @termspages_map = TermsPagesTextMap.new(@section, 'TERMS', @year)
-    # TODO: maybe merge terms pages into a master pages map
     @terms_map = TermsTextMap.new(@section, 'TERMS')
     @termspages_map.merge_to(@terms_map)
     @terms_map.merge_to(@abstract_map)
