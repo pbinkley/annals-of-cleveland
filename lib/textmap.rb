@@ -286,6 +286,9 @@ class HeadingsTextMap < YearTextMap
       if !heading.type
         puts "#{@name} Unclassified: #{heading.start}|#{heading_text}"
         unclassified += 1
+      elsif heading.type == 'see abstract'
+       # target_abstract = @abstracts.select { |abstract| abstract.normalized_metadata = heading.abstract.normalized_metadata }
+        byebug
       else
         # now we add properties that derive from the context and not from within this heading
         @hash[prev_heading_key][:end] = heading.start if prev_heading_key

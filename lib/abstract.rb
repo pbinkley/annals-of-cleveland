@@ -71,7 +71,7 @@ class Abstract
 
   attr_reader :line, :line_num, :id, :half, :inches, :newspaper, :month, :day,
               :type, :blocks, :blocksarray, :remainder, :date, :formatdate, :parsed,
-              :normalized_line, :source_page, :heading, :terms
+              :normalized_metadata, :source_page, :heading, :terms, :init
 
   def initialize(lines, year, with_id = true)
     @year = year
@@ -117,8 +117,12 @@ class Abstract
     end
     @parsed = true
     # save normalized version of first line
-    @normalized_line = "#{@line_num}|#{@id} - #{@newspaper} #{@month_abbr} #{@day}\
-#{('\; ' + @type) unless @type.empty?}:#{@page}/#{@column}"
+    normalized_blocks = []
+    @blocksarray.each do |page|
+      normalized_blocks << "#{page[:page]}/#{page[:columns].map(&:to_s).join(',')}"
+    end
+    @normalized_metadata = "#{@newspaper} #{@month_abbr} #{@day}\
+#{('\; ' + @type) unless @type.empty?}:#{normalized_blocks.join(';')}"
     @init = @remainder.sub(/^ - /, '')
     @terms = []
     inches = @lines.last.match(/.*\((\d+)\)[\s[[:punct:]]]*$/)
@@ -165,7 +169,7 @@ class Abstract
     {
       id: @id,
       displayid: @display_id,
-      metadata: @normalized_line,
+      metadata: @normalized_metadata,
       newspaper: @newspaper,
       month: @month_number,
       day: @day,

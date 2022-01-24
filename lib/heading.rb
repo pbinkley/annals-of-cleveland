@@ -1,8 +1,9 @@
 require './lib/utils.rb'
+require './lib/abstract.rb'
 
 class Heading
 
-  attr_reader :text, :type, :start, :slug, :parents, :targets
+  attr_reader :text, :type, :start, :slug, :parents, :targets, :abstract
 
   def initialize(heading, prev_heading_key, year)
     @year = year
@@ -49,14 +50,11 @@ class Heading
         @targets << reference
       end
     elsif @text.match(/^.* #{OCRDASH} See .*$/)
-      # TODO: handle see abstract reference
       # e.g. "H Feb. 28:3/3 - See Streets"
-      type = 'see abstract'
-      abstract = Abstract.new(@text, @year, false)
-      # TODO: find the abstract - maybe save abstracts in hash with normalized metadata as key, pointing to record number
-      # TODO: handle @sees_map
-      # @sees_map.add_obj(abstract.line_num, abstract)
-      # TODO: save metadata
+      @type = 'see abstract'
+      @abstract = Abstract.new([heading], @year, false)
+      @targets = [@abstract.init.to_s.sub(/^See /, '')]
+      # will use @normalized_metadata to look up abstract
     elsif @text.match(/^See [Aa]l[s§][Qo] .*$/)
       # e.g. "See also Farm Products"
       @type = 'see also'
