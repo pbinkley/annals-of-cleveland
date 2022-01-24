@@ -3,7 +3,7 @@ Parsing the index and digest structures for a volume of the 1930s WPA project *A
 ## To run
 
 - Clone this repository
-- Install the Hugo theme, which is in a Git submodule: ```git submodule update```
+- Install the Hugo theme "[techdoc](https://themes.gohugo.io/themes/hugo-theme-techdoc/)", which is in a Git submodule: ```git submodule update```
 - Save the [full text](https://babel.hathitrust.org/cgi/ssd?id=iau.31858046133199#seq7) from HathiTrust into the source directory as ```1864.html```. You will need to be logged in to HathiTrust; otherwise this file will not contain the full text of the volume.
 - Install ```hugo``` following instructions at [gohugo.io](https://gohugo.io)
 - Install ruby dependencies: ```bundle install```

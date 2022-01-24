@@ -5,4 +5,5 @@ hugo/content/issues
 hugo/content/terms
 hugo/data
 hugo/public
+hugo/.hugo_build.lock
 .byebug_history
