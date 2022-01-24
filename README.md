@@ -7,7 +7,7 @@ Parsing the index and digest structures for a volume of the 1930s WPA project *A
 - Save the [full text](https://babel.hathitrust.org/cgi/ssd?id=iau.31858046133199#seq7) from HathiTrust into the source directory as ```1864.html```. You will need to be logged in to HathiTrust; otherwise this file will not contain the full text of the volume.
 - Install ```hugo``` following instructions at [gohugo.io](https://gohugo.io)
 - Install ruby dependencies: ```bundle install```
-- Run ```./process.rb``` - this parses the source file and populates the ```hugo/content``` and ```hugo/data``` directories```
+- Run ```./process.rb ./source/1864/1864-corrected.html``` - this parses the source file and populates the ```hugo/content``` and ```hugo/data``` directories```
 - Start hugo: cd to the ```hugo``` directory and run ```hugo serve -D```
 - Visit the local site at [http://localhost:1313/projects/2019/annals-of-cleveland](http://localhost:1313/projects/2019/annals-of-cleveland)
 
