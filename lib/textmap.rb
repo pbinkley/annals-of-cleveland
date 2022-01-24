@@ -58,7 +58,7 @@ class TextMap
   def merge_from(start, start_next, obj, use = :key)
     # select keys between start and start_next, or after start if start_next is nil
     target_list = []
-    byebug unless start
+    # byebug unless start
     case use
     when :key
       @hash
@@ -288,7 +288,8 @@ class HeadingsTextMap < YearTextMap
         unclassified += 1
       elsif heading.type == 'see abstract'
        # target_abstract = @abstracts.select { |abstract| abstract.normalized_metadata = heading.abstract.normalized_metadata }
-        byebug
+       # TODO: this seems to be where I left it 
+        # byebug
       else
         # now we add properties that derive from the context and not from within this heading
         @hash[prev_heading_key][:end] = heading.start if prev_heading_key
