@@ -7,11 +7,10 @@ class Heading
 
   def initialize(heading, prev_heading_key, year)
     @year = year
-    @see_headings = {}
+    @see_headings = []
 
     line_num, text = heading.match(/\A(#{NEWLINE})(.*)/)[1..2]
     @start = line_num.sub('|', '').to_i
-
     # strip closing punctuation from text, leaving one punctuation mark
     # at end of string
     text += ' ' 
@@ -54,13 +53,14 @@ class Heading
       @type = 'see abstract'
       @abstract = Abstract.new([heading], @year, false)
       @targets = [@abstract.init.to_s.sub(/^See /, '')]
-      # will use @normalized_metadata to look up abstract
+      # TODO: will use @normalized_metadata to look up abstract
     elsif @text.match(/^See [Aa]l[s§][Qo] .*$/)
       # e.g. "See also Farm Products"
+      # e.g. "See also Iron &amp; Steel - Labor; Labor Unions: Newspapers - Labor"
       @type = 'see also'
       @targets = []
       seealso = @text.sub(/^See [Aa]l[s§][Qo]/, '')
-      seealso.split(';').each do |ref|
+      seealso.split('[;:]').each do |ref|
         ref.strip!
         if ref[0].match(/[A-Z]/)
           parts = ref.split('-')
@@ -107,6 +107,10 @@ class Heading
 
   def set_path(path)
     @path = path
+  end
+
+  def add_see_heading(see)
+    @see_headings << see
   end
 
   def to_hash

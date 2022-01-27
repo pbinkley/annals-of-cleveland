@@ -272,8 +272,8 @@ class HeadingsTextMap < YearTextMap
       @headings += unit.split("\n")
     end
 
-    see_alsos = {}
-    see_headings = {}
+    see_alsos = []
+    see_headings = []
     unclassified = 0
     prev_heading_key = nil
 
@@ -287,9 +287,9 @@ class HeadingsTextMap < YearTextMap
         puts "#{@name} Unclassified: #{heading.start}|#{heading_text}"
         unclassified += 1
       elsif heading.type == 'see abstract'
-       # target_abstract = @abstracts.select { |abstract| abstract.normalized_metadata = heading.abstract.normalized_metadata }
-       # TODO: this seems to be where I left it 
-        # byebug
+        # target_abstract = @abstracts.select { |abstract| abstract.normalized_metadata = heading.abstract.normalized_metadata }
+        # TODO: this seems to be where I left it
+        puts "see abstract: #{heading.abstract.normalized_metadata} | #{heading.targets}"
       else
         # now we add properties that derive from the context and not from within this heading
         @hash[prev_heading_key][:end] = heading.start if prev_heading_key
