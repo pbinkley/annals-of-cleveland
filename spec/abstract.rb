@@ -62,4 +62,10 @@ describe Abstract do
     expect(abs.blocks[1].count).to eq(3)
     expect(abs.blocks[2].last).to eq(5)
   end
+  it 'parses a clean 1864 see abstract' do
+    heading = Heading.new('10|H Feb. 28:3/3 - See Streets', 1, 1864)
+    expect(heading.abstract.normalized_metadata).to eq('H Feb. 28:3/3')
+    expect(heading.type).to eq('see abstract')
+    expect(heading.targets.first).to eq('Streets')
+  end
 end

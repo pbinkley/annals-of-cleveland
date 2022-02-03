@@ -10,16 +10,18 @@ describe Heading do
     expect(heading.slug).to eq('advertising-and-advertisers')
   end
   it 'parses a clean 1864 see reference' do
-    heading = Heading.new('10|ABANDONED CHILDREN. See Children', 1, 1864)
-    expect(heading.text).to eq('Abandoned Children')
+    heading = Heading.new('10|DESERTIONS, MILITARY. See Wars - Civil War', 1, 1864)
+    expect(heading.text).to eq('Desertions, Military')
     expect(heading.type).to eq('see')
-    expect(heading.targets.first[:heading]).to eq('Children')
+    expect(heading.targets.first[:heading]).to eq(['Wars', 'Civil War']) # TODO
   end
   it 'parses a clean 1864 see also reference' do
-    heading = Heading.new('10|See also Farm Products', 1, 1864)
-    expect(heading.text).to eq('See also Farm Products')
+    heading = Heading.new('10|See also Iron & Steel - Labor; Labor Unions', 1, 1864)
+    expect(heading.text).to eq('See also Iron & Steel - Labor; Labor Unions')
     expect(heading.type).to eq('see also')
-    expect(heading.targets.first[:text]).to eq('Farm Products')
+    expect(heading.targets[0][:text]).to eq('Iron and Steel - Labor') # TODO
+    expect(heading.targets[0][:heading]).to eq(['Iron and Steel', 'Labor']) # TODO    
+    expect(heading.targets[1][:text]).to eq('Labor Unions') # TODO
   end
   it 'parses a clean 1864 subheading1' do
     heading = Heading.new('10|Book Stores', 1, 1864)
@@ -32,11 +34,5 @@ describe Heading do
     expect(heading.text).to eq('Bandits and Guerillas')
     expect(heading.type).to eq('subheading2')
     expect(heading.slug).to eq('bandits-and-guerillas')
-  end
-  it 'parses a clean 1864 see abstract' do
-    heading = Heading.new('10|H Feb. 28:3/3 - See Streets', 1, 1864)
-    expect(heading.abstract.normalized_metadata).to eq('H Feb. 28:3/3')
-    expect(heading.type).to eq('see abstract')
-    expect(heading.targets.first).to eq('Streets')
   end
 end
