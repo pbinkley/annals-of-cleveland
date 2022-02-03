@@ -1,7 +1,10 @@
 {{ if isset .context "parents" }}
   {{ $parentcount := len .context.parents }}
+  {{ $data := newScratch }}
+  {{ $data.Set "root" "/headings" }}
   {{ range $index, $element := .context.parents }}
-   {{ if ne $index 0 }} / {{ end }}
-    <a href="{{ range seq (sub $parentcount $index) }}../{{ end }}">{{ $element }}</a>
+    {{ $slug := $element | urlize }}
+    <a href="{{ $data.Get "root" }}/{{ $slug }}/">{{ $element }}</a> /
+    {{ $data.Set "root" (delimit (slice ($data.Get "root") $slug) "/") }}
   {{ end }}
 {{ end }}

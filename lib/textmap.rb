@@ -260,16 +260,14 @@ class HeadingsTextMap < YearTextMap
 
   def parse_units
     # empty lines look like: ["\n11968|\n"]
-    units.reject! do |unit|
-      unit.strip!
-      unit == '' ||
-        unit.match(/\A#{NEWLINE}\z/) ||
-        unit.match(/\A#{NEWLINE}\+\+\+/)
-    end
-
     @headings = []
     units.each do |unit|
       @headings += unit.split("\n")
+    end
+
+    @headings.reject! do |heading|
+      heading.strip!
+      not(heading.match(/\A[0-9]+\|.*[A-Z]/)) # reject if no cap letters in line
     end
 
     see_alsos = []
@@ -311,6 +309,8 @@ class HeadingsTextMap < YearTextMap
         most_recent[heading.type] = heading.text
         add_obj(heading.start, heading.to_hash)
         prev_heading_key = heading.start
+
+        byebug if heading.start > 7940 && heading.start < 7970
       end
     end
     puts "#{@name} Unclassified: #{unclassified}"

@@ -25,7 +25,7 @@
     {{/* we are generating a terms page, so we need to provide a link to the abstract's heading */}}
     <p>
         {{ if isset .context.heading "path" }}
-          {{ partial "heading-parents.html" (dict "context" .context.heading) }} /
+          {{ partial "heading-parents.html" (dict "context" .context.heading) }}
           {{ $scratch.Set "linkprefix" (print "/headings/" .context.heading.path "/") }}
           <a href="{{ $scratch.Get "linkprefix" }}">{{ .context.heading.text }}</a>
         {{ else }}

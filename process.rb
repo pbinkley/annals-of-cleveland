@@ -10,7 +10,7 @@ require './lib/sourcetext.rb'
 
 require 'byebug'
 
-filename = ARGV[0]
+filename = ARGV[0] || 'source/1864/1864-corrected.html'
 
 pn = Pathname.new(filename)
 year = pn.dirname.basename.to_s.to_i
