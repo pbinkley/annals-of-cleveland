@@ -61,12 +61,12 @@ class SourceText
     @abstract_map
   end
 
-  def parse_headings
+  def parse_headings(abstracts)
     # Identify "between" lines, which are either errors or headings
 
     # headings code removed here
 
-    @heading_map = HeadingsTextMap.new(@section, 'ABSTRACTS', @year)
+    @heading_map = HeadingsTextMap.new(@section, 'ABSTRACTS', @year, abstracts)
 
     @page_map.merge_to(@heading_map) # TODO: merge pages into subheadings too
     @heading_map.merge_to(@abstract_map)

@@ -7,15 +7,16 @@ require './lib/heading.rb'
 # manages a hash of objects parsed from the source text, keyed by line numbers
 class TextMap
 
-  attr_reader :units, :hash, :name
+  attr_reader :units, :hash, :name, :abstracts
 
   def config
     @unit_regex = nil
     @name = ''
   end
 
-  def initialize(sections, section_name)
+  def initialize(sections, section_name, abstracts = nil)
     config
+    @abstracts = abstracts
     @sections = sections
     @section_name = section_name
     puts "\n#{@name} section"
@@ -82,9 +83,9 @@ end
 # TextMap that needs to know the year
 class YearTextMap < TextMap
 
-  def initialize(sections, section_name, year)
+  def initialize(sections, section_name, year, abstracts = nil)
     @year = year
-    super(sections, section_name)
+    super(sections, section_name, abstracts)
   end
 
 end
@@ -185,6 +186,7 @@ class AbstractsTextMap < YearTextMap
 
   def parse_units
     @issues = {}
+    @metadata = {}
 
     parsed_abstracts = 0
     @abstract_number_list = []
@@ -197,6 +199,7 @@ class AbstractsTextMap < YearTextMap
       input_line = lines.first
       abstract = Abstract.new(lines, @year)
       add_obj(abstract.line_num, abstract)
+      add_metadata(abstract)
       @abstract_number_list << abstract.id
 
       add_issue(abstract)
@@ -222,6 +225,11 @@ class AbstractsTextMap < YearTextMap
         @issues[abstract.formatdate][page][column] << abstract.id
       end
     end
+  end
+
+  def add_metadata(abstract)
+    @metadata[abstract.normalized_metadata] ||= []
+    @metadata[abstract.normalized_metadata] << abstract
   end
 
   def abstracts_data
@@ -285,7 +293,14 @@ class HeadingsTextMap < YearTextMap
         puts "#{@name} Unclassified: #{heading.start}|#{heading_text}"
         unclassified += 1
       elsif heading.type == 'see abstract'
-        # target_abstract = @abstracts.select { |abstract| abstract.normalized_metadata = heading.abstract.normalized_metadata }
+        # get array of abstract keys
+        byebug
+        target_abstract_keys = @abstracts.hash.keys.select { |key| 
+          @abstracts.hash[key].normalized_metadata == heading.abstract.normalized_metadata 
+        }
+        target_abstract_keys.each { |key| 
+          heading.add_target_abstract(@abstracts.hash[key])
+        }
         # TODO: this seems to be where I left it
         puts "see abstract: #{heading.abstract.normalized_metadata} | #{heading.targets}"
       else
@@ -310,7 +325,7 @@ class HeadingsTextMap < YearTextMap
         add_obj(heading.start, heading.to_hash)
         prev_heading_key = heading.start
 
-        byebug if heading.start > 7940 && heading.start < 7970
+        # byebug if heading.start > 7940 && heading.start < 7970
       end
     end
     puts "#{@name} Unclassified: #{unclassified}"

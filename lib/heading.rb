@@ -3,11 +3,12 @@ require './lib/abstract.rb'
 
 class Heading
 
-  attr_reader :text, :type, :start, :slug, :parents, :targets, :abstract
+  attr_reader :text, :type, :start, :slug, :parents, :targets, :abstract, :target_abstracts
 
   def initialize(heading, prev_heading_key, year)
     @year = year
     @see_headings = []
+    @target_abstracts = []
 
     line_num, text = heading.match(/\A(#{NEWLINE})(.*)/)[1..2]
     @start = line_num.sub('|', '').to_i
@@ -50,9 +51,11 @@ class Heading
       end
     elsif @text.match(/^.* #{OCRDASH} See .*$/)
       # e.g. "H Feb. 28:3/3 - See Streets"
+      # this needs to be treated as an unnumbered abstract
       @type = 'see abstract'
       @abstract = Abstract.new([heading], @year, false)
       @targets = [@abstract.init.to_s.sub(/^See /, '')]
+      byebug
       # TODO: will use @normalized_metadata to look up abstract
     elsif @text.match(/^See [Aa]l[s§][Qo] .*$/)
       # e.g. "See also Farm Products"
@@ -111,6 +114,10 @@ class Heading
 
   def add_see_heading(see)
     @see_headings << see
+  end
+
+  def add_target_abstract(abstract)
+    @target_abstracts << abstract
   end
 
   def to_hash

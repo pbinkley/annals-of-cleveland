@@ -22,7 +22,7 @@ source = SourceText.new(filename, year)
 
 abstracts = source.parse_abstracts
 
-headings = source.parse_headings
+headings = source.parse_headings(abstracts)
 
 terms = source.parse_terms
 
