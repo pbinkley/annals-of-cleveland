@@ -10,6 +10,6 @@ gem 'damerau-levenshtein'
 gem 'deepsort'
 gem 'htmlentities'
 gem 'linguistics'
-gem 'nokogiri'
+gem "nokogiri", ">= 1.13.5"
 gem 'rspec'
 gem 'slugify'
