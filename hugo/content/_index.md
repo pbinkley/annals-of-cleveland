@@ -33,3 +33,13 @@ This volume, 1864, was the third volume completed early in the Digest phase of t
 - Rendered with [Hugo](https://gohugo.io/)
 - Digitization by Google via [HathiTrust](https://babel.hathitrust.org/cgi/ssd?id=iau.31858046133199)
 - [The Annals of Cleveland: A Depression-Era Project of the WPA](http://www.clevelandmemory.org/speccoll/annals/) (Cleveland Memory, 1999)
+
+### References
+
+- Birnbaum, Louis. "[Tracing a City’s History](https://timesmachine.nytimes.com/timesmachine/1936/09/06/87987576.html?pageNumber=140)." *New York Times*, 6 Sept. 1936, p. 9.
+- Childress, Boyd. "[The Annals of Cleveland](https://doi.org/10.1515/mfir.1981.10.4.284)." *Microform & Imaging Review*, vol. 10, no. 4, Fall 1981, pp. 284–86.
+- Foxcroft, Frank. "If It Happened in Cleveland It’s Here." *Cleveland Plain Dealer*, 30 Aug. 1936, p. 2.
+- Kernell, Samuel. "[The Early Nationalization of Political News In America](https://doi.org/10.1017/S0898588X00000377)." *Studies in American Political Development*, vol. 1, 1986, pp. 255–78.
+- Kernell, Samuel, and Gary C. Jacobson. "[Congress and the Presidency as News in the Nineteenth Century](https://doi.org/10.2307/2130782)." *The Journal of Politics*, vol. 49, no. 4, 1987, pp. 1016–35.
+- Lynd, Robert S. "[Review of Annals of Cleveland: 1818-1935](https://doi.org/10.2307/2083919)." *American Sociological Review*, vol. 3, no. 4, Aug. 1938, pp. 594–97.
+- Manuscript Division Staff. *[Joint Committee on Materials for Research: A Register of Its Records in the Library of Congress]{https://www.loc.gov/item/mm78028043/}*. Library of Congress, Manuscript Division, 2014.
