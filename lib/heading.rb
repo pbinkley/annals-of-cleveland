@@ -14,7 +14,7 @@ class Heading
     @start = line_num.sub('|', '').to_i
     # strip closing punctuation from text, leaving one punctuation mark
     # at end of string
-    text += ' ' 
+    text += ' '
     @text = text.sub!(/\A(.+?[[:punct:]]?)[\s■\º[[:punct:]]]+\z/, '\1')
 
     if @text.match(/^===/)
@@ -50,12 +50,12 @@ class Heading
         @targets << reference
       end
     elsif @text.match(/^.* #{OCRDASH} See .*$/)
-      # e.g. "H Feb. 28:3/3 - See Streets"
+      # e.g. "H Feb. 28:3/3 - See Streets" in 1845
       # this needs to be treated as an unnumbered abstract
+      # it points to two abstracts under Streets, 1916 and 1917
       @type = 'see abstract'
       @abstract = Abstract.new([heading], @year, false)
-      @targets = [@abstract.init.to_s.sub(/^See /, '')]
-      byebug
+      @targets = @abstract.xref_heading # array of heading + subheading
       # TODO: will use @normalized_metadata to look up abstract
     elsif @text.match(/^See [Aa]l[s§][Qo] .*$/)
       # e.g. "See also Farm Products"

@@ -71,7 +71,7 @@ class Abstract
 
   attr_reader :line, :line_num, :id, :half, :inches, :newspaper, :month, :day,
               :type, :blocks, :blocksarray, :remainder, :date, :formatdate, :parsed,
-              :normalized_metadata, :source_page, :heading, :terms, :init
+              :normalized_metadata, :source_page, :heading, :terms, :init, :xref_heading
 
   def initialize(lines, year, with_id = true)
     @year = year
@@ -110,6 +110,7 @@ class Abstract
     @display_id = id.to_i.to_s + (id % 1 == 0.5 ? '-1/2' : '')
     @newspaper = @newspaper.to_sym
     @x = @blocks.dup
+    @xref_heading = nil
     @blocks = parse_blocks(@blocks)
     @blocksarray = []
     @blocks.keys.sort.each do |page|
@@ -124,11 +125,16 @@ class Abstract
     @normalized_metadata = "#{@newspaper} #{@month_abbr} #{@day}\
 #{('\; ' + @type) unless @type.empty?}:#{normalized_blocks.join(';')}"
     @init = @remainder.sub(/^ - /, '')
+    # 1845: if not @with_id, @init is an xref e.g. "See Streets"
+      # might have subheading e.g. "See Organizations - Cultural"
+    @xref_heading = @init.sub(/^See /, '').strip.split(' - ') if @init.start_with?('See ')
+
     @terms = []
     inches = @lines.last.match(/.*\((\d+)\)[\s[[:punct:]]]*$/)
     @inches = inches ? inches[1].to_i : 0
     # strip line numbers
     @lines.map! { |line| line.sub(/^\d+\|/, '') }
+    # byebug if @xref_heading
   end
 
   def parse_blocks(blocks)
@@ -169,6 +175,7 @@ class Abstract
     {
       id: @id,
       displayid: @display_id,
+      line_num: @line_num,
       metadata: @normalized_metadata,
       newspaper: @newspaper,
       month: @month_number,
@@ -183,7 +190,8 @@ class Abstract
       lines: @lines,
       heading: @heading,
       terms: @terms,
-      source_page: @source_page
+      source_page: @source_page,
+      xref_heading: @xref_heading
     }
   end
 

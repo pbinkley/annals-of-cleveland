@@ -10,6 +10,7 @@ class TextMap
   attr_reader :units, :hash, :name, :abstracts
 
   def config
+    # config is set in inheriting classes
     @unit_regex = nil
     @name = ''
   end
@@ -233,7 +234,7 @@ class AbstractsTextMap < YearTextMap
   end
 
   def abstracts_data
-    # sort keys
+    # sort keys (= abstract ids)
     abstracts_data = {}
     @hash.keys.sort.each do |key|
       this = @hash[key]
@@ -246,6 +247,10 @@ class AbstractsTextMap < YearTextMap
     # sort keys
     puts "#{@name} Sorting issues"
     @issues.deep_sort
+  end
+
+  def prev_abstract_id
+    @issues.count
   end
 
   def issuesCount
@@ -282,7 +287,8 @@ class HeadingsTextMap < YearTextMap
     see_headings = []
     unclassified = 0
     prev_heading_key = nil
-
+    @see_abstracts = []
+    
     most_recent = {}
 
     # TODO: handle crossrefs like L July 1: 1/2-7 - CLEVELAND MORNING LEADER July 1, 1864 (9)
@@ -293,16 +299,7 @@ class HeadingsTextMap < YearTextMap
         puts "#{@name} Unclassified: #{heading.start}|#{heading_text}"
         unclassified += 1
       elsif heading.type == 'see abstract'
-        # get array of abstract keys
-        byebug
-        target_abstract_keys = @abstracts.hash.keys.select { |key| 
-          @abstracts.hash[key].normalized_metadata == heading.abstract.normalized_metadata 
-        }
-        target_abstract_keys.each { |key| 
-          heading.add_target_abstract(@abstracts.hash[key])
-        }
-        # TODO: this seems to be where I left it
-        puts "see abstract: #{heading.abstract.normalized_metadata} | #{heading.targets}"
+        @see_abstracts << heading
       else
         # now we add properties that derive from the context and not from within this heading
         @hash[prev_heading_key][:end] = heading.start if prev_heading_key
@@ -334,13 +331,33 @@ class HeadingsTextMap < YearTextMap
   end
 
   def merge_heading(target, heading)
-    # like {:start=>372, :text=>"Alcoholic Liquors", :type=>"heading", :children=>[{:start=>376, :text=>"Taxation", :type=>"subheading1", :slug=>"taxation", :parents=>["Alcoholic Liquors"]}], :source_page=>"1", :abstracts=>[6.0, 7.0, 8.0, 9.0, 10.0]}
+    # find all the abstracts between the start and end of the heading's section, and
+    #   merge the heading into them
+    # target is an AbstractTextMap, with hash of abstracts keyed by line_num;
+    #   heading is a Hash
+    # headings are like {:start=>372, :text=>"Alcoholic Liquors", :type=>"heading", :children=>[{:start=>376, :text=>"Taxation", :type=>"subheading1", :slug=>"taxation", :parents=>["Alcoholic Liquors"]}], :source_page=>"1", :abstracts=>[6.0, 7.0, 8.0, 9.0, 10.0]}
     heading_end = heading[:end] || nil
     target_list = target.merge_from(heading[:start], heading_end, heading.dup)
-    heading[:abstracts] = target_list
-    # apply merge_to to children
+    heading[:abstracts] = target_list # array of abstract ids
+    # apply merge_to children
     heading[:children].to_a.each do |child|
       merge_heading(target, child)
+    end
+    
+    byebug
+
+    @see_abstracts.each do |xref|
+      # we need to find the abstract immediately before the see_abstract heading
+      line_num = xref.abstract.line_num
+      # get array of abstract keys whose metadata matches this
+      target_abstract_keys = @abstracts.hash.keys.select { |key|
+        @abstracts.hash[key].normalized_metadata == xref.abstract.normalized_metadata
+      }
+      target_abstract_keys.each { |key|
+        xref.add_target_abstract(@abstracts.hash[key])
+      }
+      # TODO: this seems to be where I left it
+      puts "see abstract: #{xref.abstract.normalized_metadata} | #{xref.targets}"
     end
   end
 

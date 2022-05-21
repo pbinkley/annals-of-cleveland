@@ -16,7 +16,7 @@ class SourceText
   def initialize(filename, year)
     @year = year
     section_name = 'INTRO'
-    @section = { section_name => '' }
+    @sections = { section_name => '' }
     counter = 1
     lines = []
     # note: we want lines to be stripped of \n
@@ -34,29 +34,29 @@ class SourceText
       # detect section breaks
       if line.match(/^#START_/)
         section_name = line.sub('#START_', '').strip
-        @section[section_name] = ''
+        @sections[section_name] = ''
       end
       # prefix each line with line number - even blank lines, so that the
       # line numbers can be used to locate source lines in the editor
-      @section[section_name] += "#{counter}|#{line.strip}\n" unless line.strip.empty?
+      @sections[section_name] += "#{counter}|#{line.strip}\n" unless line.strip.empty?
       counter += 1
     end
 
-    puts "Sections found: #{@section.keys.join('; ')}"
+    puts "Sections found: #{@sections.keys.join('; ')}"
 
     coder = HTMLEntities.new
-    @section.keys.each do |key|
-      @section[key] = coder.decode(@section[key]) # decode html entities
-      @section[key].gsub!(/\n\d+\|$/, '') # remove blank lines
+    @sections.keys.each do |key|
+      @sections[key] = coder.decode(@sections[key]) # decode html entities
+      @sections[key].gsub!(/\n\d+\|$/, '') # remove blank lines
     end
 
     # parse pages of the ABSTRACTS section
-    @page_map = PagesTextMap.new(@section, 'ABSTRACTS', @year)
+    @page_map = PagesTextMap.new(@sections, 'ABSTRACTS', @year)
     @page_number_count = @page_map.count
   end
 
   def parse_abstracts
-    @abstract_map = AbstractsTextMap.new(@section, 'ABSTRACTS', @year)
+    @abstract_map = AbstractsTextMap.new(@sections, 'ABSTRACTS', @year)
     @page_map.merge_to(@abstract_map)
     @abstract_map
   end
@@ -66,7 +66,7 @@ class SourceText
 
     # headings code removed here
 
-    @heading_map = HeadingsTextMap.new(@section, 'ABSTRACTS', @year, abstracts)
+    @heading_map = HeadingsTextMap.new(@sections, 'ABSTRACTS', @year, abstracts)
 
     @page_map.merge_to(@heading_map) # TODO: merge pages into subheadings too
     @heading_map.merge_to(@abstract_map)
@@ -75,8 +75,8 @@ class SourceText
   end
 
   def parse_terms
-    @termspages_map = TermsPagesTextMap.new(@section, 'TERMS', @year)
-    @terms_map = TermsTextMap.new(@section, 'TERMS')
+    @termspages_map = TermsPagesTextMap.new(@sections, 'TERMS', @year)
+    @terms_map = TermsTextMap.new(@sections, 'TERMS')
     @termspages_map.merge_to(@terms_map)
     @terms_map.merge_to(@abstract_map)
 
