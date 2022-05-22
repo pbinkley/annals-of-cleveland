@@ -1,0 +1,4 @@
+Notes
+
+- the problem is that "see abstract" entries get caught as headings, at heading.rb:52, but then need to be inserted in abstract list
+- currently abstracts are processed before headings (process.rb:23), the headings processing could have access to the abstracts list and lookup the previous absract based on line number

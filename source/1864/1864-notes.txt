@@ -1,12 +1,8 @@
 1864 notes:
 - processing text from IA; checked again CWRU pdf
 
-pp. 241-2 are repeated in place of pp. 341-2 - I've deleted them to enable processing 
-  - same in U of Iowa copy https://babel.hathitrust.org/cgi/pt?id=iau.31858046133199&view=1up&seq=365&skin=2021
-  - pp. 341-2 are present in U of Michigan copy https://babel.hathitrust.org/cgi/pt?id=mdp.39015070222701&view=1up&seq=365&skin=2021
+pp. 241-2 are repeated in place of pp. 341-2 - I've deleted them to enable processing
 pp. 347-348 missing
-  - pp. 
-  - same in U of Iowa copy https://babel.hathitrust.org/cgi/pt?id=iau.31858046133199&view=1up&seq=370&skin=2021
 
 Abstracts
 67: missing inches; added (1)
