@@ -344,7 +344,7 @@ class HeadingsTextMap < YearTextMap
       merge_heading(target, child)
     end
     
-    byebug
+    # byebug
 
     @see_abstracts.each do |xref|
       # we need to find the abstract immediately before the see_abstract heading

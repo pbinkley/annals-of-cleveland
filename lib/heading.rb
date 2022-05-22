@@ -40,15 +40,7 @@ class Heading
       @type = 'see'
       @text, target = @text.match(/^([A-Z&',\- ]+)[.,] See (.*)$/).to_a[1..2]
       @text = titlecase(@text)
-      @targets = []
-
-      target.split('; ').each do |unit|
-        heading, subheading1 = unit.split(/ #{OCRDASH} /)
-        heading = titlecase(heading)
-        reference = { heading: heading }
-        reference[:subheading1] = subheading1 if subheading1
-        @targets << reference
-      end
+      @targets = parse_targets(target)
     elsif @text.match(/^.* #{OCRDASH} See .*$/)
       # e.g. "H Feb. 28:3/3 - See Streets" in 1845
       # this needs to be treated as an unnumbered abstract
@@ -61,23 +53,8 @@ class Heading
       # e.g. "See also Farm Products"
       # e.g. "See also Iron &amp; Steel - Labor; Labor Unions: Newspapers - Labor"
       @type = 'see also'
-      @targets = []
-      seealso = @text.sub(/^See [Aa]l[s§][Qo]/, '')
-      seealso.split('[;:]').each do |ref|
-        ref.strip!
-        if ref[0].match(/[A-Z]/)
-          parts = ref.split('-')
-          reference = {
-            text: titlecase(parts[0].to_s.strip),
-            slug: filenamify(parts[0].to_s.strip)
-          }
-          reference['subheading'] = titlecase(parts[1].to_s.strip)
-          @targets << reference
-        else
-          # generic abstract like "names of animals"
-          @targets << { generic: ref }
-        end
-      end
+      @text = @text.sub(/^See [Aa]l[s§][Qo]/, '').strip
+      @targets = parse_targets(@text)
     elsif !@text.split(/\s+/)
                .map { |word| word.match(/\A[A-Za-z&][a-z']*\s*\z/) }
                .include?(nil)
@@ -98,6 +75,28 @@ class Heading
       @text = titlecase(@text.gsub(/\A\((.*)\)\z/, '\1'))
       @slug = filenamify(@text)
     end
+  end
+  
+  def parse_targets(target)
+    target = target.gsub(/\s+/, ' ').strip.gsub('&', 'and')
+    targets = []
+    if target.match(/[A-Z]/)
+      target.split(/[;:]\ /).each do |unit|
+        heading, subheading1 = unit.split(/ #{OCRDASH} /)
+        heading = titlecase(heading)
+        reference = {
+          text: unit,
+          heading: titlecase(heading),
+          slug: filenamify(heading)
+        }
+        reference[:subheading1] = subheading1 if subheading1
+        targets << reference
+      end
+    else
+      # generic abstract like "names of animals"
+      targets << { generic: target }
+    end
+    targets
   end
 
   def set_parents(parents)
