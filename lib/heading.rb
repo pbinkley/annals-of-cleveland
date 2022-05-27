@@ -9,7 +9,6 @@ class Heading
     @year = year
     @see_headings = []
     @target_abstracts = []
-
     line_num, text = heading.match(/\A(#{NEWLINE})(.*)/)[1..2]
     @start = line_num.sub('|', '').to_i
     # strip closing punctuation from text, leaving one punctuation mark
@@ -47,7 +46,8 @@ class Heading
       # it points to two abstracts under Streets, 1916 and 1917
       @type = 'see abstract'
       @abstract = Abstract.new([heading], @year, false)
-      @targets = @abstract.xref_heading # array of heading + subheading
+      @targets = parse_targets(@text.sub(/^.* See /, ''))
+      byebug
       # TODO: will use @normalized_metadata to look up abstract
     elsif @text.match(/^See [Aa]l[s§][Qo] .*$/)
       # e.g. "See also Farm Products"
@@ -117,6 +117,16 @@ class Heading
 
   def add_target_abstract(abstract)
     @target_abstracts << abstract
+  end
+  
+  def id_for_insertion(abstract_hash)
+    keys = abstract_hash.keys + [9999999]
+    index = keys.bsearch_index { |key| key > @start }
+    id = (index == 0) ? 0 : keys[index-1]
+    str = "%.4f" % id
+    whole, fraction, insertion = str.match(/(\d+)\.(\d{2})(\d{2})/).to_a[1,3]
+      .map { |i| i.to_i }
+    whole + fraction/100.0 + (insertion + 1)/10000.0
   end
 
   def to_hash

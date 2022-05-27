@@ -3,6 +3,7 @@
 require 'deepsort'
 require './lib/utils.rb'
 require './lib/heading.rb'
+require './lib/abstract.rb'
 
 # manages a hash of objects parsed from the source text, keyed by line numbers
 class TextMap
@@ -198,7 +199,7 @@ class AbstractsTextMap < YearTextMap
     @units.each do |unit|
       lines = unit.split("\n")
       input_line = lines.first
-      abstract = Abstract.new(lines, @year)
+      abstract = Abstract.new(lines, @year, self)
       add_obj(abstract.line_num, abstract)
       add_metadata(abstract)
       @abstract_number_list << abstract.id
@@ -331,9 +332,10 @@ class HeadingsTextMap < YearTextMap
   end
 
   def merge_heading(target, heading)
+#    byebug
     # find all the abstracts between the start and end of the heading's section, and
     #   merge the heading into them
-    # target is an AbstractTextMap, with hash of abstracts keyed by line_num;
+    # target is an AbstractsTextMap, with hash of abstracts keyed by line_num;
     #   heading is a Hash
     # headings are like {:start=>372, :text=>"Alcoholic Liquors", :type=>"heading", :children=>[{:start=>376, :text=>"Taxation", :type=>"subheading1", :slug=>"taxation", :parents=>["Alcoholic Liquors"]}], :source_page=>"1", :abstracts=>[6.0, 7.0, 8.0, 9.0, 10.0]}
     heading_end = heading[:end] || nil
@@ -347,17 +349,16 @@ class HeadingsTextMap < YearTextMap
     # byebug
 
     @see_abstracts.each do |xref|
-      # we need to find the abstract immediately before the see_abstract heading
-      line_num = xref.abstract.line_num
+      abstract = Abstract.new(["#{xref.start}|#{xref.text}"], @year, false)
       # get array of abstract keys whose metadata matches this
       target_abstract_keys = @abstracts.hash.keys.select { |key|
-        @abstracts.hash[key].normalized_metadata == xref.abstract.normalized_metadata
+        @abstracts.hash[key].normalized_metadata == abstract.normalized_metadata
       }
       target_abstract_keys.each { |key|
         xref.add_target_abstract(@abstracts.hash[key])
       }
       # TODO: this seems to be where I left it
-      puts "see abstract: #{xref.abstract.normalized_metadata} | #{xref.targets}"
+      puts "see abstract: #{abstract.normalized_metadata} | #{xref.targets}"
     end
   end
 

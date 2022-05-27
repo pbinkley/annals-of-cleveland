@@ -23,6 +23,25 @@ source = SourceText.new(filename, year)
 abstracts = source.parse_abstracts
 
 headings = source.parse_headings(abstracts)
+byebug
+keys = headings.headings_data.keys
+headings_hash = []
+counts = Hash.new(0)
+keys.each do |key|
+  headings_hash << headings.headings_data[key] if ['see', 'see abstract', 'see heading'].include?(headings.headings_data[key][:type])
+  counts[headings.headings_data[key][:type]] += 1
+  counts[headings.headings_data[key].class] += 1
+  counts[headings.headings_data[key].count] += 1
+end
+byebug
+
+headings.headings_data.keys
+  .map { |k| headings.headings_data[k] }
+  .sort_by { |h| h[:start] }
+  .each do |h| 
+    puts "start: #{h[:start]}: #{h[:type]}"
+end
+byebug
 
 terms = source.parse_terms
 

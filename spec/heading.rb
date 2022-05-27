@@ -19,9 +19,9 @@ describe Heading do
     heading = Heading.new('10|See also Iron & Steel - Labor; Labor Unions', 1, 1864)
     expect(heading.text).to eq('Iron & Steel - Labor; Labor Unions')
     expect(heading.type).to eq('see also')
-    expect(heading.targets[0][:text]).to eq('Iron and Steel - Labor') # TODO
-    expect(heading.targets[0][:heading]).to eq("Iron and Steel") # TODO
-    expect(heading.targets[1][:text]).to eq('Labor Unions') # TODO
+    expect(heading.targets[0][:text]).to eq('Iron and Steel - Labor')
+    expect(heading.targets[0][:heading]).to eq("Iron and Steel")
+    expect(heading.targets[1][:text]).to eq('Labor Unions')
   end
   it 'parses a clean 1864 subheading1' do
     heading = Heading.new('10|Book Stores', 1, 1864)

@@ -134,8 +134,12 @@ class Abstract
     @inches = inches ? inches[1].to_i : 0
     # strip line numbers
     @lines.map! { |line| line.sub(/^\d+\|/, '') }
-    # byebug if @xref_heading
   end
+
+=begin
+  def initialize(lines, year, with_id = )
+  end
+=end
 
   def parse_blocks(blocks)
     output = {}
@@ -205,5 +209,10 @@ class Abstract
         href='/headings/#{@heading[:path]}/##{@display_id}'>#{@display_id}</a>
       #{@type != '' ? ' (' + @type + ')' : ''}</div>"
   end
-
+  
+  def parse_id
+    str = "%.4f" % @id
+    whole, fraction, insertion = str.match(/(\d+)\.(\d{2})(\d{2})/).to_a[1,3].map { |i| i.to_i }
+    { whole: whole, fraction: fraction, insertion: insertion }
+  end
 end
