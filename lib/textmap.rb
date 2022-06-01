@@ -45,7 +45,7 @@ class TextMap
     # merge objects from hash into objects in another TextMap, using line number ranges
     use = @name == 'TERMS' ? :id : :key
 
-    @hash.keys.each_with_index do |key, index|
+    @hash.keys.sort.each_with_index do |key, index|
       case use
       when :key
         start_next = @hash.keys.count > index ? @hash.keys[index + 1] : nil
@@ -61,11 +61,11 @@ class TextMap
   def merge_from(start, start_next, obj, use = :key)
     # select keys between start and start_next, or after start if start_next is nil
     target_list = []
-    # byebug unless start
     case use
     when :key
       @hash
         .keys
+        .sort
         .select { |key| key >= start && (!start_next.nil? ? key < start_next : true) }
         .each do |target_key|
           @hash[target_key].merge!(obj.dup)
@@ -74,6 +74,7 @@ class TextMap
     when :id
       @hash
         .keys
+        .sort
         .select { |key| @hash[key].id == start }
         .each { |target_key| @hash[target_key].terms << obj.dup }
     end
@@ -199,7 +200,7 @@ class AbstractsTextMap < YearTextMap
     @units.each do |unit|
       lines = unit.split("\n")
       input_line = lines.first
-      abstract = Abstract.new(lines, @year, self)
+      abstract = Abstract.new(lines, @year)
       add_obj(abstract.line_num, abstract)
       add_metadata(abstract)
       @abstract_number_list << abstract.id
@@ -258,6 +259,11 @@ class AbstractsTextMap < YearTextMap
     @issues.count
   end
 
+  def add_ids
+    @hash.keys.each do |key|
+      puts "#{key}: #{@hash[key].id}"
+    end
+  end
 end
 
 class HeadingsTextMap < YearTextMap
@@ -294,7 +300,7 @@ class HeadingsTextMap < YearTextMap
 
     # TODO: handle crossrefs like L July 1: 1/2-7 - CLEVELAND MORNING LEADER July 1, 1864 (9)
     @headings.each do |heading_text|
-      heading = Heading.new(heading_text, prev_heading_key, @year)
+      heading = Heading.new(heading_text, prev_heading_key, @year, @abstracts)
 
       if !heading.type
         puts "#{@name} Unclassified: #{heading.start}|#{heading_text}"
@@ -316,14 +322,11 @@ class HeadingsTextMap < YearTextMap
           heading.parents.to_a.each { |x| path += filenamify(x) + '/' }
           path += filenamify(heading.text)
           heading.set_path(path)
-         # byebug if heading.parents.to_a.count > 1
         end
 
         most_recent[heading.type] = heading.text
         add_obj(heading.start, heading.to_hash)
         prev_heading_key = heading.start
-
-        # byebug if heading.start > 7940 && heading.start < 7970
       end
     end
     puts "#{@name} Unclassified: #{unclassified}"
@@ -332,7 +335,6 @@ class HeadingsTextMap < YearTextMap
   end
 
   def merge_heading(target, heading)
-#    byebug
     # find all the abstracts between the start and end of the heading's section, and
     #   merge the heading into them
     # target is an AbstractsTextMap, with hash of abstracts keyed by line_num;
@@ -345,20 +347,16 @@ class HeadingsTextMap < YearTextMap
     heading[:children].to_a.each do |child|
       merge_heading(target, child)
     end
-    
-    # byebug
 
     @see_abstracts.each do |xref|
-      abstract = Abstract.new(["#{xref.start}|#{xref.text}"], @year, false)
+      abstract = Abstract.new(["#{xref.start}|#{xref.text}"], @year)
       # get array of abstract keys whose metadata matches this
-      target_abstract_keys = @abstracts.hash.keys.select { |key|
+      target_abstract_keys = @abstracts.hash.keys.sort.select { |key|
         @abstracts.hash[key].normalized_metadata == abstract.normalized_metadata
       }
       target_abstract_keys.each { |key|
         xref.add_target_abstract(@abstracts.hash[key])
       }
-      # TODO: this seems to be where I left it
-      puts "see abstract: #{abstract.normalized_metadata} | #{xref.targets}"
     end
   end
 
@@ -372,7 +370,7 @@ class HeadingsTextMap < YearTextMap
   def validate_headings
     # validation
     previous = nil
-    @hash.keys.each_with_index do |key, index|
+    @hash.keys.sort.each_with_index do |key, index|
       this = @hash[key]
       if (index == 0) && !(this[:type].match(/heading|see/))
         puts "#{@name} Bad heading sequence: #{key}|#{this[:type]}|#{this[:text]} - first must be heading"

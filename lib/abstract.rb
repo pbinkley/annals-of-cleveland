@@ -71,13 +71,13 @@ class Abstract
 
   attr_reader :line, :line_num, :id, :half, :inches, :newspaper, :month, :day,
               :type, :blocks, :blocksarray, :remainder, :date, :formatdate, :parsed,
-              :normalized_metadata, :source_page, :heading, :terms, :init, :xref_heading
+              :normalized_metadata, :source_page, :heading, :terms, :init, :xref_heading,
+              :display_id
 
-  def initialize(lines, year, with_id = true)
+  def initialize(lines, year)
     @year = year
     @lines = lines
-    @with_id = with_id
-
+    @with_id = !lines.first.match(/^\d+\|\d/).nil?
     metadata_string = @lines[0]
 
     @line, @line_num, @id, @half, @newspaper, @month, @day, @type, @blocks,
@@ -86,8 +86,8 @@ class Abstract
       else metadata_string.match(METADATA_REGEX_LINE)
       end
     ).to_a
-    @parsed = false
-    return unless @line_num
+    @parsed = !@line_num.nil?
+    return unless @parsed
 
     @day = convert_ocr_number(@day)
     @month_abbr = get_month(@month)
@@ -116,7 +116,6 @@ class Abstract
     @blocks.keys.sort.each do |page|
       @blocksarray << { page: page, columns: @blocks[page] }
     end
-    @parsed = true
     # save normalized version of first line
     normalized_blocks = []
     @blocksarray.each do |page|
@@ -214,5 +213,12 @@ class Abstract
     str = "%.4f" % @id
     whole, fraction, insertion = str.match(/(\d+)\.(\d{2})(\d{2})/).to_a[1,3].map { |i| i.to_i }
     { whole: whole, fraction: fraction, insertion: insertion }
+  end
+
+  def set_id(id)
+    # used with "see abstract" headers, where we need a placeholder in the
+    # abstract hash, placed according to line number
+    @id = id
+    @display_id = "Unnumbered: #{id}"
   end
 end

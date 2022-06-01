@@ -23,7 +23,11 @@ source = SourceText.new(filename, year)
 abstracts = source.parse_abstracts
 
 headings = source.parse_headings(abstracts)
-byebug
+
+abstracts.hash.keys.sort.each do |key|
+  abstract = abstracts.hash[key]
+end
+
 keys = headings.headings_data.keys
 headings_hash = []
 counts = Hash.new(0)
@@ -33,7 +37,6 @@ keys.each do |key|
   counts[headings.headings_data[key].class] += 1
   counts[headings.headings_data[key].count] += 1
 end
-byebug
 
 headings.headings_data.keys
   .map { |k| headings.headings_data[k] }
@@ -41,12 +44,11 @@ headings.headings_data.keys
   .each do |h| 
     puts "start: #{h[:start]}: #{h[:type]}"
 end
-byebug
 
 terms = source.parse_terms
 
 File.open("./intermediate/#{year}/abstract.txt", 'w') do |f|
-  abstracts.hash.keys.each do |key|
+  abstracts.hash.keys.sort.each do |key|
     this = abstracts.hash[key]
     f.puts "#{key}|#{this.id}|#{this.source_page}|#{this.heading}|#{this.terms}"
   end
@@ -86,7 +88,7 @@ puts 'Issues: ' + abstracts.issuesCount.to_s
 # TODO: get rid of need for separate hashes of abstract objects and hashes
 abstracts_by_ids = {}
 abstract_hashes_by_ids = {}
-abstracts.hash.keys.each do |key|
+abstracts.hash.keys.sort.each do |key|
   abstract = abstracts.hash[key]
   abstracts_by_ids[abstract.id] = abstract
   abstract_hashes_by_ids[abstract.id] = abstract.to_hash

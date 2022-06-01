@@ -5,7 +5,7 @@ class Heading
 
   attr_reader :text, :type, :start, :slug, :parents, :targets, :abstract, :target_abstracts
 
-  def initialize(heading, prev_heading_key, year)
+  def initialize(heading, prev_heading_key, year, abstracts)
     @year = year
     @see_headings = []
     @target_abstracts = []
@@ -45,9 +45,11 @@ class Heading
       # this needs to be treated as an unnumbered abstract
       # it points to two abstracts under Streets, 1916 and 1917
       @type = 'see abstract'
-      @abstract = Abstract.new([heading], @year, false)
-      @targets = parse_targets(@text.sub(/^.* See /, ''))
-      byebug
+      @abstract = Abstract.new([heading], @year) # full abstract with normalized metadata
+      # insert abstract using insertion id
+      @abstract.set_id(id_for_insertion(abstracts.hash))
+      abstracts.hash[@abstract.line_num] = @abstract
+      @targets = parse_targets(@text.sub(/^.* See /, '')) # array of heading/subheadings
       # TODO: will use @normalized_metadata to look up abstract
     elsif @text.match(/^See [Aa]l[s§][Qo] .*$/)
       # e.g. "See also Farm Products"
@@ -120,9 +122,10 @@ class Heading
   end
   
   def id_for_insertion(abstract_hash)
-    keys = abstract_hash.keys + [9999999]
+    puts "id_for_insertion #{@start}"
+    keys = abstract_hash.keys.sort + [9999999] # integer line numbers
     index = keys.bsearch_index { |key| key > @start }
-    id = (index == 0) ? 0 : keys[index-1]
+    id = (index == 0) ? 0 : abstract_hash[keys[index-1]].id
     str = "%.4f" % id
     whole, fraction, insertion = str.match(/(\d+)\.(\d{2})(\d{2})/).to_a[1,3]
       .map { |i| i.to_i }
