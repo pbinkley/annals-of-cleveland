@@ -72,7 +72,7 @@ class Abstract
   attr_reader :line, :line_num, :id, :half, :inches, :newspaper, :month, :day,
               :type, :blocks, :blocksarray, :remainder, :date, :formatdate, :parsed,
               :normalized_metadata, :source_page, :heading, :terms, :init, :xref_heading,
-              :display_id
+              :display_id, :target_abstracts
 
   def initialize(lines, year)
     @year = year
@@ -126,8 +126,10 @@ class Abstract
     @init = @remainder.sub(/^ - /, '')
     # 1845: if not @with_id, @init is an xref e.g. "See Streets"
       # might have subheading e.g. "See Organizations - Cultural"
-    @xref_heading = @init.sub(/^See /, '').strip.split(' - ') if @init.start_with?('See ')
-
+    if @init.start_with?('See ')
+      # TODO: sort out how to parse this without pretending it's a 'See also' link
+      @xref_heading = Heading.new("#{@line_num}|#{@init.sub('See ', 'See also ')}", nil, @year, [])
+    end
     @terms = []
     inches = @lines.last.match(/.*\((\d+)\)[\s[[:punct:]]]*$/)
     @inches = inches ? inches[1].to_i : 0
@@ -219,6 +221,11 @@ class Abstract
     # used with "see abstract" headers, where we need a placeholder in the
     # abstract hash, placed according to line number
     @id = id
-    @display_id = "Unnumbered: #{id}"
+    @display_id = ""
+  end
+
+  def set_target_abstracts(ta)
+#    @target_abstracts = ta
+    @xref_heading.set_target_abstracts(ta)
   end
 end

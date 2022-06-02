@@ -87,11 +87,15 @@ class Heading
         heading, subheading1 = unit.split(/ #{OCRDASH} /)
         heading = titlecase(heading)
         reference = {
-          text: unit,
-          heading: titlecase(heading),
-          slug: filenamify(heading)
+          'text' => unit,
+          'path' => filenamify(heading),
+          'heading' => titlecase(heading),
+          'slug' => filenamify(heading)
         }
-        reference[:subheading1] = subheading1 if subheading1
+        if subheading1
+          reference['subheading1'] = subheading1 
+          reference['path'] += "/#{filenamify(subheading1)}"
+        end
         targets << reference
       end
     else
@@ -121,8 +125,11 @@ class Heading
     @target_abstracts << abstract
   end
   
+  def set_target_abstracts(ta)
+    @target_abstracts = ta
+  end
+
   def id_for_insertion(abstract_hash)
-    puts "id_for_insertion #{@start}"
     keys = abstract_hash.keys.sort + [9999999] # integer line numbers
     index = keys.bsearch_index { |key| key > @start }
     id = (index == 0) ? 0 : abstract_hash[keys[index-1]].id

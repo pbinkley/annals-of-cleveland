@@ -24,9 +24,7 @@ abstracts = source.parse_abstracts
 
 headings = source.parse_headings(abstracts)
 
-abstracts.hash.keys.sort.each do |key|
-  abstract = abstracts.hash[key]
-end
+abstracts.look_up_xref_abstracts(headings)
 
 keys = headings.headings_data.keys
 headings_hash = []
@@ -38,12 +36,14 @@ keys.each do |key|
   counts[headings.headings_data[key].count] += 1
 end
 
+=begin
 headings.headings_data.keys
   .map { |k| headings.headings_data[k] }
   .sort_by { |h| h[:start] }
   .each do |h| 
     puts "start: #{h[:start]}: #{h[:type]}"
 end
+=end
 
 terms = source.parse_terms
 

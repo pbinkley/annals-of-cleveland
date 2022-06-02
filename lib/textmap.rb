@@ -264,6 +264,52 @@ class AbstractsTextMap < YearTextMap
       puts "#{key}: #{@hash[key].id}"
     end
   end
+
+  # for each "see abstract", use its normalized metadata to 
+  # look up its target
+  def look_up_xref_abstracts(headings)
+    puts "\nlook_up_xref_abstracts"
+    @hash.keys.each do |key|
+      abstract = @hash[key]
+      next if abstract.xref_heading.nil? # not a "see abstract" entry
+
+      metadata = abstract.normalized_metadata
+      slug = abstract.xref_heading.targets.first['slug']
+
+      candidates = headings.hash.select { |k,v| v[:type] == 'heading'}
+      target_header = candidates.find { |k,v| v[:slug] == slug }
+
+      if target_header.nil?
+        puts "look_up_xref_abstracts (#{abstract.id}): target heading not found: #{slug}"
+      else
+        if !abstract.xref_heading.targets.first['subheading1'].nil?
+          subslug = filenamify(abstract.xref_heading.targets.first['subheading1'])
+          target_header = target_header.last[:children].find { |h| h[:slug] == subslug }
+        end
+        target_header = target_header.last if target_header.class.to_s == 'Array'
+
+        if target_header.nil?
+          puts "look_up_xref_abstracts (#{abstract.id}): target heading not found: #{abstract.line}"
+        else
+          # problem: @hash is keyed by line number, but candidate_abstracts is list of ids
+          # so we need to work with line numbers: :start and :end in target_header
+          candidate_abstracts = @hash.select { |k, v| 
+            k >= target_header[:start] && 
+              (target_header[:end].nil? || k <= target_header[:end]) # :end is nil for last abstract
+          }
+          matches = candidate_abstracts.select { |k, v| 
+            v.normalized_metadata == metadata
+          }.map { |k,v| v.id }
+          if matches.count == 0
+            puts "look_up_xref_abstracts (#{abstract.id}): target abstract not found: #{abstract.line}"
+          else
+            abstract.set_target_abstracts(matches)
+            puts "look_up_xref_abstracts (#{abstract.id}): ok: #{matches.count}"
+          end
+        end
+      end
+    end
+  end
 end
 
 class HeadingsTextMap < YearTextMap

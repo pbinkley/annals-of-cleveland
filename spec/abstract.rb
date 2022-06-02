@@ -63,9 +63,9 @@ describe Abstract do
     expect(abs.blocks[2].last).to eq(5)
   end
   it 'parses a clean 1864 see abstract' do
-    heading1 = Heading.new('3|H Feb. 28:3/3 - See Streets', 1, 1864)
-    heading2 = Heading.new('10|H Feb. 28:3/3 - See Streets', 1, 1864)
-    heading3 = Heading.new('20|H Feb. 28:3/3 - See Streets', 1, 1864)
+    heading1 = Heading.new('3|H Feb. 28:3/3 - See Streets', 1, 1864, [])
+    heading2 = Heading.new('10|H Feb. 28:3/3 - See Streets', 1, 1864, [])
+    heading3 = Heading.new('20|H Feb. 28:3/3 - See Streets', 1, 1864, [])
     abstract_hash = {
       5 => Abstract.new(
         ['5|213 - L. May 28: 1/1-3, 2/5 - Wallandigham occupies'], 1864
