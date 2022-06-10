@@ -24,11 +24,11 @@
 
     {{ if eq .thisdir "terms/" }}
       {{/* we are generating a terms page, so we need to provide a link to the abstract's heading */}}
-      <p>
+      <p>Under heading: 
           {{ if isset .context.heading "path" }}
             {{ partial "heading-parents.html" (dict "context" .context.heading) }}
             {{ $scratch.Set "linkprefix" (print "/headings/" .context.heading.path "/") }}
-            <a href="{{ $scratch.Get "linkprefix" }}">{{ .context.heading.text }}</a>
+            <a href="{{ $scratch.Get "linkprefix" }}#{{ .context.displayid }}">{{ .context.heading.text }}</a>
           {{ else }}
             No path found.
           {{ end }}
@@ -47,9 +47,9 @@
     <h4>[Unnumbered Abstract]</h4>
 
     <p><em>{{ $newspaper }}</em>, <a href="/issues/{{ .context.formatdate }}/">{{ .context.displaydate }}</a>
-    {{ $xref := (index .context.xref_heading.targets 0) }}
+    {{ $xref := (index .context.xref_heading.see_headings 0) }}
     - <strong>See</strong> {{ .context.metadata }} under <a href="/headings/{{ $xref.path }}">{{ $xref.text}}</a>
-    {{ range .context.xref_heading.target_abstracts }}
+    {{ range .context.xref_heading.see_abstracts }}
         [<a href="/headings/{{ $xref.path }}#{{ . }}">{{ . }}</a>]
       {{ end }} 
     </p>
