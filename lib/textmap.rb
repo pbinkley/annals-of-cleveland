@@ -274,16 +274,17 @@ class AbstractsTextMap < YearTextMap
       next if abstract.xref_heading.nil? # not a "see abstract" entry
 
       metadata = abstract.normalized_metadata
-      slug = abstract.xref_heading.targets.first['slug']
+      # byebug if abstract.xref_heading.targets.nil?
 
       candidates = headings.hash.select { |k,v| v[:type] == 'heading'}
+      slug = abstract.xref_heading.slug
       target_header = candidates.find { |k,v| v[:slug] == slug }
 
       if target_header.nil?
         puts "look_up_xref_abstracts (#{abstract.id}): target heading not found: #{slug}"
       else
-        if !abstract.xref_heading.targets.first['subheading1'].nil?
-          subslug = filenamify(abstract.xref_heading.targets.first['subheading1'])
+        if !abstract.xref_heading.seealso_headings.first['subheading1'].nil?
+          subslug = filenamify(abstract.xref_heading.seealso_headings.first['subheading1'])
           target_header = target_header.last[:children].find { |h| h[:slug] == subslug }
         end
         target_header = target_header.last if target_header.class.to_s == 'Array'
@@ -313,6 +314,8 @@ class AbstractsTextMap < YearTextMap
 end
 
 class HeadingsTextMap < YearTextMap
+
+  attr_reader :headings_data
 
   def config
     @unit_regex = %r{
@@ -346,8 +349,8 @@ class HeadingsTextMap < YearTextMap
 
     # TODO: handle crossrefs like L July 1: 1/2-7 - CLEVELAND MORNING LEADER July 1, 1864 (9)
     @headings.each do |heading_text|
+#byebug if heading_text == "1033|CABLES"
       heading = Heading.new(heading_text, prev_heading_key, @year, @abstracts)
-
       if !heading.type
         puts "#{@name} Unclassified: #{heading.start}|#{heading_text}"
         unclassified += 1
@@ -370,7 +373,7 @@ class HeadingsTextMap < YearTextMap
           heading.set_path(path)
         end
 
-        most_recent[heading.type] = heading.text
+        most_recent[heading.type] = heading.text # leave lower parts, since they'll be overwritten
         add_obj(heading.start, heading.to_hash)
         prev_heading_key = heading.start
       end
@@ -386,12 +389,15 @@ class HeadingsTextMap < YearTextMap
     # target is an AbstractsTextMap, with hash of abstracts keyed by line_num;
     #   heading is a Hash
     # headings are like {:start=>372, :text=>"Alcoholic Liquors", :type=>"heading", :children=>[{:start=>376, :text=>"Taxation", :type=>"subheading1", :slug=>"taxation", :parents=>["Alcoholic Liquors"]}], :source_page=>"1", :abstracts=>[6.0, 7.0, 8.0, 9.0, 10.0]}
+#    byebug if heading[:start] == 759
     heading_end = heading[:end] || nil
     target_list = target.merge_from(heading[:start], heading_end, heading.dup)
     heading[:abstracts] = target_list # array of abstract ids
     # apply merge_to children
-    heading[:children].to_a.each do |child|
-      merge_heading(target, child)
+    if heading[:children]
+      heading[:children].to_a.each do |child|
+        merge_heading(target, child)
+      end
     end
 
     @see_abstracts.each do |xref|
@@ -409,6 +415,7 @@ class HeadingsTextMap < YearTextMap
   def merge_to(target)
     # only merge headings, not see or see also etc.
     @hash.keys.sort.each do |key|
+#      byebug if key == 759
       merge_heading(target, @hash[key]) if @hash[key][:type] == 'heading'
     end
   end
@@ -438,8 +445,11 @@ class HeadingsTextMap < YearTextMap
     # if heading: add subheading1 array and clear it
     subheading1s = []
     subheading2s = []
+    seealsos = []
     @hash.keys.reverse.each do |key|
       this = @hash[key]
+      # byebug if subheading1s.count > 0
+#      byebug if this[:start] == 759
       case this[:type]
       when 'subheading2'
         subheading2s << this
@@ -452,19 +462,42 @@ class HeadingsTextMap < YearTextMap
       when 'heading'
         this[:children] = subheading1s.reverse if subheading1s.count > 0
         subheading1s = []
+        this[:seealso_headings] ||= []
+        this[:seealso_headings] += seealsos
+        # TODO: work out whether we need subheading-level see-alsos
+        seealsos = []
+      when 'see also'
+        this[:seealso_headings].each { |target| target[:type] = 'see also'}
+        seealsos += this[:seealso_headings]
+        @hash[key] = nil
       end
       @hash.compact! # remove nils
     end
   end
 
-  def headings_data
-    # sort keys
-    headings_data = {}
+  def enhance_headings_data
+    # sort keys, and add see-also links to target lists of source heading
+    # keys are line numbers
+    @headings_data = {}
+    see_alsos = []
+
     @hash.keys.sort.each do |key|
       this = @hash[key]
-      headings_data[this[:text]] = this.to_hash
+      unless this[:type] == 'see also'
+        @headings_data[this[:text]] = this.to_hash
+      else
+        see_alsos << this
+      end
     end
-    headings_data
+
+    see_alsos.each do |see_also|
+      if @headings_data[see_also[:text]]
+        @headings_data[see_also[:text]][:seealso_headings] ||= [] 
+        @headings_data[see_also[:text]][:seealso_headings] << see_also
+      else
+        puts "SEE_ALSO NOT FOUND: #{see_also[:text]}"
+      end
+    end
   end
 
 end
@@ -486,7 +519,7 @@ class TermsTextMap < TextMap
       next if unit =~ /^#{NEWLINE}$/ # ignore blank line
 
       line_num = unit.match(/^(\d*)\|.*/)[1].to_i
-      unit.gsub!(/\ [\p{P}\p{S} ]*$/, '')
+      unit.gsub!(/\ [\p{P}\p{S} º]*$/, '')
       unit.gsub!(/([0-9])\.\ ?([0-9])/, '\1\2') # remove period between digits
 
       elements = unit.match(/^#{NEWLINE}(.*)\, ([#{OCRDIGIT}\ \;\-\/]*)$/)

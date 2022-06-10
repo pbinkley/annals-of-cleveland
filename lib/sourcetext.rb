@@ -67,9 +67,10 @@ class SourceText
     # headings code removed here
 
     @heading_map = HeadingsTextMap.new(@sections, 'ABSTRACTS', @year, abstracts)
-
+#byebug
     @page_map.merge_to(@heading_map) # TODO: merge pages into subheadings too
     @heading_map.merge_to(@abstract_map)
+
 
     @heading_map
   end

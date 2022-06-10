@@ -21,12 +21,20 @@ class Hugo
   end
 
   def generate_heading(heading, parents, path)
+    # byebug if heading[:text] == 'Bridges'
     FileUtils.mkdir_p(path)
-    slug = filenamify(heading[:text])
+    slug = heading[:slug]
     File.open('hugo/data/headings/' + slug + '.json', 'w') do |f|
-      f.puts JSON.pretty_generate(
-        title: heading[:text], slug: slug, abstracts: heading[:abstracts]
-      )
+      output = {
+        type: heading[:type], 
+        title: heading[:text], 
+        slug: slug, 
+        abstracts: heading[:abstracts],
+        children: heading[:children],
+        see_headings: heading[:see_headings],
+        seealso_headings: heading[:seealso_headings]
+      }
+      f.puts JSON.pretty_generate(output)
     end
     if heading[:abstracts]
       abstracts = heading[:abstracts].map do |abstract_id|
@@ -42,21 +50,27 @@ class Hugo
         'seealso' => @seealsos[heading],
         'children' => children,
         'parents' => parents,
-        'abstracts' => abstracts
+        'abstracts' => abstracts,
+        'see_headings' => heading[:see_headings],
+        'seealso_headings' => heading[:seealso_headings]
       }
       .deep_stringify_keys
       .to_yaml
+    byebug if slug == 'welfare'
     File.open(path + slug + '.md', 'w') do |f|
       f.puts yaml + "\n---\n\n{{< heading >}}\n"
     end
     path += slug + '/'
     parents << heading[:text]
     children.each do |child|
+#      byebug if heading[:text] == 'Bridges'
       generate_heading(child, parents.dup, path)
     end
   end
 
   def generate
+    puts "\n\nGenerating Hugo content"
+
     @hugo_headings = []
 
     # dummy
@@ -159,6 +173,8 @@ class Hugo
         end
       end
     end
+
+    puts "Finished generating Hugo content"
   end
 
 end

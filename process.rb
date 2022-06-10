@@ -25,15 +25,23 @@ abstracts = source.parse_abstracts
 headings = source.parse_headings(abstracts)
 
 abstracts.look_up_xref_abstracts(headings)
+headings.enhance_headings_data
 
 keys = headings.headings_data.keys
 headings_hash = []
 counts = Hash.new(0)
+# TODO: fold 'see also' headings into previous 'heading'-type heading
+
 keys.each do |key|
-  headings_hash << headings.headings_data[key] if ['see', 'see abstract', 'see heading'].include?(headings.headings_data[key][:type])
-  counts[headings.headings_data[key][:type]] += 1
-  counts[headings.headings_data[key].class] += 1
-  counts[headings.headings_data[key].count] += 1
+  puts key
+#  byebug 
+  x = headings.headings_data[key] if ['see', 'see abstract', 'see heading'].include?(headings.headings_data[key][:type])
+  if x
+    headings_hash << x
+    counts[x[:type]] += 1
+    counts[x.class] += 1
+    counts[x.count] += 1
+  end
 end
 
 =begin

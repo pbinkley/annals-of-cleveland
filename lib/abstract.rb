@@ -72,7 +72,7 @@ class Abstract
   attr_reader :line, :line_num, :id, :half, :inches, :newspaper, :month, :day,
               :type, :blocks, :blocksarray, :remainder, :date, :formatdate, :parsed,
               :normalized_metadata, :source_page, :heading, :terms, :init, :xref_heading,
-              :display_id, :target_abstracts
+              :display_id, :target_abstracts, :slug
 
   def initialize(lines, year)
     @year = year
@@ -226,6 +226,6 @@ class Abstract
 
   def set_target_abstracts(ta)
 #    @target_abstracts = ta
-    @xref_heading.set_target_abstracts(ta)
+    @xref_heading.set_see_abstracts(ta)
   end
 end
