@@ -42,7 +42,7 @@ class SourceText
       counter += 1
     end
 
-    puts "Sections found: #{@sections.keys.join('; ')}"
+    puts "Sections found: #{@sections.keys.join('; ')}".green
 
     coder = HTMLEntities.new
     @sections.keys.each do |key|

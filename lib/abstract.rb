@@ -95,8 +95,8 @@ class Abstract
     begin
       @date = Date.new(@year, @month_number, @day)
     rescue StandardError => e
-      puts @line
-      puts e.message
+      puts @line.red
+      puts e.message.red
     end
     return unless @date
 

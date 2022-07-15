@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'colorize'
 require 'slugify'
 require 'linguistics'
 require 'linguistics/en'
@@ -34,16 +35,16 @@ def report_list(list, name)
     last_number = n
   end
   if missing_numbers.empty?
-    puts "No missing #{name} numbers"
+    puts "No missing #{name} numbers".green
   else
     puts "Missing #{name} numbers: \
-#{missing_numbers.map(&:to_s).join(' ')}"
+#{missing_numbers.map(&:to_s).join(' ')}".red
   end
   if disordered_numbers.empty?
-    puts "No disordered #{name} numbers"
+    puts "No disordered #{name} numbers".green
   else
     puts "Disordered #{name} numbers: \
-#{disordered_numbers.map(&:to_s).join(' ')}"
+#{disordered_numbers.map(&:to_s).join(' ')}".red
   end
 end
 

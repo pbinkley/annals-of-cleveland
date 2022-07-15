@@ -80,10 +80,10 @@ File.open("./intermediate/#{year}/headings.txt", 'w') do |f|
   end
 end
 
-puts 'Pages: ' + source.page_number_count.to_s
-puts 'Headings: ' + headings.hash.keys.count.to_s
-puts 'Abstracts: ' + abstracts.hash.keys.count.to_s
-puts 'Issues: ' + abstracts.issuesCount.to_s
+puts 'Pages: ' + source.page_number_count.to_s.green
+puts 'Headings: ' + headings.hash.keys.count.to_s.green
+puts 'Abstracts: ' + abstracts.hash.keys.count.to_s.green
+puts 'Issues: ' + abstracts.issuesCount.to_s.green
 
 @data = {
   abstracts: abstracts,
@@ -108,7 +108,7 @@ File.open("output/#{year}.json", 'w') do |f|
   f.puts JSON.pretty_generate(@data)
 end
 
-puts "Data written to output/#{year}.json"
+puts "Data written to output/#{year}.json".green
 
 @data[:abstracts] = abstracts_by_ids
 

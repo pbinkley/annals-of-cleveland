@@ -116,7 +116,7 @@ class PagesTextMap < YearTextMap
       @page_number_list[source_page.to_i] = line_num.to_i
       add_obj(line_num, source_page: source_page)
     end
-    puts "Page breaks found: #{@units.length}"
+    puts "Page breaks found: #{@units.length}".green
     report_list(@page_number_list.keys, 'page')
   end
 
@@ -127,7 +127,7 @@ class PagesTextMap < YearTextMap
       text.sub!(unit, "\n")
     end
     lines_deleted = before_length - text.length
-    puts("Lines deleted: #{lines_deleted}")
+    puts("Lines deleted: #{lines_deleted}".green)
 
     File.open("./intermediate/#{@year}/text-without-breaks.txt", 'w') { |f| f.puts text }
   end
@@ -208,10 +208,10 @@ class AbstractsTextMap < YearTextMap
       add_issue(abstract)
 
       parsed_abstracts += 1 if abstract.parsed
-      puts "#{@name} bad line: #{input_line}" unless abstract.parsed
+      puts "#{@name} bad line: #{input_line}".red unless abstract.parsed
     end
 
-    puts "#{@name} Parsed: #{parsed_abstracts}/#{units.count}"
+    puts "#{@name} Parsed: #{parsed_abstracts}/#{units.count}".green
 
     report_list(@abstract_number_list, 'abstract')
 
@@ -281,7 +281,7 @@ class AbstractsTextMap < YearTextMap
       target_header = candidates.find { |k,v| v[:slug] == slug }
 
       if target_header.nil?
-        puts "look_up_xref_abstracts (#{abstract.id}): target heading not found: #{slug}"
+        puts "look_up_xref_abstracts (#{abstract.id}): target heading not found: #{slug}".red
       else
         if !abstract.xref_heading.seealso_headings.first['subheading1'].nil?
           subslug = filenamify(abstract.xref_heading.seealso_headings.first['subheading1'])
@@ -290,7 +290,7 @@ class AbstractsTextMap < YearTextMap
         target_header = target_header.last if target_header.class.to_s == 'Array'
 
         if target_header.nil?
-          puts "look_up_xref_abstracts (#{abstract.id}): target heading not found: #{abstract.line}"
+          puts "look_up_xref_abstracts (#{abstract.id}): target heading not found: #{abstract.line}".red
         else
           # problem: @hash is keyed by line number, but candidate_abstracts is list of ids
           # so we need to work with line numbers: :start and :end in target_header
@@ -302,10 +302,10 @@ class AbstractsTextMap < YearTextMap
             v.normalized_metadata == metadata
           }.map { |k,v| v.id }
           if matches.count == 0
-            puts "look_up_xref_abstracts (#{abstract.id}): target abstract not found: #{abstract.line}"
+            puts "look_up_xref_abstracts (#{abstract.id}): target abstract not found: #{abstract.line}".red
           else
             abstract.set_target_abstracts(matches)
-            puts "look_up_xref_abstracts (#{abstract.id}): ok: #{matches.count}"
+            puts "look_up_xref_abstracts (#{abstract.id}): ok: #{matches.count}".green
           end
         end
       end
@@ -426,12 +426,12 @@ class HeadingsTextMap < YearTextMap
     @hash.keys.sort.each_with_index do |key, index|
       this = @hash[key]
       if (index == 0) && !(this[:type].match(/heading|see/))
-        puts "#{@name} Bad heading sequence: #{key}|#{this[:type]}|#{this[:text]} - first must be heading"
+        puts "#{@name} Bad heading sequence: #{key}|#{this[:type]}|#{this[:text]} - first must be heading".red
       end
       if previous
         # look for invalid sequence, i.e. subheading2 following heading
         if this[:type] == 'subheading2' && previous[:type] == 'heading'
-          puts "#{@name} Bad heading sequence: #{key}|#{this[:type]}|#{this[:text]} - #{this[:type]} follows #{previous[:type]}"
+          puts "#{@name} Bad heading sequence: #{key}|#{this[:type]}|#{this[:text]} - #{this[:type]} follows #{previous[:type]}".red
         end
       end
       previous = this
@@ -495,7 +495,7 @@ class HeadingsTextMap < YearTextMap
         @headings_data[see_also[:text]][:seealso_headings] ||= [] 
         @headings_data[see_also[:text]][:seealso_headings] << see_also
       else
-        puts "SEE_ALSO NOT FOUND: #{see_also[:text]}"
+        puts "SEE_ALSO NOT FOUND: #{see_also[:text]}".red
       end
     end
   end
@@ -527,7 +527,7 @@ class TermsTextMap < TextMap
       continuation = unit.match(/^#{NEWLINE}[#{OCRDIGIT}\ -\/]*$/)
       ok = elements || seeref || continuation
 
-      puts unit unless ok
+      puts unit.red unless ok
       bad_count += 1 unless ok
       next unless ok
 
@@ -550,7 +550,7 @@ class TermsTextMap < TextMap
         # TODO: handle seeref and continuation
       end
     end
-    puts "Unparsed TERMS lines: #{bad_count}"
+    puts "Unparsed TERMS lines: #{bad_count}".red
   end
 
   def terms_data
