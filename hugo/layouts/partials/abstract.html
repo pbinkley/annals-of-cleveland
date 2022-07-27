@@ -47,7 +47,7 @@
     <h4>[Unnumbered Abstract]</h4>
 
     <p><em>{{ $newspaper }}</em>, <a href="/issues/{{ .context.formatdate }}/">{{ .context.displaydate }}</a>
-    {{ $xref := (index .context.xref_heading.see_headings 0) }}
+    {{ $xref := (index .context.xref_heading.seealso_headings 0) }}
     - <strong>See</strong> {{ .context.metadata }} under <a href="/headings/{{ $xref.path }}">{{ $xref.text}}</a>
     {{ range .context.xref_heading.see_abstracts }}
         [<a href="/headings/{{ $xref.path }}#{{ . }}">{{ . }}</a>]
