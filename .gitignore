@@ -7,3 +7,5 @@ hugo/data
 hugo/public
 hugo/.hugo_build.lock
 .byebug_history
+.bash_history
+
